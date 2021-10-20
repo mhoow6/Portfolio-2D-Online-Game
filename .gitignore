@@ -1,0 +1,30 @@
+# Ignore Directory
+Library/
+Logs/
+obj/
+Packages/
+ProjectSettings/
+Temp/
+UserSettings/
+.vs/
+
+# Ignore Assets
+Assets/Tiny RPG Forest
+Assets/TinyRPGTown
+
+# Ignore Resources
+Assets/Resources
+
+# Ignore File
+*.unity
+*.csproj
+*.sln
+*.meta
+*.mat
+*.vsconfig
+*.txt
+*.renderTexture
+*.prefab
+*.png
+*.user
+*.shadervariants
