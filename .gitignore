@@ -9,6 +9,7 @@ UserSettings/
 .vs/
 
 # Ignore Assets
+Assets/Animations
 Assets/Tiny RPG Forest
 Assets/TinyRPGTown
 
