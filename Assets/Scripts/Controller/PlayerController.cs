@@ -19,11 +19,12 @@ public class PlayerController : MonoBehaviour
     float _moveSpeed = 5.0f;
 
     public Vector3Int cellPos { get; set; } = Vector3Int.zero;
-    private MoveControl mc = null;
+    private MoveControl _mc = null;
+    int callCount = 0; // Test
 
     private void Awake()
     {
-        mc = new MoveControl(this.gameObject);
+        _mc = new MoveControl(this.gameObject);
     }
 
     private void Start()
@@ -31,69 +32,85 @@ public class PlayerController : MonoBehaviour
         // TODO: 현재 그리드의 위치 + new Vector3(0.5f, 0.5f);
         Vector3 pos = Manager.Map.CurrentGrid.CellToWorld(cellPos) + new Vector3(0.5f, 0.5f);
         transform.position = pos;
+
+        _mc.strategy = _mc.SetStrategy(MoveDir.NONE);
     }
 
     private void Update()
     {
         KeyboardInputControl();
+        Move();
     }
 
     void KeyboardInputControl()
     {
-        #region Keyboard
-        if (Input.GetKey(KeyCode.W))
+        if (_mc.direction == MoveDir.NONE)
         {
-            mc.strategy = mc.GetMoveStrategy(KeyCode.W);
-        }
-        else if (Input.GetKey(KeyCode.S))
-        {
-            mc.strategy = mc.GetMoveStrategy(KeyCode.S);
-        }
-        else if (Input.GetKey(KeyCode.A))
-        {
-            mc.strategy = mc.GetMoveStrategy(KeyCode.A);
-        }
-        else if (Input.GetKey(KeyCode.D))
-        {
-            mc.strategy = mc.GetMoveStrategy(KeyCode.D);
-        }
-        else
-        {
-            mc.strategy = mc.GetMoveStrategy(KeyCode.None);
-        }
-        #endregion
-
-        #region Move
-        {
-            Vector3 targetPos = mc.strategy.GetMovePos();
-            Vector3Int targetCellPos = Manager.Map.CurrentGrid.WorldToCell(targetPos);
-
-            if (targetPos != transform.position)
+            if (Input.GetKey(KeyCode.W))
             {
-                if (Manager.Map.CanGo(targetCellPos))
-                {
-                    cellPos = targetCellPos;
-                    Vector3 dir = targetPos - transform.position;
-
-                    // 목적지까지의 거리 계산
-                    float distance = dir.magnitude;
-                    if (distance < _moveSpeed * Time.deltaTime)
-                    {
-                        transform.position = targetPos;
-                    }
-                    else
-                    {
-                        transform.position += dir.normalized * _moveSpeed * Time.deltaTime;
-                    }
-
-                }
+                _mc.strategy = _mc.SetStrategy(MoveDir.UP);
+            }
+            else if (Input.GetKey(KeyCode.S))
+            {
+                _mc.strategy = _mc.SetStrategy(MoveDir.DOWN);
+            }
+            else if (Input.GetKey(KeyCode.A))
+            {
+                _mc.strategy = _mc.SetStrategy(MoveDir.LEFT);
+            }
+            else if (Input.GetKey(KeyCode.D))
+            {
+                _mc.strategy = _mc.SetStrategy(MoveDir.RIGHT);
             }
         }
-        
-        #endregion
+    }
+
+    void Move()
+    {
+        if (_mc.direction == MoveDir.NONE)
+        {
+            Vector3 targetPos = _mc.GetMovePos();
+            Vector3Int targetCellPos = Manager.Map.CurrentGrid.WorldToCell(targetPos);
+
+            if (Manager.Map.CanGo(targetCellPos))
+            {
+                // 플레이어는 이미 목표 위치에 도달해있는 상태
+                cellPos = targetCellPos;
+                StartCoroutine(SmoothMove(targetPos));
+            }
+        }
+    }
+
+    IEnumerator SmoothMove(Vector3 targetPos)
+    {
+        while (true)
+        {
+            // 클라이언트 상에서는 서서히 이동하는 것처럼 보이게 한다.
+            Vector3 dir = targetPos - transform.position;
+            float distance = dir.magnitude;
+            if (distance < _moveSpeed * Time.deltaTime)
+            {
+                transform.position = targetPos;
+                _mc.strategy = _mc.SetStrategy(MoveDir.NONE);
+                yield break;
+            }
+            else
+            {
+                transform.position += dir.normalized * _moveSpeed * Time.deltaTime;
+            }
+
+            yield return null;
+        }
+    }
+
+    void CountTest()
+    {
+        callCount++;
+        Debug.Log(callCount);
     }
 }
 
+#region Move Factory
 class MoveControl
 {
     public MoveStrategy strategy = null;
@@ -113,32 +130,36 @@ class MoveControl
         }
     }
 
-    public MoveStrategy GetMoveStrategy(KeyCode keycode)
+    public MoveStrategy SetStrategy(MoveDir moveDir)
     {
-        if (keycode == KeyCode.W)
+        switch (moveDir)
         {
-            strategy = new MoveUp(_go);
-            return strategy;
-        }
-        else if (keycode == KeyCode.S)
-        {
-            strategy = new MoveDown(_go);
-            return strategy;
-        }
-        else if (keycode == KeyCode.A)
-        {
-            strategy = new MoveLeft(_go);
-            return strategy;
-        }
-        else if (keycode == KeyCode.D)
-        {
-            strategy = new MoveRight(_go);
-            return strategy;
+            case MoveDir.UP:
+                strategy = new MoveUp(_go);
+                break;
+            case MoveDir.DOWN:
+                strategy = new MoveDown(_go);
+                break;
+            case MoveDir.LEFT:
+                strategy = new MoveLeft(_go);
+                break;
+            case MoveDir.RIGHT:
+                strategy = new MoveRight(_go);
+                break;
+            case MoveDir.NONE:
+                strategy = new MoveStay(_go);
+                break;
         }
 
-        return new MoveStay(_go);
+        return strategy;
+    }
+
+    public Vector3 GetMovePos()
+    {
+        return strategy.GetMovePos();
     }
 }
+#endregion
 
 #region Move-Case
 public abstract class MoveStrategy
@@ -234,4 +255,3 @@ public class MoveStay : MoveStrategy
     }
 }
 #endregion
-
