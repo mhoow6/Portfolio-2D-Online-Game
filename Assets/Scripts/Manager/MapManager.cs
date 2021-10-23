@@ -2,17 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using static Define;
 
-public enum MapId
+public struct Vector2IntLight
 {
-    TOWN = 1,
-    NONE = -1,
+    public int x;
+    public int y;
+
+    public Vector2IntLight(int x, int y)
+    {
+        this.x = x;
+        this.y = y;
+    }
 }
 
 public class MapManager
 {
     public Grid CurrentGrid { get; private set; }
     bool[,] _collision;
+    GameObject[,] _creatures;
     MapFactory _factory = new MapFactory();
 
     public int XLength
@@ -62,6 +70,7 @@ public class MapManager
             int xCount = MaxX - MinX + 1;
             int yCount = MaxY - MinY + 1;
             _collision = new bool[yCount, xCount];
+            _creatures = new GameObject[yCount, xCount];
 
             // collision: 왼쪽 아래에서 오른쪽 위로 순회
             for (int y = 0; y < yCount; y++)
@@ -89,51 +98,32 @@ public class MapManager
     // 좌표계 변환 왜 이렇게 이해하기 힘들까?
     public bool CanGo(Vector3Int cellPos)
     {
-        if (cellPos.x < MinX || cellPos.x > MaxX)
-            return false;
-        if (cellPos.y < MinY || cellPos.y > MaxY)
+        if (BoundCheck(cellPos) == false)
             return false;
 
         // 셀 좌표계 -> 맵을 이진수로 표현한 배열 좌표계
-        int collisionX = cellPos.x - MinX;
-        int collisionY = MaxY - cellPos.y;
+        Vector2IntLight vec = ReturnCollisionCoordinate(new Vector2IntLight(cellPos.x, cellPos.y));
 
-        if (_collision[collisionY, collisionX] == true)
+        if (_collision[vec.y, vec.x] == true || (_creatures[vec.y, vec.x] != null))
         {
             return false;
         }
 
         return true;
     }
-}
 
-public class MapFactory
-{
-    public GameObject GetMapObject(MapId mapId)
+    bool BoundCheck(Vector3Int cellPos)
     {
-        GameObject map = null;
+        if (cellPos.x < MinX || cellPos.x > MaxX)
+            return false;
+        if (cellPos.y < MinY || cellPos.y > MaxY)
+            return false;
 
-        switch (mapId)
-        {
-            case MapId.TOWN:
-                map = Resources.Load<GameObject>(Paths.Map_Prefabs + "/Map_001");
-                break;
-        }
-
-        return map;
+        return true;
     }
 
-    public TextAsset GetMapCollisionTextAsset(MapId mapId)
+    Vector2IntLight ReturnCollisionCoordinate(Vector2IntLight _vec2)
     {
-        TextAsset map = null;
-
-        switch (mapId)
-        {
-            case MapId.TOWN:
-                map = Resources.Load<TextAsset>(Paths.Map_Collision + "/Map_001");
-                break;
-        }
-
-        return map;
+        return new Vector2IntLight(_vec2.x - MinX, MaxY - _vec2.y);
     }
 }

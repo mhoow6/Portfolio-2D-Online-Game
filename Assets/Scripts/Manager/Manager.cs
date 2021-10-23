@@ -16,7 +16,10 @@ public class Manager : MonoBehaviour
     #region Content
     public static MapManager Map { get => Instance._map; }
     MapManager _map = new MapManager();
+    public static SpawnManager Spawner { get => Instance._spawner; }
+    SpawnManager _spawner = new SpawnManager();
     #endregion
+
 
     private void Start()
     {
