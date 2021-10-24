@@ -19,6 +19,7 @@ public class StateControl
     {
         _animator = animator;
         _sprite = sprite;
+        _strategy = new StateIdle(animator, MoveDir.NONE, sprite);
     }
 
     public StateStrategy SetState(State state, MoveDir dir)
@@ -49,6 +50,16 @@ public class StateControl
     {
         if (_strategy != null)
             _strategy.PlayAnimation();
+    }
+
+    public bool IsAnimationDone()
+    {
+        if (_animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1)
+        {
+            return true;
+        }
+
+        return false;
     }
 }
 #endregion
@@ -265,7 +276,7 @@ public class MoveControl
 public abstract class MoveStrategy
 {
     protected GameObject _go = null;
-    protected readonly float _moveUnit = 0.5f;
+    protected readonly float _moveUnit = 1f;
     public MoveDir _dir = MoveDir.NONE;
 
     public MoveStrategy(GameObject go)
@@ -390,7 +401,7 @@ public class MapFactory
 }
 #endregion
 
-#region ObjectName Factory
+#region Object Factory
 public class ObjectFactory
 {
     public void AddComponentToObject(ObjectType type, GameObject obj)
@@ -411,6 +422,13 @@ public class ObjectFactory
                     obj.name = "Monster";
                 }
                 break;
+            case ObjectType.DEATH_EFFECT:
+                if (obj.GetComponent<DeathEffect>() == null)
+                {
+                    obj.AddComponent<DeathEffect>();
+                    obj.name = "DeathEffect";
+                }
+                break;
         }
     }
 
@@ -425,6 +443,9 @@ public class ObjectFactory
                 break;
             case ObjectType.MONSTER:
                 go = Resources.Load<GameObject>(Paths.Monster_Prefab);
+                break;
+            case ObjectType.DEATH_EFFECT:
+                go = Resources.Load<GameObject>(Paths.DeathEffect_Prefab);
                 break;
         }
 

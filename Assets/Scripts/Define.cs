@@ -23,6 +23,7 @@
     {
         PLAYER,
         MONSTER,
+        DEATH_EFFECT,
         NONE = -1
     }
 

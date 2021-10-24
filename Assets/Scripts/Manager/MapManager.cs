@@ -4,18 +4,6 @@ using System.IO;
 using UnityEngine;
 using static Define;
 
-public struct Vector2IntLight
-{
-    public int x;
-    public int y;
-
-    public Vector2IntLight(int x, int y)
-    {
-        this.x = x;
-        this.y = y;
-    }
-}
-
 public class MapManager
 {
     public Grid CurrentGrid { get; private set; }
@@ -94,6 +82,15 @@ public class MapManager
             
     }
 
+    public void UpdatePosition(Vector3Int current, Vector3Int next, GameObject obj)
+    {
+        Vector2Int currentPos = CollisionCoordinate(current.x, current.y);
+        _creatures[currentPos.y, currentPos.x] = null;
+
+        Vector2Int nextPos = CollisionCoordinate(next.x, next.y);
+        _creatures[nextPos.y, nextPos.x] = obj;
+    }
+
 
     // 좌표계 변환 왜 이렇게 이해하기 힘들까?
     public bool CanGo(Vector3Int cellPos)
@@ -102,7 +99,7 @@ public class MapManager
             return false;
 
         // 셀 좌표계 -> 맵을 이진수로 표현한 배열 좌표계
-        Vector2IntLight vec = ReturnCollisionCoordinate(new Vector2IntLight(cellPos.x, cellPos.y));
+        Vector2Int vec = CollisionCoordinate(cellPos.x, cellPos.y);
 
         if (_collision[vec.y, vec.x] == true || (_creatures[vec.y, vec.x] != null))
         {
@@ -110,6 +107,22 @@ public class MapManager
         }
 
         return true;
+    }
+
+    public bool IsCreatureAt(Vector3Int cellPos)
+    {
+        if (BoundCheck(cellPos) == false)
+            return false;
+
+        // 셀 좌표계 -> 맵을 이진수로 표현한 배열 좌표계
+        Vector2Int vec = CollisionCoordinate(cellPos.x, cellPos.y);
+
+        if ((_creatures[vec.y, vec.x] != null))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     bool BoundCheck(Vector3Int cellPos)
@@ -122,8 +135,8 @@ public class MapManager
         return true;
     }
 
-    Vector2IntLight ReturnCollisionCoordinate(Vector2IntLight _vec2)
+    public Vector2Int CollisionCoordinate(int x, int y)
     {
-        return new Vector2IntLight(_vec2.x - MinX, MaxY - _vec2.y);
+        return new Vector2Int(x - MinX, MaxY - y);
     }
 }

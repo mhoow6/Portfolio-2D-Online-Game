@@ -17,12 +17,15 @@ public class Manager : MonoBehaviour
     public static MapManager Map { get => Instance._map; }
     MapManager _map = new MapManager();
     public static SpawnManager Spawner { get => Instance._spawner; }
+    public GameObject Pool { get; private set; }
     SpawnManager _spawner = new SpawnManager();
     #endregion
 
-
     private void Start()
     {
+        Pool = new GameObject("Pool");
+        DontDestroyOnLoad(Pool);
+
         DontDestroyOnLoad(this.gameObject);
     }
 }
