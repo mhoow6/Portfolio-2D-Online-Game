@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Define;
 
-public delegate void AnimationCallback();
+public delegate void Callback();
 
-public class CreatureController : MonoBehaviour
+public class BaseObject : MonoBehaviour
 {
+    public virtual ObjectType _type { get => ObjectType.NONE; }
     protected float _moveSpeed = 5.0f;
 
     [SerializeField]
@@ -15,20 +16,17 @@ public class CreatureController : MonoBehaviour
 
     [SerializeField]
     Vector3Int _cellPos = Vector3Int.zero;
-    public Vector3Int CellPos
+    public virtual Vector3Int CellPos
     {
         get => _cellPos;
         set
         {
-            Manager.Map.UpdatePosition(_cellPos, value, gameObject);
+            Manager.Map.UpdatePosition(_cellPos, value, this);
             _cellPos = value;
         }
     }
 
     protected MoveControl _mc = null;
-    public StateControl StateHandler { get => _sc; }
-    protected StateControl _sc = null;
-    protected AnimationCallback _animCallback;
 
     private void Awake()
     {
@@ -45,10 +43,31 @@ public class CreatureController : MonoBehaviour
         V_OnUpdate();
     }
 
-    
+    public Vector3Int GetFrontCellPos()
+    {
+        Vector3Int cellPos = CellPos;
+
+        switch (_lastDir)
+        {
+            case MoveDir.UP:
+                cellPos += Vector3Int.up;
+                break;
+            case MoveDir.DOWN:
+                cellPos += Vector3Int.down;
+                break;
+            case MoveDir.LEFT:
+                cellPos += Vector3Int.left;
+                break;
+            case MoveDir.RIGHT:
+                cellPos += Vector3Int.right;
+                break;
+        }
+
+        return cellPos;
+    }
 
     #region GameObject Move
-    protected void Move()
+    public virtual void V_Move()
     {
         _lastDir = _mc.direction;
 
@@ -66,7 +85,7 @@ public class CreatureController : MonoBehaviour
         }
     }
 
-    IEnumerator SmoothMove(Vector3 targetPos)
+    protected IEnumerator SmoothMove(Vector3 targetPos)
     {
         while (true)
         {
@@ -94,42 +113,12 @@ public class CreatureController : MonoBehaviour
     {
 
     }
-
-    protected virtual void V_UpdateAnimation()
-    {
-        // 캐릭터 이동 애니메이션
-        switch (_mc.direction)
-        {
-            case MoveDir.UP:
-                _sc.SetState(State.MOVING, _mc.direction);
-                break;
-            case MoveDir.DOWN:
-                _sc.SetState(State.MOVING, _mc.direction);
-                break;
-            case MoveDir.LEFT:
-                _sc.SetState(State.MOVING, _mc.direction);
-                break;
-            case MoveDir.RIGHT:
-                _sc.SetState(State.MOVING, _mc.direction);
-                break;
-            case MoveDir.NONE:
-                if (_sc.State == State.IDLE || _sc.State == State.MOVING)
-                    _sc.SetState(State.IDLE, _lastDir);
-                break;
-        }
-
-        _sc.PlayAnimation();
-        if (_animCallback != null)
-            _animCallback.Invoke();
-
-    }
     #endregion
 
     #region Virtual Life-cycle Functions
     protected virtual void V_OnAwake()
     {
         _mc = new MoveControl(this.gameObject);
-        _sc = new StateControl(GetComponent<Animator>(), GetComponent<SpriteRenderer>());
     }
 
     protected virtual void V_OnStart()
@@ -139,12 +128,11 @@ public class CreatureController : MonoBehaviour
         transform.position = pos;
 
         _mc.SetDirection(MoveDir.NONE);
-        _sc.SetState(State.NONE, MoveDir.NONE);
     }
 
     protected virtual void V_OnUpdate()
     {
-        V_UpdateAnimation();
+        
     }
     #endregion
 }

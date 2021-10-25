@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Define;
 
-public class MonsterController : CreatureController
+public class Monster : Creature
 {
-
+    public override ObjectType _type => ObjectType.MONSTER;
     protected override void V_OnAwake()
     {
         base.V_OnAwake();

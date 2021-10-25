@@ -15,11 +15,22 @@ public class StateControl
         get => _strategy._state;
     }
 
+    public WeaponType Weapontype
+    {
+        get => _weaponType;
+    }
+    WeaponType _weaponType = WeaponType.BAREHAND;
+
     public StateControl(Animator animator, SpriteRenderer sprite)
     {
         _animator = animator;
         _sprite = sprite;
         _strategy = new StateIdle(animator, MoveDir.NONE, sprite);
+    }
+
+    public void SetWeapon(WeaponType weaponType)
+    {
+        _weaponType = weaponType;
     }
 
     public StateStrategy SetState(State state, MoveDir dir)
@@ -33,7 +44,7 @@ public class StateControl
                 _strategy = new StateMoving(_animator, dir, _sprite);
                 break;
             case State.ATTACK:
-                _strategy = new StateAttack(_animator, dir, _sprite);
+                _strategy = new StateAttack(_animator, dir, _sprite, _weaponType);
                 break;
             case State.SKILL:
                 _strategy = new StateSkill(_animator, dir, _sprite);
@@ -147,32 +158,67 @@ public class StateMoving : StateStrategy
 
 public class StateAttack : StateStrategy
 {
+    WeaponType _weaponType;
+
     public StateAttack(Animator animator, MoveDir dir, SpriteRenderer sprite) : base(animator, dir, sprite)
     {
         _state = State.ATTACK;
     }
 
+    public StateAttack(Animator animator, MoveDir dir, SpriteRenderer sprite, WeaponType weaponType) : base(animator, dir, sprite)
+    {
+        _state = State.ATTACK;
+        _weaponType = weaponType;
+    }
+
     public override void PlayAnimation()
     {
-        switch (_dir)
+        switch (_weaponType)
         {
-            case MoveDir.UP:
-                _animator.Play("ATTACK_BACK");
-                _sprite.flipX = false;
+            case WeaponType.BAREHAND:
+                switch (_dir)
+                {
+                    case MoveDir.UP:
+                        _animator.Play("ATTACK_BACK");
+                        _sprite.flipX = false;
+                        break;
+                    case MoveDir.DOWN:
+                        _animator.Play("ATTACK_FRONT");
+                        _sprite.flipX = false;
+                        break;
+                    case MoveDir.LEFT:
+                        _animator.Play("ATTACK_RIGHT");
+                        _sprite.flipX = true;
+                        break;
+                    case MoveDir.RIGHT:
+                        _animator.Play("ATTACK_RIGHT");
+                        _sprite.flipX = false;
+                        break;
+                }
                 break;
-            case MoveDir.DOWN:
-                _animator.Play("ATTACK_FRONT");
-                _sprite.flipX = false;
-                break;
-            case MoveDir.LEFT:
-                _animator.Play("ATTACK_RIGHT");
-                _sprite.flipX = true;
-                break;
-            case MoveDir.RIGHT:
-                _animator.Play("ATTACK_RIGHT");
-                _sprite.flipX = false;
+            case WeaponType.BOW:
+                switch (_dir)
+                {
+                    case MoveDir.UP:
+                        _animator.Play("ATTACK_WEAPON_BACK");
+                        _sprite.flipX = false;
+                        break;
+                    case MoveDir.DOWN:
+                        _animator.Play("ATTACK_WEAPON_FRONT");
+                        _sprite.flipX = false;
+                        break;
+                    case MoveDir.LEFT:
+                        _animator.Play("ATTACK_WEAPON_RIGHT");
+                        _sprite.flipX = true;
+                        break;
+                    case MoveDir.RIGHT:
+                        _animator.Play("ATTACK_WEAPON_RIGHT");
+                        _sprite.flipX = false;
+                        break;
+                }
                 break;
         }
+        
     }
 }
 
@@ -185,25 +231,7 @@ public class StateSkill : StateStrategy
 
     public override void PlayAnimation()
     {
-        switch (_dir)
-        {
-            case MoveDir.UP:
-                _animator.Play("ATTACK_WEAPON_BACK");
-                _sprite.flipX = false;
-                break;
-            case MoveDir.DOWN:
-                _animator.Play("ATTACK_WEAPON_FRONT");
-                _sprite.flipX = false;
-                break;
-            case MoveDir.LEFT:
-                _animator.Play("ATTACK_WEAPON_RIGHT");
-                _sprite.flipX = true;
-                break;
-            case MoveDir.RIGHT:
-                _animator.Play("ATTACK_WEAPON_RIGHT");
-                _sprite.flipX = false;
-                break;
-        }
+        // TODO
     }
 }
 
@@ -404,32 +432,47 @@ public class MapFactory
 #region Object Factory
 public class ObjectFactory
 {
-    public void AddComponentToObject(ObjectType type, GameObject obj)
+    public BaseObject AddComponentToObject(ObjectType type, GameObject obj)
     {
+        BaseObject ret;
+
         switch (type)
         {
             case ObjectType.PLAYER:
-                if (obj.GetComponent<PlayerController>() == null)
+                if (obj.GetComponent<Player>() == null)
                 {
-                    obj.AddComponent<PlayerController>();
+                    ret = obj.AddComponent<Player>();
                     obj.name = "Player";
+                    return ret;
                 }
                 break;
             case ObjectType.MONSTER:
-                if (obj.GetComponent<MonsterController>() == null)
+                if (obj.GetComponent<Monster>() == null)
                 {
-                    obj.AddComponent<MonsterController>();
+                    ret = obj.AddComponent<Monster>();
                     obj.name = "Monster";
+                    return ret;
                 }
                 break;
-            case ObjectType.DEATH_EFFECT:
+            case ObjectType.EFFECT:
                 if (obj.GetComponent<DeathEffect>() == null)
                 {
-                    obj.AddComponent<DeathEffect>();
+                    ret = obj.AddComponent<DeathEffect>();
                     obj.name = "DeathEffect";
+                    return ret;
+                }
+                break;
+            case ObjectType.PROJECTILE:
+                if (obj.GetComponent<Arrow>() == null)
+                {
+                    ret = obj.AddComponent<Arrow>();
+                    obj.name = "Arrow";
+                    return ret;
                 }
                 break;
         }
+
+        return null;
     }
 
     public GameObject LoadGameObject(ObjectType type)
@@ -444,8 +487,11 @@ public class ObjectFactory
             case ObjectType.MONSTER:
                 go = Resources.Load<GameObject>(Paths.Monster_Prefab);
                 break;
-            case ObjectType.DEATH_EFFECT:
+            case ObjectType.EFFECT:
                 go = Resources.Load<GameObject>(Paths.DeathEffect_Prefab);
+                break;
+            case ObjectType.PROJECTILE:
+                go = Resources.Load<GameObject>(Paths.Arrow_Prefab);
                 break;
         }
 

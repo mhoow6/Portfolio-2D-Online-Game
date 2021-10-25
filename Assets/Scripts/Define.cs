@@ -23,7 +23,15 @@
     {
         PLAYER,
         MONSTER,
-        DEATH_EFFECT,
+        EFFECT,
+        PROJECTILE,
+        NONE = -1
+    }
+
+    public enum WeaponType
+    {
+        BAREHAND,
+        BOW,
         NONE = -1
     }
 

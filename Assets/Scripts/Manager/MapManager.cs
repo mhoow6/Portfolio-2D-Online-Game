@@ -8,7 +8,7 @@ public class MapManager
 {
     public Grid CurrentGrid { get; private set; }
     bool[,] _collision;
-    GameObject[,] _creatures;
+    BaseObject[,] _creatures;
     MapFactory _factory = new MapFactory();
 
     public int XLength
@@ -58,7 +58,7 @@ public class MapManager
             int xCount = MaxX - MinX + 1;
             int yCount = MaxY - MinY + 1;
             _collision = new bool[yCount, xCount];
-            _creatures = new GameObject[yCount, xCount];
+            _creatures = new BaseObject[yCount, xCount];
 
             // collision: 왼쪽 아래에서 오른쪽 위로 순회
             for (int y = 0; y < yCount; y++)
@@ -82,7 +82,7 @@ public class MapManager
             
     }
 
-    public void UpdatePosition(Vector3Int current, Vector3Int next, GameObject obj)
+    public void UpdatePosition(Vector3Int current, Vector3Int next, BaseObject obj)
     {
         Vector2Int currentPos = CollisionCoordinate(current.x, current.y);
         _creatures[currentPos.y, currentPos.x] = null;
@@ -103,7 +103,8 @@ public class MapManager
 
         if (_collision[vec.y, vec.x] == true || (_creatures[vec.y, vec.x] != null))
         {
-            return false;
+            if (_creatures[vec.y, vec.x]._type != ObjectType.PROJECTILE)
+                return false;
         }
 
         return true;

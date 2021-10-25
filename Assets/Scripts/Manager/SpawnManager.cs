@@ -6,9 +6,9 @@ using static Define;
 public class SpawnManager
 {
     ObjectFactory _objectFactory = new ObjectFactory();
-    Dictionary<ObjectType, List<GameObject>> _objects = new Dictionary<ObjectType, List<GameObject>>();
+    Dictionary<ObjectType, List<BaseObject>> _objects = new Dictionary<ObjectType, List<BaseObject>>();
 
-    public GameObject SpawnObject(ObjectType type)
+    public BaseObject SpawnObject(ObjectType type)
     {
         // 1. 오브젝트가 이미 존재하는 경우
         if (_objects.TryGetValue(type, out var list) == true)
@@ -27,23 +27,25 @@ public class SpawnManager
         }
 
         // 2. 새로 오브젝트를 만들어야 하는 경우
-        GameObject _obj = _objectFactory.LoadGameObject(type);
-        GameObject obj = GameObject.Instantiate<GameObject>(_obj);
-        obj.transform.SetParent(Manager.Instance.Pool.transform);
+        GameObject __obj = _objectFactory.LoadGameObject(type);
+        GameObject _obj = GameObject.Instantiate<GameObject>(__obj);
+        _obj.transform.SetParent(Manager.Instance.Pool.transform);
 
         // 2-1. SpawnManager.objects에 추가
         if (_objects.TryGetValue(type, out var objList) == false) // 리스트가 한 번이라도 안 만들어졌다면 -> 최초 생성
         {
-            objList = new List<GameObject>();
+            objList = new List<BaseObject>();
             _objects.Add(type, objList);
         }
+        BaseObject obj = _objectFactory.AddComponentToObject(type, _obj);
+
         objList.Add(obj);
-        _objectFactory.AddComponentToObject(type, obj);
+        
 
         return obj;
     }
 
-    public GameObject SpawnObject(ObjectType type, Vector3 spawnPos)
+    public BaseObject SpawnObject(ObjectType type, Vector3Int cellPos)
     {
         // 1. 오브젝트가 이미 존재하는 경우
         if (_objects.TryGetValue(type, out var list) == true)
@@ -55,7 +57,7 @@ public class SpawnManager
                     if (item.gameObject.activeSelf == false)
                     {
                         item.gameObject.SetActive(true);
-                        item.gameObject.transform.position = spawnPos;
+                        item.CellPos = cellPos;
                         return item;
                     }
                 }
@@ -63,19 +65,20 @@ public class SpawnManager
         }
 
         // 2. 새로 오브젝트를 만들어야 하는 경우
-        GameObject _obj = _objectFactory.LoadGameObject(type);
-        GameObject obj = GameObject.Instantiate<GameObject>(_obj);
-        obj.transform.SetParent(Manager.Instance.Pool.transform);
+        GameObject __obj = _objectFactory.LoadGameObject(type);
+        GameObject _obj = GameObject.Instantiate<GameObject>(__obj);
+        _obj.transform.SetParent(Manager.Instance.Pool.transform);
 
         // 2-1. SpawnManager.objects에 추가
         if (_objects.TryGetValue(type, out var objList) == false) // 리스트가 한 번이라도 안 만들어졌다면 -> 최초 생성
         {
-            objList = new List<GameObject>();
+            objList = new List<BaseObject>();
             _objects.Add(type, objList);
         }
+        BaseObject obj = _objectFactory.AddComponentToObject(type, _obj);
+
         objList.Add(obj);
-        _objectFactory.AddComponentToObject(type, obj);
-        obj.transform.position = spawnPos;
+        obj.CellPos = cellPos;
 
         return obj;
     }
