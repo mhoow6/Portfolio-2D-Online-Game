@@ -12,22 +12,23 @@ public class Arrow : Projectile
         _moveSpeed = 20.0f; // TODO: 추후에 json 관리
     }
 
-    protected override void V_OnStart()
+    protected override void V_OnUpdate()
     {
-        base.V_OnStart();
+        if (_mc.direction == MoveDir.NONE)
+        {
+            MoveToNextPos();
+        }
     }
 
     public override void V_Move()
     {
-        _mc.SetDirection(_lastDir);
-
-        // 방향에 맞게 회전
-        switch (_lastDir)
+        switch (_mc.direction)
         {
             case MoveDir.UP:
+                transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
                 break;
             case MoveDir.DOWN:
-                transform.rotation = Quaternion.Euler(new Vector3(0, 0, -180));
+                transform.rotation = Quaternion.Euler(new Vector3(0, 0, 180));
                 break;
             case MoveDir.LEFT:
                 transform.rotation = Quaternion.Euler(new Vector3(0, 0, 90));
@@ -36,6 +37,13 @@ public class Arrow : Projectile
                 transform.rotation = Quaternion.Euler(new Vector3(0, 0, -90));
                 break;
         }
+
+        base.V_Move();
+    }
+
+    void MoveToNextPos()
+    {
+        _mc.SetDirection(_lastDir);
 
         Vector3 targetPos = _mc.GetMovePos();
         Vector3Int targetCellPos = Manager.Map.CurrentGrid.WorldToCell(targetPos);
@@ -47,7 +55,23 @@ public class Arrow : Projectile
         }
         else
         {
-            _mc.SetDirection(MoveDir.NONE);
+            if (Manager.Map.IsCreatureAt(targetCellPos))
+            {
+                Debug.Log("누군가를 맞췄습니다!");
+            }
+            else
+            {
+                Debug.Log("벽을 맞췄습니다..");
+            }
+
+            Clear();
         }
+    }
+
+    void Clear()
+    {
+        _owner = null;
+
+        gameObject.SetActive(false);
     }
 }

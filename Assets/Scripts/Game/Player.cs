@@ -83,7 +83,7 @@ public class Player : Creature
                         }
                         break;
                     case WeaponType.BOW:
-                        Arrow arrow = Manager.Spawner.SpawnObject(ObjectType.PROJECTILE, CellPos) as Arrow;
+                        Arrow arrow = Manager.Spawner.SpawnObject(ObjectType.PROJECTILE) as Arrow;
                         arrow.SetOwner(this);
                         arrow.V_Move();
                         break;

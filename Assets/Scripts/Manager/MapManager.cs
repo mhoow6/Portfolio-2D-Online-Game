@@ -101,10 +101,17 @@ public class MapManager
         // 셀 좌표계 -> 맵을 이진수로 표현한 배열 좌표계
         Vector2Int vec = CollisionCoordinate(cellPos.x, cellPos.y);
 
-        if (_collision[vec.y, vec.x] == true || (_creatures[vec.y, vec.x] != null))
+        if (_collision[vec.y, vec.x] == true)
+        {
+            return false;
+        }
+
+        if (_creatures[vec.y, vec.x] != null)
         {
             if (_creatures[vec.y, vec.x]._type != ObjectType.PROJECTILE)
+            {
                 return false;
+            }
         }
 
         return true;
