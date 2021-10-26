@@ -33,6 +33,7 @@ public class StateControl
         _weaponType = weaponType;
     }
 
+    // 2021-10-26: State를 설정할 때 애니메이션이 바로 실행되도록 변경함.
     public StateStrategy SetState(State state, MoveDir dir)
     {
         switch (state)
@@ -54,12 +55,13 @@ public class StateControl
                 break;
         }
 
+        PlayAnimation();
         return _strategy;
     }
 
-    public void PlayAnimation()
+    void PlayAnimation()
     {
-        if (_strategy != null)
+        if (_strategy != null && _animator != null)
             _strategy.PlayAnimation();
     }
 

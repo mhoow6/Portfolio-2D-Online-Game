@@ -11,10 +11,6 @@ public class BaseObject : MonoBehaviour
     protected float _moveSpeed = 5.0f;
 
     [SerializeField]
-    protected MoveDir _lastDir = MoveDir.NONE;
-    public MoveDir LastDir { get => _lastDir; }
-
-    [SerializeField]
     Vector3Int _cellPos = Vector3Int.zero;
     public virtual Vector3Int CellPos
     {
@@ -26,7 +22,12 @@ public class BaseObject : MonoBehaviour
         }
     }
 
-    protected MoveControl _mc = null;
+    public MoveControl MoveController { get => _moveController; }
+    MoveControl _moveController = null;
+    public MoveDir MoveDir { get => _moveController.direction; set => _moveController.SetDirection(value); }
+    StateControl _stateController = null;
+    public StateControl StateController { get => _stateController; }
+    public State State { get => _stateController.State; set => _stateController.SetState(value, MoveDir); }
 
     private void Awake()
     {
@@ -38,16 +39,11 @@ public class BaseObject : MonoBehaviour
         V_OnStart();
     }
 
-    private void Update()
-    {
-        V_OnUpdate();
-    }
-
-    public Vector3Int GetFrontCellPos()
+    protected Vector3Int GetFrontCellPos()
     {
         Vector3Int cellPos = CellPos;
 
-        switch (_lastDir)
+        switch (MoveDir)
         {
             case MoveDir.UP:
                 cellPos += Vector3Int.up;
@@ -66,25 +62,6 @@ public class BaseObject : MonoBehaviour
         return cellPos;
     }
 
-    #region GameObject Move
-    public virtual void V_Move()
-    {
-        _lastDir = _mc.direction;
-
-        Vector3 targetPos = _mc.GetMovePos();
-        Vector3Int targetCellPos = Manager.Map.CurrentGrid.WorldToCell(targetPos);
-
-        if (Manager.Map.CanGo(targetCellPos))
-        {
-            CellPos = targetCellPos; // 이미 목적지에 있다는 것을 알림
-            StartCoroutine(SmoothMove(targetPos));
-        }
-        else
-        {
-            _mc.SetDirection(MoveDir.NONE);
-        }
-    }
-
     protected IEnumerator SmoothMove(Vector3 targetPos)
     {
         while (true)
@@ -95,7 +72,7 @@ public class BaseObject : MonoBehaviour
             if (distance < _moveSpeed * Time.deltaTime)
             {
                 transform.position = targetPos;
-                _mc.SetDirection(MoveDir.NONE);
+                _moveController.SetDirection(MoveDir.NONE);
                 yield break;
             }
             else
@@ -106,33 +83,76 @@ public class BaseObject : MonoBehaviour
             yield return null;
         }
     }
-    #endregion
+
 
     #region Virtual Functions
-    public virtual void V_Attack()
+    // UpdateIdle, UpdateMoving, .. 이 실행되는 곳
+    protected virtual void V_UpdateObject()
     {
-
+        switch (State)
+        {
+            case State.IDLE:
+                V_UpdateIdle();
+                break;
+            case State.MOVING:
+                V_UpdateMoving();
+                break;
+            case State.ATTACK:
+                V_UpdateAttack();
+                break;
+            case State.DEAD:
+                V_UpdateDead();
+                break;
+        }
     }
+
+    protected virtual void V_UpdateIdle(){ }
+
+    protected virtual void V_UpdateMoving()
+    {
+        Vector3 destPos = Manager.Map.CurrentGrid.CellToWorld(CellPos) + new Vector3(0.5f, 0.5f);
+        Vector3 moveDir = destPos - transform.position;
+
+        // 도착 여부 체크
+        float dist = moveDir.magnitude;
+        if (dist < _moveSpeed * Time.deltaTime)
+        {
+            transform.position = destPos;
+            V_MoveToNextPos();
+        }
+        else
+        {
+            transform.position += moveDir.normalized * _moveSpeed * Time.deltaTime;
+            StateController.SetState(State.MOVING, MoveDir);
+        }
+    }
+
+    protected virtual void V_UpdateAttack() { }
+
+    protected virtual void V_UpdateDead() { }
+
+    public virtual void V_Attack() { }
+
+    protected virtual void V_MoveToNextPos() { }
     #endregion
 
     #region Virtual Life-cycle Functions
     protected virtual void V_OnAwake()
     {
-        _mc = new MoveControl(this.gameObject);
+        _moveController = new MoveControl(this.gameObject);
+        _stateController = new StateControl(GetComponent<Animator>(), GetComponent<SpriteRenderer>());
+
+        Manager.Map.UpdatePosition(CellPos, CellPos, this); // TODO: cellpos는 json 혹은 csv로 처음에 불러와야함
     }
 
     protected virtual void V_OnStart()
     {
-        // 현재 그리드의 위치 + new Vector3(0.5f, 0.5f);
+        // 현재 그리드의 위치 + new Vector3(0.5f, 0.5f) 가 셀 포지션을 기준으로 움직일때 자연스러워서 이렇게 함
         Vector3 pos = Manager.Map.CurrentGrid.CellToWorld(CellPos) + new Vector3(0.5f, 0.5f);
         transform.position = pos;
 
-        _mc.SetDirection(MoveDir.NONE);
-    }
-
-    protected virtual void V_OnUpdate()
-    {
-        
+        _moveController.SetDirection(MoveDir.NONE);
+        _stateController.SetState(State.NONE, MoveDir.NONE);
     }
     #endregion
 }

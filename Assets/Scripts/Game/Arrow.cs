@@ -5,24 +5,50 @@ using static Define;
 
 public class Arrow : Projectile
 {
+    private void Update()
+    {
+        V_UpdateObject();
+    }
+
+
+    #region Override
     protected override void V_OnAwake()
     {
         base.V_OnAwake();
 
-        _moveSpeed = 20.0f; // TODO: 추후에 json 관리
+        _moveSpeed = 10.0f; // TODO: 추후에 json 관리
     }
 
-    protected override void V_OnUpdate()
+    protected override void V_MoveToNextPos()
     {
-        if (_mc.direction == MoveDir.NONE)
+        if (Manager.Map.CanGo(GetFrontCellPos()))
         {
-            MoveToNextPos();
+            CellPos = GetFrontCellPos(); // 이미 목적지에 있다는 것을 알림
+        }
+        else
+        {
+            Creature target = Manager.Map.CreatureAt(GetFrontCellPos());
+
+            if (target != null)
+            {
+                // TODO: 공격 판정
+                StateController.SetState(State.IDLE, MoveDir); 
+                target.V_OnDead();
+            }
+            else
+            {
+                Debug.Log("벽을 맞췄습니다..");
+            }
+
+            Clear();
         }
     }
 
-    public override void V_Move()
+    public override void V_SetOwner(Creature owner)
     {
-        switch (_mc.direction)
+        base.V_SetOwner(owner);
+
+        switch (MoveDir)
         {
             case MoveDir.UP:
                 transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
@@ -38,40 +64,13 @@ public class Arrow : Projectile
                 break;
         }
 
-        base.V_Move();
+        State = State.MOVING;
     }
-
-    void MoveToNextPos()
-    {
-        _mc.SetDirection(_lastDir);
-
-        Vector3 targetPos = _mc.GetMovePos();
-        Vector3Int targetCellPos = Manager.Map.CurrentGrid.WorldToCell(targetPos);
-
-        if (Manager.Map.CanGo(targetCellPos))
-        {
-            CellPos = targetCellPos; // 이미 목적지에 있다는 것을 알림
-            StartCoroutine(SmoothMove(targetPos));
-        }
-        else
-        {
-            if (Manager.Map.IsCreatureAt(targetCellPos))
-            {
-                Debug.Log("누군가를 맞췄습니다!");
-            }
-            else
-            {
-                Debug.Log("벽을 맞췄습니다..");
-            }
-
-            Clear();
-        }
-    }
+    #endregion
 
     void Clear()
     {
         _owner = null;
-
         gameObject.SetActive(false);
     }
 }

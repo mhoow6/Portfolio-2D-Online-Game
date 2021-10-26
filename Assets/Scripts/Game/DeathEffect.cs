@@ -5,9 +5,10 @@ using UnityEngine;
 public class DeathEffect : BaseObject
 {
     Animator _animator;
-
-    private void Awake()
+    public override Vector3Int CellPos { get => base.CellPos; set => base.CellPos = value; }
+    protected override void V_OnAwake()
     {
+        base.V_OnAwake();
         _animator = GetComponent<Animator>();
     }
 

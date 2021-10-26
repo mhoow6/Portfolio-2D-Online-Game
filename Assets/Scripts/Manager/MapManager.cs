@@ -8,7 +8,7 @@ public class MapManager
 {
     public Grid CurrentGrid { get; private set; }
     bool[,] _collision;
-    BaseObject[,] _creatures;
+    BaseObject[,] _objects;
     MapFactory _factory = new MapFactory();
 
     public int XLength
@@ -58,7 +58,7 @@ public class MapManager
             int xCount = MaxX - MinX + 1;
             int yCount = MaxY - MinY + 1;
             _collision = new bool[yCount, xCount];
-            _creatures = new BaseObject[yCount, xCount];
+            _objects = new BaseObject[yCount, xCount];
 
             // collision: 왼쪽 아래에서 오른쪽 위로 순회
             for (int y = 0; y < yCount; y++)
@@ -85,10 +85,10 @@ public class MapManager
     public void UpdatePosition(Vector3Int current, Vector3Int next, BaseObject obj)
     {
         Vector2Int currentPos = CollisionCoordinate(current.x, current.y);
-        _creatures[currentPos.y, currentPos.x] = null;
+        _objects[currentPos.y, currentPos.x] = null;
 
         Vector2Int nextPos = CollisionCoordinate(next.x, next.y);
-        _creatures[nextPos.y, nextPos.x] = obj;
+        _objects[nextPos.y, nextPos.x] = obj;
     }
 
 
@@ -106,9 +106,9 @@ public class MapManager
             return false;
         }
 
-        if (_creatures[vec.y, vec.x] != null)
+        if (_objects[vec.y, vec.x] != null)
         {
-            if (_creatures[vec.y, vec.x]._type != ObjectType.PROJECTILE)
+            if (_objects[vec.y, vec.x]._type != ObjectType.PROJECTILE)
             {
                 return false;
             }
@@ -122,15 +122,34 @@ public class MapManager
         if (BoundCheck(cellPos) == false)
             return false;
 
-        // 셀 좌표계 -> 맵을 이진수로 표현한 배열 좌표계
         Vector2Int vec = CollisionCoordinate(cellPos.x, cellPos.y);
 
-        if ((_creatures[vec.y, vec.x] != null))
+        if ((_objects[vec.y, vec.x] != null))
         {
             return true;
         }
 
         return false;
+    }
+
+    public Creature CreatureAt(Vector3Int cellPos)
+    {
+        if (BoundCheck(cellPos) == false)
+            return null;
+
+        // 셀 좌표계 -> 맵을 이진수로 표현한 배열 좌표계
+        Vector2Int vec = CollisionCoordinate(cellPos.x, cellPos.y);
+
+        if ((_objects[vec.y, vec.x] != null))
+        {
+            if ((_objects[vec.y, vec.x]._type == ObjectType.PLAYER || (_objects[vec.y, vec.x]._type == ObjectType.MONSTER)))
+            {
+                return _objects[vec.y, vec.x] as Creature;
+            }
+                
+        }
+
+        return null;
     }
 
     bool BoundCheck(Vector3Int cellPos)

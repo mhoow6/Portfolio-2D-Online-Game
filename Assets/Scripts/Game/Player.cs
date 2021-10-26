@@ -9,49 +9,62 @@ public class Player : Creature
 {
     public override ObjectType _type => ObjectType.PLAYER;
     public int count = 0;
+    bool _moveKeyPressed = true;
 
-    void KeyboardInputControl()
+    private void Update()
     {
-        if (_mc.direction == MoveDir.NONE)
-        {
-            if (Input.GetKey(KeyCode.W))
-            {
-                _mc.SetDirection(MoveDir.UP);
-                V_Move();
-            }
-            else if (Input.GetKey(KeyCode.S))
-            {
-                _mc.SetDirection(MoveDir.DOWN);
-                V_Move();
-            }
-            else if (Input.GetKey(KeyCode.A))
-            {
-                _mc.SetDirection(MoveDir.LEFT);
-                V_Move();
-            }
-            else if (Input.GetKey(KeyCode.D))
-            {
-                _mc.SetDirection(MoveDir.RIGHT);
-                V_Move();
-            }
-        }
-
-        if (_sc.State != State.ATTACK)
-        {
-            if (Input.GetKey(KeyCode.Space))
-            {
-                _sc.SetWeapon(WeaponType.BAREHAND);
-                _sc.SetState(State.ATTACK, _lastDir);
-            }
-            else if (Input.GetKey(KeyCode.LeftControl)) // TODO: 추후에 활 착용시 바뀌도록 해결
-            {
-                _sc.SetWeapon(WeaponType.BOW);
-                _sc.SetState(State.ATTACK, _lastDir);
-            }
-        }
-        
+        V_UpdateObject();
     }
 
+    protected override void V_UpdateObject()
+    {
+        switch (State)
+        {
+            case State.IDLE:
+                InputMoveControl();
+                break;
+            case State.MOVING:
+                InputMoveControl();
+                break;
+        }
+
+        base.V_UpdateObject();
+    }
+
+    void InputMoveControl()
+    {
+        // MOVE
+        if (Input.GetKey(KeyCode.W))
+        {
+            MoveDir = MoveDir.UP;
+            _moveKeyPressed = true;
+            StateController.SetState(State.MOVING, MoveDir);
+        }
+        else if (Input.GetKey(KeyCode.S))
+        {
+            MoveDir = MoveDir.DOWN;
+            _moveKeyPressed = true;
+            StateController.SetState(State.MOVING, MoveDir);
+        }
+        else if (Input.GetKey(KeyCode.A))
+        {
+            MoveDir = MoveDir.LEFT;
+            _moveKeyPressed = true;
+            StateController.SetState(State.MOVING, MoveDir);
+        }
+        else if (Input.GetKey(KeyCode.D))
+        {
+            MoveDir = MoveDir.RIGHT;
+            _moveKeyPressed = true;
+            StateController.SetState(State.MOVING, MoveDir);
+        }
+        else
+        {
+            _moveKeyPressed = false;
+        }
+    }
+
+    #region override
     protected override void V_OnAwake()
     {
         base.V_OnAwake();
@@ -60,21 +73,42 @@ public class Player : Creature
     protected override void V_OnStart()
     {
         base.V_OnStart();
+
+        // TEMP
+        CellPos = Vector3Int.down;
+        transform.position = Manager.Map.CurrentGrid.CellToWorld(CellPos) + new Vector3(0.5f, 0.5f, 0);
     }
 
-    protected override void V_OnUpdate()
+    protected override void V_UpdateIdle()
     {
-        KeyboardInputControl();
-        base.V_OnUpdate();
-        
+        if (_moveKeyPressed == true)
+        {
+            StateController.SetState(State.MOVING, MoveDir);
+            return;
+        }
+        else
+        {
+            StateController.SetState(State.IDLE, MoveDir);
+
+            if (Input.GetKey(KeyCode.Space))
+            {
+                StateController.SetWeapon(WeaponType.BAREHAND);
+                StateController.SetState(State.ATTACK, MoveDir);
+            }
+            else if (Input.GetKey(KeyCode.LeftControl)) // TODO: 추후에 활 착용시 바뀌도록 해결
+            {
+                StateController.SetWeapon(WeaponType.BOW);
+                StateController.SetState(State.ATTACK, MoveDir);
+            }
+        }
     }
 
     public override void V_Attack()
     {
-        switch (_sc.State)
+        switch (State)
         {
             case State.ATTACK:
-                switch (_sc.Weapontype)
+                switch (StateController.Weapontype)
                 {
                     case WeaponType.BAREHAND:
                         if (Manager.Map.IsCreatureAt(GetFrontCellPos()))
@@ -84,11 +118,29 @@ public class Player : Creature
                         break;
                     case WeaponType.BOW:
                         Arrow arrow = Manager.Spawner.SpawnObject(ObjectType.PROJECTILE) as Arrow;
-                        arrow.SetOwner(this);
-                        arrow.V_Move();
+                        arrow.V_SetOwner(this);
                         break;
                 }
                 break;
         }
     }
+
+    protected override void V_MoveToNextPos()
+    {
+        if (_moveKeyPressed == false)
+        {
+            StateController.SetState(State.IDLE, MoveDir);
+            return;
+        }
+
+        if (Manager.Map.CanGo(GetFrontCellPos()))
+        {
+            if (Manager.Map.CreatureAt(GetFrontCellPos()) == null)
+            {
+                CellPos = GetFrontCellPos();
+            }
+        }
+    }
+    #endregion
+
 }

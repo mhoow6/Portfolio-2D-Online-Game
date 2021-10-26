@@ -15,23 +15,16 @@ public class Projectile : BaseObject
 
     protected override void V_OnStart()
     {
-        base.V_OnStart();
+        
     }
 
-    public void SetOwner(Creature owner)
+    public virtual void V_SetOwner(Creature owner)
     {
         _owner = owner;
-        _mc.SetDirection(_owner.LastDir);
+        MoveController.SetDirection(_owner.MoveDir);
 
-        // 기본 세팅: 직접 바꿔줄 수도 있다.
+        // 기본 세팅
         transform.position = _owner.transform.position;
         CellPos = _owner.CellPos;
     }
-
-    public void SetDirection(MoveDir dir)
-    {
-        _mc.SetDirection(dir);
-    }
-
-    
 }
