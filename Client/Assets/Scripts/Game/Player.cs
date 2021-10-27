@@ -11,26 +11,26 @@ public class Player : Creature
     public int count = 0;
     bool _moveKeyPressed = true;
 
+    private void Awake()
+    {
+        OnAwake();
+    }
+
+    private void Start()
+    {
+        OnStart();
+
+        // TEMP
+        CellPos = Vector3Int.down;
+        transform.position = Manager.Map.CurrentGrid.CellToWorld(CellPos) + new Vector3(0.5f, 0.5f, 0);
+    }
+
     private void Update()
     {
         V_UpdateObject();
     }
 
-    protected override void V_UpdateObject()
-    {
-        switch (State)
-        {
-            case State.IDLE:
-                InputMoveControl();
-                break;
-            case State.MOVING:
-                InputMoveControl();
-                break;
-        }
-
-        base.V_UpdateObject();
-    }
-
+    
     void InputMoveControl()
     {
         // MOVE
@@ -65,18 +65,19 @@ public class Player : Creature
     }
 
     #region override
-    protected override void V_OnAwake()
+    protected override void V_UpdateObject()
     {
-        base.V_OnAwake();
-    }
+        switch (State)
+        {
+            case State.IDLE:
+                InputMoveControl();
+                break;
+            case State.MOVING:
+                InputMoveControl();
+                break;
+        }
 
-    protected override void V_OnStart()
-    {
-        base.V_OnStart();
-
-        // TEMP
-        CellPos = Vector3Int.down;
-        transform.position = Manager.Map.CurrentGrid.CellToWorld(CellPos) + new Vector3(0.5f, 0.5f, 0);
+        base.V_UpdateObject();
     }
 
     protected override void V_UpdateIdle()
@@ -117,7 +118,7 @@ public class Player : Creature
                         }
                         break;
                     case WeaponType.BOW:
-                        Arrow arrow = Manager.Spawner.SpawnObject(ObjectType.PROJECTILE) as Arrow;
+                        Arrow arrow = Manager.Spawner.SpawnObject(ObjectCode.ARROW) as Arrow;
                         arrow.V_SetOwner(this);
                         break;
                 }

@@ -6,9 +6,10 @@ public class DeathEffect : BaseObject
 {
     Animator _animator;
     public override Vector3Int CellPos { get => base.CellPos; set => base.CellPos = value; }
-    protected override void V_OnAwake()
+
+    private void Awake()
     {
-        base.V_OnAwake();
+        OnAwake();
         _animator = GetComponent<Animator>();
     }
 

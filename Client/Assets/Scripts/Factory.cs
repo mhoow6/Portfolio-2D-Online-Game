@@ -408,7 +408,7 @@ public class MapFactory
         switch (mapId)
         {
             case MapId.TOWN:
-                map = Resources.Load<GameObject>(Paths.Map_Prefabs + "/Map_001");
+                map = Resources.Load<GameObject>(ResourcePaths.Map_Prefabs + "/Map_001");
                 break;
         }
 
@@ -422,7 +422,7 @@ public class MapFactory
         switch (mapId)
         {
             case MapId.TOWN:
-                map = Resources.Load<TextAsset>(Paths.Map_Collision + "/Map_001");
+                map = Resources.Load<TextAsset>(ResourcePaths.Map_Collision + "/Map_001");
                 break;
         }
 
@@ -434,13 +434,13 @@ public class MapFactory
 #region Object Factory
 public class ObjectFactory
 {
-    public BaseObject AddComponentToObject(ObjectType type, GameObject obj)
+    public BaseObject AddComponentToObject(ObjectCode code, GameObject obj)
     {
         BaseObject ret;
 
-        switch (type)
+        switch (code)
         {
-            case ObjectType.PLAYER:
+            case ObjectCode.PLAYER:
                 if (obj.GetComponent<Player>() == null)
                 {
                     ret = obj.AddComponent<Player>();
@@ -448,7 +448,7 @@ public class ObjectFactory
                     return ret;
                 }
                 break;
-            case ObjectType.MONSTER:
+            case ObjectCode.MONSTER:
                 if (obj.GetComponent<Monster>() == null)
                 {
                     ret = obj.AddComponent<Monster>();
@@ -456,7 +456,7 @@ public class ObjectFactory
                     return ret;
                 }
                 break;
-            case ObjectType.EFFECT:
+            case ObjectCode.DEAD_EFFECT:
                 if (obj.GetComponent<DeathEffect>() == null)
                 {
                     ret = obj.AddComponent<DeathEffect>();
@@ -464,7 +464,7 @@ public class ObjectFactory
                     return ret;
                 }
                 break;
-            case ObjectType.PROJECTILE:
+            case ObjectCode.ARROW:
                 if (obj.GetComponent<Arrow>() == null)
                 {
                     ret = obj.AddComponent<Arrow>();
@@ -477,27 +477,44 @@ public class ObjectFactory
         return null;
     }
 
-    public GameObject LoadGameObject(ObjectType type)
+    public GameObject LoadGameObject(ObjectCode code)
     {
         GameObject go = null;
 
-        switch (type)
+        switch (code)
         {
-            case ObjectType.PLAYER:
-                go = Resources.Load<GameObject>(Paths.Player_Prefab);
+            case ObjectCode.PLAYER:
+                go = Resources.Load<GameObject>(ResourcePaths.Player_Prefab);
                 break;
-            case ObjectType.MONSTER:
-                go = Resources.Load<GameObject>(Paths.Monster_Prefab);
+            case ObjectCode.MONSTER:
+                go = Resources.Load<GameObject>(ResourcePaths.Monster_Prefab);
                 break;
-            case ObjectType.EFFECT:
-                go = Resources.Load<GameObject>(Paths.DeathEffect_Prefab);
+            case ObjectCode.DEAD_EFFECT:
+                go = Resources.Load<GameObject>(ResourcePaths.DeathEffect_Prefab);
                 break;
-            case ObjectType.PROJECTILE:
-                go = Resources.Load<GameObject>(Paths.Arrow_Prefab);
+            case ObjectCode.ARROW:
+                go = Resources.Load<GameObject>(ResourcePaths.Arrow_Prefab);
                 break;
         }
 
         return go;
+    }
+
+    public ObjectType GetObjectType(ObjectCode code)
+    {
+        switch (code)
+        {
+            case ObjectCode.PLAYER:
+                return ObjectType.PLAYER;
+            case ObjectCode.MONSTER:
+                return ObjectType.MONSTER;
+            case ObjectCode.DEAD_EFFECT:
+                return ObjectType.EFFECT;
+            case ObjectCode.ARROW:
+                return ObjectType.PROJECTILE;
+        }
+
+        return ObjectType.NONE;
     }
 }
 #endregion

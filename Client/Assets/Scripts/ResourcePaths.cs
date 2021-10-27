@@ -1,6 +1,6 @@
 ﻿using System;
 
-public struct Paths
+public struct ResourcePaths
 {
     public readonly static string Map_Prefabs = "Prefabs/Map";
     public readonly static string Map_Collision = "Map";

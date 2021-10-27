@@ -5,6 +5,12 @@ using static Define;
 
 public class Arrow : Projectile
 {
+    private void Awake()
+    {
+        OnAwake();
+        _moveSpeed = 10.0f; // TODO: 추후에 json 관리
+    }
+
     private void Update()
     {
         V_UpdateObject();
@@ -12,13 +18,6 @@ public class Arrow : Projectile
 
 
     #region Override
-    protected override void V_OnAwake()
-    {
-        base.V_OnAwake();
-
-        _moveSpeed = 10.0f; // TODO: 추후에 json 관리
-    }
-
     protected override void V_MoveToNextPos()
     {
         if (Manager.Map.CanGo(GetFrontCellPos()))
@@ -33,7 +32,7 @@ public class Arrow : Projectile
             {
                 // TODO: 공격 판정
                 StateController.SetState(State.IDLE, MoveDir); 
-                target.V_OnDead();
+                target.V_Dead();
             }
             else
             {
@@ -67,7 +66,6 @@ public class Arrow : Projectile
         State = State.MOVING;
     }
     #endregion
-
     void Clear()
     {
         _owner = null;

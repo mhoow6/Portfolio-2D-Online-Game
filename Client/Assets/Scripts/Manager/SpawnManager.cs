@@ -8,8 +8,10 @@ public class SpawnManager
     ObjectFactory _objectFactory = new ObjectFactory();
     Dictionary<ObjectType, List<BaseObject>> _objects = new Dictionary<ObjectType, List<BaseObject>>();
 
-    public BaseObject SpawnObject(ObjectType type)
+    public BaseObject SpawnObject(ObjectCode code)
     {
+        ObjectType type = _objectFactory.GetObjectType(code);
+
         // 1. 오브젝트가 이미 존재하는 경우
         if (_objects.TryGetValue(type, out var list) == true)
         {
@@ -17,7 +19,7 @@ public class SpawnManager
             {
                 foreach (var item in list)
                 {
-                    if (item.gameObject.activeSelf == false)
+                    if (item.gameObject.activeSelf == false && item._code == code)
                     {
                         item.gameObject.SetActive(true);
                         return item;
@@ -27,7 +29,7 @@ public class SpawnManager
         }
 
         // 2. 새로 오브젝트를 만들어야 하는 경우
-        GameObject __obj = _objectFactory.LoadGameObject(type);
+        GameObject __obj = _objectFactory.LoadGameObject(code);
         GameObject _obj = GameObject.Instantiate<GameObject>(__obj);
         _obj.transform.SetParent(Manager.Instance.Pool.transform);
 
@@ -37,7 +39,8 @@ public class SpawnManager
             objList = new List<BaseObject>();
             _objects.Add(type, objList);
         }
-        BaseObject obj = _objectFactory.AddComponentToObject(type, _obj);
+        BaseObject obj = _objectFactory.AddComponentToObject(code, _obj);
+        obj._code = code;
 
         objList.Add(obj);
         

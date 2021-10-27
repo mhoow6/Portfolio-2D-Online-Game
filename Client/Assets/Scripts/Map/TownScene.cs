@@ -12,7 +12,7 @@ public class TownScene : BaseScene
         base.Init();
 
         Manager.Map.LoadMap(mapId);
-        Manager.Spawner.SpawnObject(ObjectType.PLAYER);
-        Manager.Spawner.SpawnObject(ObjectType.MONSTER);
+        Manager.Spawner.SpawnObject(ObjectCode.PLAYER);
+        Manager.Spawner.SpawnObject(ObjectCode.MONSTER);
     }
 }

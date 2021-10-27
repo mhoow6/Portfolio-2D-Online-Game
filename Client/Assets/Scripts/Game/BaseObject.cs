@@ -8,6 +8,8 @@ public delegate void Callback();
 public class BaseObject : MonoBehaviour
 {
     public virtual ObjectType _type { get => ObjectType.NONE; }
+    public ObjectCode _code;
+
     protected float _moveSpeed = 5.0f;
 
     [SerializeField]
@@ -25,19 +27,11 @@ public class BaseObject : MonoBehaviour
     public MoveControl MoveController { get => _moveController; }
     MoveControl _moveController = null;
     public MoveDir MoveDir { get => _moveController.direction; set => _moveController.SetDirection(value); }
-    StateControl _stateController = null;
     public StateControl StateController { get => _stateController; }
+    StateControl _stateController = null;
+
+    // SetState 시 자동으로 해당 애니메이션 호출
     public State State { get => _stateController.State; set => _stateController.SetState(value, MoveDir); }
-
-    private void Awake()
-    {
-        V_OnAwake();
-    }
-
-    private void Start()
-    {
-        V_OnStart();
-    }
 
     protected Vector3Int GetFrontCellPos()
     {
@@ -62,30 +56,26 @@ public class BaseObject : MonoBehaviour
         return cellPos;
     }
 
-    protected IEnumerator SmoothMove(Vector3 targetPos)
+    protected void OnAwake()
     {
-        while (true)
-        {
-            // 클라이언트 상에서는 서서히 이동하는 것처럼 보이게 한다.
-            Vector3 dir = targetPos - transform.position;
-            float distance = dir.magnitude;
-            if (distance < _moveSpeed * Time.deltaTime)
-            {
-                transform.position = targetPos;
-                _moveController.SetDirection(MoveDir.NONE);
-                yield break;
-            }
-            else
-            {
-                transform.position += dir.normalized * _moveSpeed * Time.deltaTime;
-            }
+        _moveController = new MoveControl(this.gameObject);
+        _stateController = new StateControl(GetComponent<Animator>(), GetComponent<SpriteRenderer>());
 
-            yield return null;
-        }
+        Manager.Map.UpdatePosition(CellPos, CellPos, this); // TODO: cellpos는 json 혹은 csv로 처음에 불러와야함
+    }
+
+    protected void OnStart()
+    {
+        // 현재 그리드의 위치 + new Vector3(0.5f, 0.5f) 가 셀 포지션을 기준으로 움직일때 자연스러워서 이렇게 함
+        Vector3 pos = Manager.Map.CurrentGrid.CellToWorld(CellPos) + new Vector3(0.5f, 0.5f);
+        transform.position = pos;
+
+        _moveController.SetDirection(MoveDir.NONE);
+        _stateController.SetState(State.NONE, MoveDir.NONE);
     }
 
 
-    #region Virtual Functions
+    #region virtual
     // UpdateIdle, UpdateMoving, .. 이 실행되는 곳
     protected virtual void V_UpdateObject()
     {
@@ -127,32 +117,12 @@ public class BaseObject : MonoBehaviour
         }
     }
 
+    protected virtual void V_MoveToNextPos() { }
+
     protected virtual void V_UpdateAttack() { }
 
     protected virtual void V_UpdateDead() { }
 
     public virtual void V_Attack() { }
-
-    protected virtual void V_MoveToNextPos() { }
-    #endregion
-
-    #region Virtual Life-cycle Functions
-    protected virtual void V_OnAwake()
-    {
-        _moveController = new MoveControl(this.gameObject);
-        _stateController = new StateControl(GetComponent<Animator>(), GetComponent<SpriteRenderer>());
-
-        Manager.Map.UpdatePosition(CellPos, CellPos, this); // TODO: cellpos는 json 혹은 csv로 처음에 불러와야함
-    }
-
-    protected virtual void V_OnStart()
-    {
-        // 현재 그리드의 위치 + new Vector3(0.5f, 0.5f) 가 셀 포지션을 기준으로 움직일때 자연스러워서 이렇게 함
-        Vector3 pos = Manager.Map.CurrentGrid.CellToWorld(CellPos) + new Vector3(0.5f, 0.5f);
-        transform.position = pos;
-
-        _moveController.SetDirection(MoveDir.NONE);
-        _stateController.SetState(State.NONE, MoveDir.NONE);
-    }
     #endregion
 }

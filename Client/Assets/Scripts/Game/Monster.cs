@@ -7,9 +7,14 @@ public class Monster : Creature
 {
     public override ObjectType _type => ObjectType.MONSTER;
 
-    protected override void V_OnStart()
+    private void Awake()
     {
-        base.V_OnStart();
+        OnAwake();
+    }
+
+    private void Start()
+    {
+        OnStart();
 
         // TEMP
         CellPos = Vector3Int.one;
