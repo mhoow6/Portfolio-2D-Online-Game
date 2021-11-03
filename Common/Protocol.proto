@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package Protocol;
+import "google/protobuf/timestamp.proto";
+option csharp_namespace = "Google.Protobuf.Protocol";
+
+// Input Packet Name ex. C_Move, S_Move
+enum MsgId
+{
+  C_TEST = 0;
+}
+
+// Packet Structure
+// ps. repeated int32 = List<int>
+
+message C_Test
+{
+	int32 number = 1;
+	string msg = 2;
+}

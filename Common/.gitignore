@@ -1,0 +1,5 @@
+# Ignore Directory
+include/
+
+# Ignore File
+*.sln
