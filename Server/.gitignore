@@ -1,0 +1,19 @@
+# Ignore Directory
+PacketGenerator/bin/
+Server/bin/
+ServerCore/bin/
+Library/
+Logs/
+obj/
+Packages/
+ProjectSettings/
+Temp/
+UserSettings/
+.vs/
+
+# Ignore File
+*.csproj
+*.sln
+*.vsconfig
+*.txt
+*.exe

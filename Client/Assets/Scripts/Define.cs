@@ -28,15 +28,6 @@
         NONE = -1
     }
 
-    public enum ObjectType
-    {
-        PLAYER,
-        MONSTER,
-        EFFECT,
-        PROJECTILE,
-        NONE = -1
-    }
-
     public enum WeaponType
     {
         BAREHAND,
@@ -47,6 +38,7 @@
     public enum MapId
     {
         TOWN = 1,
+        DUNGEON = 2,
         NONE = -1,
     }
 }

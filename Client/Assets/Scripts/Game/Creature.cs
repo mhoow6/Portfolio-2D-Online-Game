@@ -5,6 +5,8 @@ using static Define;
 
 public class Creature : BaseObject
 {
+    protected bool _attackOnce;
+
     #region virtual
     public virtual void V_Dead()
     {

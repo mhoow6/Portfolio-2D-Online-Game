@@ -7,8 +7,7 @@ public delegate void Callback();
 
 public class BaseObject : MonoBehaviour
 {
-    public virtual ObjectType _type { get => ObjectType.NONE; }
-    public ObjectCode _code;
+    public ObjectCode code { get; set; }
 
     protected float _moveSpeed = 5.0f;
 

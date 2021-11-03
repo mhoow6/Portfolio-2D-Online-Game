@@ -7,7 +7,6 @@ using static Define;
 
 public class Player : Creature
 {
-    public override ObjectType _type => ObjectType.PLAYER;
     public int count = 0;
     bool _moveKeyPressed = true;
 
@@ -30,7 +29,12 @@ public class Player : Creature
         V_UpdateObject();
     }
 
-    
+    private void LateUpdate()
+    {
+        Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y, -10);
+    }
+
+
     void InputMoveControl()
     {
         // MOVE
@@ -100,6 +104,36 @@ public class Player : Creature
             {
                 StateController.SetWeapon(WeaponType.BOW);
                 StateController.SetState(State.ATTACK, MoveDir);
+            }
+        }
+    }
+
+    protected override void V_UpdateAttack()
+    {
+        if (StateController.IsAnimationDone())
+        {
+            _attackOnce = false;
+            StateController.SetState(State.IDLE, MoveDir);
+        }
+        else
+        {
+            if (_attackOnce == false)
+            {
+                switch (StateController.Weapontype)
+                {
+                    case WeaponType.BAREHAND:
+                        if (Manager.Map.IsCreatureAt(GetFrontCellPos()))
+                        {
+                            Debug.Log("Hit Monster!"); // TODO: Ã¼·Â ±ð±â
+                        }
+                        break;
+                    case WeaponType.BOW:
+                        Arrow arrow = Manager.Spawner.SpawnObject(ObjectCode.ARROW) as Arrow;
+                        arrow.V_SetOwner(this);
+                        break;
+                }
+
+                _attackOnce = true;
             }
         }
     }

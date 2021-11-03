@@ -401,7 +401,7 @@ public class MoveStay : MoveStrategy
 #region Map Factory
 public class MapFactory
 {
-    public GameObject GetMapObject(MapId mapId)
+    public static GameObject GetMapObject(MapId mapId)
     {
         GameObject map = null;
 
@@ -410,12 +410,15 @@ public class MapFactory
             case MapId.TOWN:
                 map = Resources.Load<GameObject>(ResourcePaths.Map_Prefabs + "/Map_001");
                 break;
+            case MapId.DUNGEON:
+                map = Resources.Load<GameObject>(ResourcePaths.Map_Prefabs + "/Map_DUNGEON");
+                break;
         }
 
         return map;
     }
 
-    public TextAsset GetMapCollisionTextAsset(MapId mapId)
+    public static TextAsset GetMapCollisionTextAsset(MapId mapId)
     {
         TextAsset map = null;
 
@@ -423,6 +426,9 @@ public class MapFactory
         {
             case MapId.TOWN:
                 map = Resources.Load<TextAsset>(ResourcePaths.Map_Collision + "/Map_001");
+                break;
+            case MapId.DUNGEON:
+                map = Resources.Load<TextAsset>(ResourcePaths.Map_Collision + "/Map_DUNGEON");
                 break;
         }
 
@@ -434,7 +440,7 @@ public class MapFactory
 #region Object Factory
 public class ObjectFactory
 {
-    public BaseObject AddComponentToObject(ObjectCode code, GameObject obj)
+    public static BaseObject AddComponentToObject(ObjectCode code, GameObject obj)
     {
         BaseObject ret;
 
@@ -477,7 +483,7 @@ public class ObjectFactory
         return null;
     }
 
-    public GameObject LoadGameObject(ObjectCode code)
+    public static GameObject LoadGameObject(ObjectCode code)
     {
         GameObject go = null;
 
@@ -498,23 +504,6 @@ public class ObjectFactory
         }
 
         return go;
-    }
-
-    public ObjectType GetObjectType(ObjectCode code)
-    {
-        switch (code)
-        {
-            case ObjectCode.PLAYER:
-                return ObjectType.PLAYER;
-            case ObjectCode.MONSTER:
-                return ObjectType.MONSTER;
-            case ObjectCode.DEAD_EFFECT:
-                return ObjectType.EFFECT;
-            case ObjectCode.ARROW:
-                return ObjectType.PROJECTILE;
-        }
-
-        return ObjectType.NONE;
     }
 }
 #endregion

@@ -5,7 +5,6 @@ using static Define;
 
 public class Projectile : BaseObject
 {
-    public override ObjectType _type => ObjectType.PROJECTILE;
     public Creature _owner;
 
     public virtual void V_SetOwner(Creature owner)

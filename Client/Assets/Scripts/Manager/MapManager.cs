@@ -9,7 +9,6 @@ public class MapManager
     public Grid CurrentGrid { get; private set; }
     bool[,] _collision;
     BaseObject[,] _objects;
-    MapFactory _factory = new MapFactory();
 
     public int XLength
     {
@@ -37,7 +36,7 @@ public class MapManager
     {
         DestroyMap();
 
-        GameObject _go = _factory.GetMapObject(mapId);
+        GameObject _go = MapFactory.GetMapObject(mapId);
         GameObject go = GameObject.Instantiate<GameObject>(_go);
         go.name = "Map";
 
@@ -46,7 +45,7 @@ public class MapManager
             collision.SetActive(false);
 
         CurrentGrid = go.GetComponent<Grid>();
-        TextAsset txt = _factory.GetMapCollisionTextAsset(mapId);
+        TextAsset txt = MapFactory.GetMapCollisionTextAsset(mapId);
 
         using (StringReader sr = new StringReader(txt.text))
         {
@@ -108,7 +107,7 @@ public class MapManager
 
         if (_objects[vec.y, vec.x] != null)
         {
-            if (_objects[vec.y, vec.x]._type != ObjectType.PROJECTILE)
+            if (_objects[vec.y, vec.x].code != ObjectCode.ARROW)
             {
                 return false;
             }
@@ -142,11 +141,10 @@ public class MapManager
 
         if ((_objects[vec.y, vec.x] != null))
         {
-            if ((_objects[vec.y, vec.x]._type == ObjectType.PLAYER || (_objects[vec.y, vec.x]._type == ObjectType.MONSTER)))
+            if ((_objects[vec.y, vec.x].code != ObjectCode.ARROW))
             {
                 return _objects[vec.y, vec.x] as Creature;
             }
-                
         }
 
         return null;

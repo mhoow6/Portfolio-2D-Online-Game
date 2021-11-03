@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Define;
 
-public class TownScene : BaseScene
+public class DungeonScene : BaseScene
 {
-    public override MapId mapId { get => MapId.TOWN; }
+    public override MapId mapId { get => MapId.DUNGEON; }
 
     protected override void Init()
     {

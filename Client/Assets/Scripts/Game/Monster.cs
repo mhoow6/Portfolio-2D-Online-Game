@@ -5,8 +5,6 @@ using static Define;
 
 public class Monster : Creature
 {
-    public override ObjectType _type => ObjectType.MONSTER;
-
     private void Awake()
     {
         OnAwake();

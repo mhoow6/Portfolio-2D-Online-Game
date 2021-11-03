@@ -10,6 +10,7 @@ public class Manager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        Pool = new GameObject("Pool");
     }
     #endregion
 
@@ -17,15 +18,28 @@ public class Manager : MonoBehaviour
     public static MapManager Map { get => Instance._map; }
     MapManager _map = new MapManager();
     public static SpawnManager Spawner { get => Instance._spawner; }
-    public GameObject Pool { get; private set; }
     SpawnManager _spawner = new SpawnManager();
+    public GameObject Pool { get; private set; } 
+    public static NetworkManager Network { get => Instance._network; }
+    NetworkManager _network = new NetworkManager();
     #endregion
 
     private void Start()
     {
-        Pool = new GameObject("Pool");
-        DontDestroyOnLoad(Pool);
+        // Network Init
+        // _network.Init();
 
+        DontDestroyOnLoad(Pool);
         DontDestroyOnLoad(this.gameObject);
+    }
+
+    private void Update()
+    {
+        // _network.Update();
+    }
+
+    private void OnDestroy()
+    {
+        // _network.Dispose();
     }
 }

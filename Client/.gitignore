@@ -9,9 +9,11 @@ UserSettings/
 .vs/
 
 # Ignore Assets
+Assets/Libs
 Assets/Animations
 Assets/Tiny RPG Forest
 Assets/TinyRPGTown
+Assets/2D Dungeon PixelArt Tileset
 
 # Ignore Resources
 Assets/Resources
