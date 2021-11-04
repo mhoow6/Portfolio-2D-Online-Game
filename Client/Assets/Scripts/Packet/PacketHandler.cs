@@ -9,7 +9,7 @@ using System.Text;
 class PacketHandler
 {
     #region 형식 예제
-    public static void C_TestHandler(PacketSession session, IMessage packet)
+    public static void S_Test(PacketSession session, IMessage packet)
     {
 
     }

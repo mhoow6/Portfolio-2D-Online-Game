@@ -22,9 +22,10 @@ class PacketManager
 	public Action<PacketSession, IMessage, ushort> CustomHandler { get; set; }
 		
 	public void Register()
-	{		
-		_onRecv.Add((ushort)MsgId.CTest, MakePacket<C_Test>);
-		_handler.Add((ushort)MsgId.CTest, PacketHandler.C_TestHandler);
+	{
+				
+		_onRecv.Add((ushort)MsgId.CRespawn, MakePacket<C_Respawn>);
+		_handler.Add((ushort)MsgId.CRespawn, PacketHandler.C_RespawnHandler);
 	}
 
 	public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer)

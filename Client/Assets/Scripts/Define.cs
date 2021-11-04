@@ -19,15 +19,6 @@
         NONE = -1
     }
 
-    public enum ObjectCode
-    {
-        PLAYER,
-        MONSTER,
-        DEAD_EFFECT,
-        ARROW,
-        NONE = -1
-    }
-
     public enum WeaponType
     {
         BAREHAND,

@@ -23,6 +23,7 @@ class PacketManager
 		
 	public void Register()
 	{
+		
 	}
 
 	public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer)

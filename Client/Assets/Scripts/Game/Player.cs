@@ -1,3 +1,4 @@
+using Google.Protobuf.Protocol;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -128,7 +129,7 @@ public class Player : Creature
                         }
                         break;
                     case WeaponType.BOW:
-                        Arrow arrow = Manager.Spawner.SpawnObject(ObjectCode.ARROW) as Arrow;
+                        Arrow arrow = Manager.Spawner.SpawnObject(ObjectCode.Arrow) as Arrow;
                         arrow.V_SetOwner(this);
                         break;
                 }
@@ -152,7 +153,7 @@ public class Player : Creature
                         }
                         break;
                     case WeaponType.BOW:
-                        Arrow arrow = Manager.Spawner.SpawnObject(ObjectCode.ARROW) as Arrow;
+                        Arrow arrow = Manager.Spawner.SpawnObject(ObjectCode.Arrow) as Arrow;
                         arrow.V_SetOwner(this);
                         break;
                 }

@@ -1,3 +1,4 @@
+using Google.Protobuf.Protocol;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -107,7 +108,7 @@ public class MapManager
 
         if (_objects[vec.y, vec.x] != null)
         {
-            if (_objects[vec.y, vec.x].code != ObjectCode.ARROW)
+            if (_objects[vec.y, vec.x].code != ObjectCode.Arrow)
             {
                 return false;
             }
@@ -141,7 +142,7 @@ public class MapManager
 
         if ((_objects[vec.y, vec.x] != null))
         {
-            if ((_objects[vec.y, vec.x].code != ObjectCode.ARROW))
+            if ((_objects[vec.y, vec.x].code != ObjectCode.Arrow))
             {
                 return _objects[vec.y, vec.x] as Creature;
             }

@@ -51,5 +51,29 @@ public class Util
         return null;
     }
 
+    public static string EraseBracketInName(string text)
+    {
+        string mobNameWithNoSpace = text.Replace(" ", "");
+        int index = mobNameWithNoSpace.IndexOf('(');
+
+        if (index == -1)
+            return text;
+
+        return mobNameWithNoSpace.Remove(index);
+    }
+
+    public static GameObject FindChild(GameObject parent, string name)
+    {
+        for (int i = 0; i < parent.transform.childCount; i++)
+        {
+            if (parent.transform.GetChild(i).name == name)
+            {
+                return parent.transform.GetChild(i).gameObject;
+            }
+        }
+
+        return null;
+    }
+
 
 }

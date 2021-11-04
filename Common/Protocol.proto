@@ -4,17 +4,29 @@ package Protocol;
 import "google/protobuf/timestamp.proto";
 option csharp_namespace = "Google.Protobuf.Protocol";
 
-// Input Packet Name ex. C_Move, S_Move
+// Input Packet Name ex. C_MOVE, S_MOVE
 enum MsgId
 {
-  C_TEST = 0;
+	C_RESPAWN = 0;
+	S_SPAWN = 1;
 }
 
-// Packet Structure
-// ps. repeated int32 = List<int>
-
-message C_Test
+enum ObjectCode
 {
-	int32 number = 1;
-	string msg = 2;
+	PLAYER = 0;
+    MONSTER = 1;
+    DEAD_EFFECT = 2;
+    ARROW= 3;
+}
+
+// Packet Structure Design like clas
+// ps. repeated int32 = List<int>
+message C_Respawn
+{
+	int32 objectCode = 1;
+}
+
+message S_Spawn
+{
+	
 }

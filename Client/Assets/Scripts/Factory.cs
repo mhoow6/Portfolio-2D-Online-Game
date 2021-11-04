@@ -1,3 +1,4 @@
+using Google.Protobuf.Protocol;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -446,7 +447,7 @@ public class ObjectFactory
 
         switch (code)
         {
-            case ObjectCode.PLAYER:
+            case ObjectCode.Player:
                 if (obj.GetComponent<Player>() == null)
                 {
                     ret = obj.AddComponent<Player>();
@@ -454,7 +455,7 @@ public class ObjectFactory
                     return ret;
                 }
                 break;
-            case ObjectCode.MONSTER:
+            case ObjectCode.Monster:
                 if (obj.GetComponent<Monster>() == null)
                 {
                     ret = obj.AddComponent<Monster>();
@@ -462,7 +463,7 @@ public class ObjectFactory
                     return ret;
                 }
                 break;
-            case ObjectCode.DEAD_EFFECT:
+            case ObjectCode.DeadEffect:
                 if (obj.GetComponent<DeathEffect>() == null)
                 {
                     ret = obj.AddComponent<DeathEffect>();
@@ -470,7 +471,7 @@ public class ObjectFactory
                     return ret;
                 }
                 break;
-            case ObjectCode.ARROW:
+            case ObjectCode.Arrow:
                 if (obj.GetComponent<Arrow>() == null)
                 {
                     ret = obj.AddComponent<Arrow>();
@@ -489,16 +490,16 @@ public class ObjectFactory
 
         switch (code)
         {
-            case ObjectCode.PLAYER:
+            case ObjectCode.Player:
                 go = Resources.Load<GameObject>(ResourcePaths.Player_Prefab);
                 break;
-            case ObjectCode.MONSTER:
+            case ObjectCode.Monster:
                 go = Resources.Load<GameObject>(ResourcePaths.Monster_Prefab);
                 break;
-            case ObjectCode.DEAD_EFFECT:
+            case ObjectCode.DeadEffect:
                 go = Resources.Load<GameObject>(ResourcePaths.DeathEffect_Prefab);
                 break;
-            case ObjectCode.ARROW:
+            case ObjectCode.Arrow:
                 go = Resources.Load<GameObject>(ResourcePaths.Arrow_Prefab);
                 break;
         }

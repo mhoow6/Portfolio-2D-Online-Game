@@ -1,3 +1,4 @@
+using Google.Protobuf.Protocol;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,7 +19,19 @@ public abstract class BaseScene : MonoBehaviour
     protected virtual void Init()
     {
         Manager.Map.LoadMap(mapId);
-        Manager.Spawner.SpawnObject(ObjectCode.PLAYER); // 스폰 위치는 임의
-        Manager.Spawner.SpawnObject(ObjectCode.MONSTER); // 스폰 위치는 임의
+
+        // 플레이어 스폰 요청
+        {
+            C_Respawn spawnPkt = new C_Respawn();
+            spawnPkt.ObjectCode = (int)ObjectCode.Player;
+            Manager.Network.Send(spawnPkt);
+        }
+
+        // 몬스터 스폰 요청
+        {
+            C_Respawn spawnPkt = new C_Respawn();
+            spawnPkt.ObjectCode = (int)ObjectCode.Monster;
+            Manager.Network.Send(spawnPkt);
+        }
     }
 }
