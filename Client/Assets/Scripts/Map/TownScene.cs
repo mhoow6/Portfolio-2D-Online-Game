@@ -1,11 +1,11 @@
+using Google.Protobuf.Protocol;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static Define;
 
 public class TownScene : BaseScene
 {
-    public override MapId mapId { get => MapId.TOWN; }
+    public override MapId mapId { get => MapId.Town; }
 
     protected override void Init()
     {

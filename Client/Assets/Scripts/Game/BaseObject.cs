@@ -9,6 +9,7 @@ public delegate void Callback();
 public class BaseObject : MonoBehaviour
 {
     public ObjectCode code { get; set; }
+    public int id;
 
     protected float _moveSpeed = 5.0f;
 
@@ -61,14 +62,14 @@ public class BaseObject : MonoBehaviour
         _moveController = new MoveControl(this.gameObject);
         _stateController = new StateControl(GetComponent<Animator>(), GetComponent<SpriteRenderer>());
 
-        Manager.Map.UpdatePosition(CellPos, CellPos, this); // TODO: cellpos는 json 혹은 csv로 처음에 불러와야함
+        // Manager.Map.UpdatePosition(CellPos, CellPos, this); // TODO: cellpos는 json 혹은 csv로 처음에 불러와야함
     }
 
     protected void OnStart()
     {
         // 현재 그리드의 위치 + new Vector3(0.5f, 0.5f) 가 셀 포지션을 기준으로 움직일때 자연스러워서 이렇게 함
-        Vector3 pos = Manager.Map.CurrentGrid.CellToWorld(CellPos) + new Vector3(0.5f, 0.5f);
-        transform.position = pos;
+        // Vector3 pos = Manager.Map.CurrentGrid.CellToWorld(CellPos) + new Vector3(0.5f, 0.5f);
+        // transform.position = pos;
 
         _moveController.SetDirection(MoveDir.NONE);
         _stateController.SetState(State.NONE, MoveDir.NONE);

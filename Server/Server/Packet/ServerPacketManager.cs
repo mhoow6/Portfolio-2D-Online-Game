@@ -23,9 +23,8 @@ class PacketManager
 		
 	public void Register()
 	{
-				
-		_onRecv.Add((ushort)MsgId.CRespawn, MakePacket<C_Respawn>);
-		_handler.Add((ushort)MsgId.CRespawn, PacketHandler.C_RespawnHandler);
+		_onRecv.Add((ushort)MsgId.CSpawn, MakePacket<C_Spawn>);
+		_handler.Add((ushort)MsgId.CSpawn, PacketHandler.C_SpawnHandler);
 	}
 
 	public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer)

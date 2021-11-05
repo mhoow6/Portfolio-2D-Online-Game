@@ -27,7 +27,7 @@ public class Manager : MonoBehaviour
     private void Start()
     {
         // Network Init
-        // _network.Init();
+        _network.Init();
 
         DontDestroyOnLoad(Pool);
         DontDestroyOnLoad(this.gameObject);
@@ -35,11 +35,11 @@ public class Manager : MonoBehaviour
 
     private void Update()
     {
-        // _network.Update();
+        _network.Update();
     }
 
     private void OnDestroy()
     {
-        // _network.Dispose();
+        _network.Dispose();
     }
 }

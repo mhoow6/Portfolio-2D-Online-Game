@@ -25,11 +25,4 @@
         BOW,
         NONE = -1
     }
-
-    public enum MapId
-    {
-        TOWN = 1,
-        DUNGEON = 2,
-        NONE = -1,
-    }
 }

@@ -7,7 +7,7 @@ option csharp_namespace = "Google.Protobuf.Protocol";
 // Input Packet Name ex. C_MOVE, S_MOVE
 enum MsgId
 {
-	C_RESPAWN = 0;
+	C_SPAWN = 0;
 	S_SPAWN = 1;
 }
 
@@ -19,14 +19,30 @@ enum ObjectCode
     ARROW= 3;
 }
 
+enum MapId
+{
+    TOWN = 0;
+    DUNGEON = 1;
+}
+
+// Class
+message Vector2
+{
+    int32 x = 1;
+    int32 y = 2;
+}
+
 // Packet Structure Design like clas
 // ps. repeated int32 = List<int>
-message C_Respawn
+message C_Spawn
 {
 	int32 objectCode = 1;
+    int32 objectId = 2;
 }
 
 message S_Spawn
 {
-	
+    int32 objectCode = 1;
+    int32 objectId = 2;
+    Vector2 position = 3;
 }

@@ -408,11 +408,11 @@ public class MapFactory
 
         switch (mapId)
         {
-            case MapId.TOWN:
+            case MapId.Town:
                 map = Resources.Load<GameObject>(ResourcePaths.Map_Prefabs + "/Map_001");
                 break;
-            case MapId.DUNGEON:
-                map = Resources.Load<GameObject>(ResourcePaths.Map_Prefabs + "/Map_DUNGEON");
+            case MapId.Dungeon:
+                map = Resources.Load<GameObject>(ResourcePaths.Map_Prefabs + "/Map_Dungeon");
                 break;
         }
 
@@ -425,11 +425,11 @@ public class MapFactory
 
         switch (mapId)
         {
-            case MapId.TOWN:
-                map = Resources.Load<TextAsset>(ResourcePaths.Map_Collision + "/Map_001");
+            case MapId.Town:
+                map = Resources.Load<TextAsset>(ResourcePaths.Map_Collision_Save_Resource + "/Map_001");
                 break;
-            case MapId.DUNGEON:
-                map = Resources.Load<TextAsset>(ResourcePaths.Map_Collision + "/Map_DUNGEON");
+            case MapId.Dungeon:
+                map = Resources.Load<TextAsset>(ResourcePaths.Map_Collision_Save_Resource + "/Map_Dungeon");
                 break;
         }
 

@@ -7,6 +7,7 @@ using static Define;
 public class SpawnManager
 {
     Dictionary<ObjectCode, List<BaseObject>> _objects = new Dictionary<ObjectCode, List<BaseObject>>();
+    
 
     public BaseObject SpawnObject(ObjectCode code)
     {

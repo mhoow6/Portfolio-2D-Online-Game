@@ -19,10 +19,6 @@ public class Player : Creature
     private void Start()
     {
         OnStart();
-
-        // TEMP
-        CellPos = Vector3Int.down;
-        transform.position = Manager.Map.CurrentGrid.CellToWorld(CellPos) + new Vector3(0.5f, 0.5f, 0);
     }
 
     private void Update()
