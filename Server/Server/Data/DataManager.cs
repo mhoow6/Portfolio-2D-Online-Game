@@ -10,6 +10,8 @@ namespace Server
         public ObjectCode code;
         public int x;
         public int y;
+
+        public static SpawnPosInfo Zero { get => new SpawnPosInfo(); }
     }
 
     public class DataManager : SingleTon<DataManager>

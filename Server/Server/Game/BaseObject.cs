@@ -7,9 +7,7 @@ namespace Server
 {
     public class BaseObject
     {
-        public ObjectCode code;
-        public int id;
-        public Vector2 position;
+        public ObjectInfo objectInfo;
         public Room room;
     }
 }

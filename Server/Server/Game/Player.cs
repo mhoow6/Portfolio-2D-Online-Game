@@ -8,10 +8,5 @@ namespace Server
     public class Player : Creature
     {
         public ClientSession session;
-
-        public Player(ObjectCode code)
-        {
-            this.code = code;
-        }
     }
 }

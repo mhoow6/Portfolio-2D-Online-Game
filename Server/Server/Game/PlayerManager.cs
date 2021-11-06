@@ -6,27 +6,29 @@ using Google.Protobuf.Protocol;
 namespace Server
 {
     // 오브젝트 관리자
-    public class ObjectManager : SingleTon<ObjectManager>
+    public class PlayerManager : SingleTon<PlayerManager>
     {
         public static readonly int Unknown = -1;
 
         object _lock = new object();
-        Dictionary<int, BaseObject> _objects = new Dictionary<int, BaseObject>();
+        Dictionary<int, Player> _objects = new Dictionary<int, Player>();
 
         // UnUsed(1)ObjectCode(7)ObjectId(23)
         // [ ........ | ........ | ........ | ........ ]
-        public int ObjId { get; private set; }
+        public int PlayerCount { get; private set; }
 
-        public BaseObject Add(ObjectCode code, Vector2 position)
+        public T Add<T>(ObjectCode code) where T : BaseObject, new()
         {
-            BaseObject gameObject = new BaseObject();
+            T gameObject = new T();
 
             lock (_lock)
             {
-                gameObject.code = code;
-                gameObject.position = position;
-                gameObject.id = GenerateId(code);
-                _objects.Add(gameObject.id, gameObject);
+                gameObject.objectInfo = new ObjectInfo();
+                gameObject.objectInfo.ObjectCode = (int)code;
+                gameObject.objectInfo.ObjectId = GenerateId(code);
+
+                if (code == ObjectCode.Player || code == ObjectCode.Other)
+                    _objects.Add(gameObject.objectInfo.ObjectId, gameObject as Player);
             }
 
             return gameObject;
@@ -46,11 +48,11 @@ namespace Server
             return false;
         }
 
-        public BaseObject Find(int objectId)
+        public Player Find(int objectId)
         {
             lock (_lock)
             {
-                if (_objects.TryGetValue(objectId, out BaseObject obj))
+                if (_objects.TryGetValue(objectId, out Player obj))
                     return obj;
             }
 
@@ -66,7 +68,7 @@ namespace Server
 
             lock (_lock)
             {
-                return ((int)code << 24) | (ObjId++);
+                return ((int)code << 24) | (PlayerCount++);
             }
         }
 

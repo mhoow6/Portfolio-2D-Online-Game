@@ -19,10 +19,10 @@ namespace Server
             {
                 gameRoom.roomId = RoomId;
                 _rooms.Add(RoomId, gameRoom);
+                Console.WriteLine($"Room Load Completed. ({RoomId})");
                 RoomId++;
             }
 
-            Console.WriteLine($"Room Load Completed. : {RoomId}");
             return gameRoom;
         }
 

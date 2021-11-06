@@ -13,6 +13,8 @@ namespace Server
 {
 	public class ClientSession : PacketSession
 	{
+		public Player me;
+
 		public int SessionId { get; set; }
 
 		public void Send(IMessage packet)
@@ -36,6 +38,25 @@ namespace Server
 		public override void OnConnected(EndPoint endPoint)
 		{
 			Console.WriteLine($"OnConnected : {endPoint}");
+
+			me = PlayerManager.Instance.Add<Player>(ObjectCode.Player);
+			me.session = this;
+			me.objectInfo = PlayerManager.Instance.Add<Player>(ObjectCode.Player).objectInfo;
+
+			// 랜덤 스폰 장소
+			Random rnd = new Random(System.Environment.TickCount);
+			int rndIndex = -1;
+			SpawnPosInfo pos = SpawnPosInfo.Zero;
+			rndIndex = rnd.Next(0, DataManager.Instance.DungeonPlayerSpawnPosition.Count - 1);
+			pos = DataManager.Instance.DungeonPlayerSpawnPosition[rndIndex];
+			Vector2 position = new Vector2();
+			position.X = pos.x;
+			position.Y = pos.y;
+			me.objectInfo.Position = position;
+
+			Room room = RoomManager.Instance.Find(1);
+			me.room = room;
+			room.Push(room.EnterGame, me);
 		}
 
 		public override void OnRecvPacket(ArraySegment<byte> buffer)

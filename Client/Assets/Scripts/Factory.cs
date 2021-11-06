@@ -479,6 +479,14 @@ public class ObjectFactory
                     return ret;
                 }
                 break;
+            case ObjectCode.Other:
+                if (obj.GetComponent<Other>() == null)
+                {
+                    ret = obj.AddComponent<Other>();
+                    obj.name = "Other";
+                    return ret;
+                }
+                break;
         }
 
         return null;
@@ -501,6 +509,9 @@ public class ObjectFactory
                 break;
             case ObjectCode.Arrow:
                 go = Resources.Load<GameObject>(ResourcePaths.Arrow_Prefab);
+                break;
+            case ObjectCode.Other:
+                go = Resources.Load<GameObject>(ResourcePaths.Other_Prefab);
                 break;
         }
 

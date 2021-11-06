@@ -10,4 +10,5 @@ public struct ResourcePaths
     public readonly static string Monster_Prefab = "Prefabs/Monster";
     public readonly static string DeathEffect_Prefab = "Prefabs/DeathEffect";
     public readonly static string Arrow_Prefab = "Prefabs/Arrow";
+    public readonly static string Other_Prefab = "Prefabs/Other";
 }

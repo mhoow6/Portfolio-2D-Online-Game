@@ -6,14 +6,9 @@ using System.Net;
 using Google.Protobuf;
 using System;
 
-public class NetworkManager : IDisposable
+public class NetworkManager
 {
     ServerSession _session = new ServerSession();
-
-    public void Dispose()
-    {
-        _session.Disconnect();
-    }
 
     public void Init()
     {

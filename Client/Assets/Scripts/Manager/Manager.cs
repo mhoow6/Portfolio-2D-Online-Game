@@ -37,9 +37,4 @@ public class Manager : MonoBehaviour
     {
         _network.Update();
     }
-
-    private void OnDestroy()
-    {
-        _network.Dispose();
-    }
 }

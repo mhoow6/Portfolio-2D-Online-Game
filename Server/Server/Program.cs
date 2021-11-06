@@ -31,10 +31,12 @@ namespace Server
 
             // TODO: 클라이언트에서 방 생성 요청 받아서 하기
             Room room = RoomManager.Instance.Add((int)MapId.Dungeon);
-            Console.WriteLine("Room is Online..!");
-            TickRoom(room, 50); // 50ms마다 실행
+            if (room != null)
+            {
+                Console.WriteLine("Room is Online..!");
+                TickRoom(room, 50); // 50ms마다 실행
+            }
             
-
             // Server Setup
             string hostName = Dns.GetHostName();
             IPHostEntry hostEntry = Dns.GetHostEntry(hostName);

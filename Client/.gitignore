@@ -7,6 +7,7 @@ ProjectSettings/
 Temp/
 UserSettings/
 .vs/
+Builds/
 
 # Ignore Assets
 Assets/Libs
