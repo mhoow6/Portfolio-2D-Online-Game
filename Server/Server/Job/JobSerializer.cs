@@ -10,7 +10,6 @@ namespace Server
         JobTimer _timer = new JobTimer(); // 미래에 실행해야 하는 일들을 시간관리
         Queue<IJob> _jobQueue = new Queue<IJob>(); // 당장 실행해야할 일들
         object _lock = new object();
-        bool _flush = false;
 
 		#region 실행해야할 일들을 큐 또는 JobTimer에 넣기
 		// 그냥 Job을 안 만들고 Action으로 건네 주고 싶을 경우
@@ -95,7 +94,6 @@ namespace Server
 			{
 				if (_jobQueue.Count == 0)
 				{
-					_flush = false;
 					return null;
 				}
 				return _jobQueue.Dequeue();

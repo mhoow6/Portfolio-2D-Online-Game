@@ -27,7 +27,7 @@ namespace Server
                 gameObject.objectInfo.ObjectCode = (int)code;
                 gameObject.objectInfo.ObjectId = GenerateId(code);
 
-                if (code == ObjectCode.Player || code == ObjectCode.Other)
+                if (code == ObjectCode.Player)
                     _objects.Add(gameObject.objectInfo.ObjectId, gameObject as Player);
             }
 

@@ -8,8 +8,11 @@ public delegate void Callback();
 
 public class BaseObject : MonoBehaviour
 {
-    public ObjectCode code { get; set; }
-    public int id;
+    public ObjectInfo ObjectInfo { get; set; } = new ObjectInfo();
+    
+    public ObjectCode code { get => (ObjectCode)ObjectInfo.ObjectCode; set { ObjectInfo.ObjectCode = (int)value; } }
+    public int id { get => ObjectInfo.ObjectId; set { ObjectInfo.ObjectId = value; } }
+    public int roomId { get => ObjectInfo.RoomId; set { ObjectInfo.RoomId = value; } }
 
     protected float _moveSpeed = 5.0f;
 
@@ -22,6 +25,7 @@ public class BaseObject : MonoBehaviour
         {
             Manager.Map.UpdatePosition(_cellPos, value, this);
             _cellPos = value;
+            ObjectInfo.Position = new Google.Protobuf.Protocol.Vector2() { X = _cellPos.x, Y = _cellPos.y };
         }
     }
 
@@ -73,6 +77,13 @@ public class BaseObject : MonoBehaviour
 
         _moveController.SetDirection(MoveDir.NONE);
         _stateController.SetState(State.NONE, MoveDir.NONE);
+    }
+
+    protected void SendMovePacket(ObjectInfo objInfo)
+    {
+        C_Move pkt = new C_Move();
+        pkt.ObjectInfo = objInfo;
+        Manager.Network.Send(pkt);
     }
 
 

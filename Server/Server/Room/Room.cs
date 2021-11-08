@@ -33,11 +33,6 @@ namespace Server
 
             ObjectCode code = PlayerManager.GetObjectCodeById(gameObject.objectInfo.ObjectId);
 
-            // 랜덤 스폰을 위한 준비
-            Random rnd = new Random(System.Environment.TickCount);
-            int rndIndex = -1;
-            SpawnPosInfo pos = SpawnPosInfo.Zero;
-
             switch (code)
             {
                 case (ObjectCode.Player):
@@ -68,9 +63,7 @@ namespace Server
 
                     /**************************************************************/
 
-                    // 3. 랜덤 인덱스
-                    rndIndex = rnd.Next(0, DataManager.Instance.DungeonPlayerSpawnPosition.Count - 1);
-                    pos = DataManager.Instance.DungeonPlayerSpawnPosition[rndIndex];
+                    
                     break;
                 case (ObjectCode.Monster):
                     break;
@@ -81,12 +74,6 @@ namespace Server
             // 4. 방에 있는 존재들에게 내가 스폰됬다고 알린다
             {
                 S_Spawn spawnPacket = new S_Spawn();
-
-                // 랜덤으로 정해진 위치를 패킷에 담는다.
-                Vector2 position = new Vector2();
-                position.X = pos.x;
-                position.Y = pos.y;
-                gameObject.objectInfo.Position = position;
 
                 spawnPacket.Objects.Add(gameObject.objectInfo);
                 foreach (Player p in _players.Values)
@@ -115,6 +102,34 @@ namespace Server
                     break;
                 case (ObjectCode.Arrow):
                     break;
+            }
+        }
+
+        public void C_Move(C_Move packet)
+        {
+            // 패킷을 보낸 플레이어의 방 검색 후 작업
+            Room pktRoom = RoomManager.Instance.Find(packet.ObjectInfo.RoomId);
+            if (pktRoom != null)
+            {
+                // 해당 플레이어 찾고 나서 작업
+                Player player = null;
+                if (_players.TryGetValue(packet.ObjectInfo.ObjectId, out player) == true)
+                {
+                    // 맵에 위치 업데이트
+                    pktRoom.Map.UpdatePosition(packet.ObjectInfo.Position, player);
+
+                    // 방에 있는 사람들에게 알림
+                    S_Move response = new S_Move();
+                    response.Objects.Add(new ObjectInfo(player.objectInfo));
+                    foreach (Player p in _players.Values)
+                    {
+                        // 나를 제외한 존재들에게만..
+                        if (p.objectInfo.ObjectId != player.objectInfo.ObjectId)
+                        {
+                            p.session.Send(response);
+                        }
+                    }
+                }
             }
         }
 

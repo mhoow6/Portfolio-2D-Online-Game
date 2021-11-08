@@ -10,10 +10,13 @@ public class Player : Creature
 {
     public int count = 0;
     bool _moveKeyPressed = true;
+    Camera _myCamera;
 
     private void Awake()
     {
         OnAwake();
+
+        _myCamera = Camera.main;
     }
 
     private void Start()
@@ -28,7 +31,8 @@ public class Player : Creature
 
     private void LateUpdate()
     {
-        Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y, -10);
+        if (_myCamera != null)
+            _myCamera.transform.position = new Vector3(transform.position.x, transform.position.y, -10);
     }
 
 
@@ -97,7 +101,7 @@ public class Player : Creature
                 StateController.SetWeapon(WeaponType.BAREHAND);
                 StateController.SetState(State.ATTACK, MoveDir);
             }
-            else if (Input.GetKey(KeyCode.LeftControl)) // TODO: 추후에 활 착용시 바뀌도록 해결
+            else if (Input.GetKey(KeyCode.LeftControl))
             {
                 StateController.SetWeapon(WeaponType.BOW);
                 StateController.SetState(State.ATTACK, MoveDir);
@@ -170,6 +174,7 @@ public class Player : Creature
             if (Manager.Map.CreatureAt(GetFrontCellPos()) == null)
             {
                 CellPos = GetFrontCellPos();
+                SendMovePacket(ObjectInfo);
             }
         }
     }

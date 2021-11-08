@@ -479,11 +479,55 @@ public class ObjectFactory
                     return ret;
                 }
                 break;
-            case ObjectCode.Other:
-                if (obj.GetComponent<Other>() == null)
+        }
+
+        return null;
+    }
+
+    public static BaseObject AddComponentToObject(ObjectInfo objInfo, GameObject obj)
+    {
+        BaseObject ret;
+
+        switch ((ObjectCode)objInfo.ObjectCode)
+        {
+            case ObjectCode.Player:
+                if (obj.GetComponent<Player>() == null && obj.GetComponent<Other>() == null)
                 {
-                    ret = obj.AddComponent<Other>();
-                    obj.name = "Other";
+                    if (Manager.ObjectManager.Me == null)
+                    {
+                        ret = obj.AddComponent<Player>();
+                        obj.name = "Player";
+                        return ret;
+                    }
+                    else
+                    {
+                        ret = obj.AddComponent<Other>();
+                        obj.name = "Other";
+                        return ret;
+                    }
+                }
+                break;
+            case ObjectCode.Monster:
+                if (obj.GetComponent<Monster>() == null)
+                {
+                    ret = obj.AddComponent<Monster>();
+                    obj.name = "Monster";
+                    return ret;
+                }
+                break;
+            case ObjectCode.DeadEffect:
+                if (obj.GetComponent<DeathEffect>() == null)
+                {
+                    ret = obj.AddComponent<DeathEffect>();
+                    obj.name = "DeathEffect";
+                    return ret;
+                }
+                break;
+            case ObjectCode.Arrow:
+                if (obj.GetComponent<Arrow>() == null)
+                {
+                    ret = obj.AddComponent<Arrow>();
+                    obj.name = "Arrow";
                     return ret;
                 }
                 break;
@@ -509,9 +553,6 @@ public class ObjectFactory
                 break;
             case ObjectCode.Arrow:
                 go = Resources.Load<GameObject>(ResourcePaths.Arrow_Prefab);
-                break;
-            case ObjectCode.Other:
-                go = Resources.Load<GameObject>(ResourcePaths.Other_Prefab);
                 break;
         }
 

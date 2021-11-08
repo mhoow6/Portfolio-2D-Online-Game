@@ -116,10 +116,14 @@ namespace ServerCore
 			if (Interlocked.Exchange(ref _disconnected, 1) == 1)
 				return;
 
-			OnDisconnected(_socket.RemoteEndPoint);
-			_socket.Shutdown(SocketShutdown.Both);
-			_socket.Close();
-			Clear();
+			Socket sock = _socket;
+			if (sock != null)
+            {
+				OnDisconnected(sock.RemoteEndPoint);
+				sock.Shutdown(SocketShutdown.Both);
+				sock.Close();
+				Clear();
+			}
 		}
 
 		#region 네트워크 통신

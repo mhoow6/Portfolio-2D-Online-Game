@@ -39,6 +39,7 @@ namespace Server
 		{
 			Console.WriteLine($"OnConnected : {endPoint}");
 
+			// 오브젝트 기본 정보
 			me = PlayerManager.Instance.Add<Player>(ObjectCode.Player);
 			me.session = this;
 			me.objectInfo = PlayerManager.Instance.Add<Player>(ObjectCode.Player).objectInfo;
@@ -54,8 +55,13 @@ namespace Server
 			position.Y = pos.y;
 			me.objectInfo.Position = position;
 
+			// 방 번호
 			Room room = RoomManager.Instance.Find(1);
 			me.room = room;
+			me.objectInfo.RoomId = me.room.roomId;
+
+			// 기본 상태, 이동방향
+
 			room.Push(room.EnterGame, me);
 		}
 

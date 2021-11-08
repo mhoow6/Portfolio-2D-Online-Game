@@ -22,6 +22,9 @@ public class Manager : MonoBehaviour
     public GameObject Pool { get; private set; } 
     public static NetworkManager Network { get => Instance._network; }
     NetworkManager _network = new NetworkManager();
+
+    public static ObjectManager ObjectManager { get => Instance._om; }
+    ObjectManager _om = new ObjectManager();
     #endregion
 
     private void Start()

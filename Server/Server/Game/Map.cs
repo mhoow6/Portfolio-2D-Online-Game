@@ -90,9 +90,26 @@ namespace Server
 
         public void UpdatePosition(Vector2 next, BaseObject obj)
         {
+            Vector2 collisionCoord = new Vector2(obj.objectInfo.Position);
+            collisionCoord = CollisionCoordinate(collisionCoord.X, collisionCoord.Y);
+
+            // map은 x,y가 거꾸로 되있으니 주의
+            if (_objects[collisionCoord.Y, collisionCoord.X] != null)
+            {
+                _objects[collisionCoord.Y, collisionCoord.X] = null;
+            }
+
+
             Vector2 nextPos = CollisionCoordinate(next.X, next.Y);
+            
+            // Map의 플레이어 위치 업데이트
             _objects[nextPos.Y, nextPos.X] = obj;
+
+            // 플레이어 안의 ObjectInfo.Position 업데이트
+            obj.objectInfo.Position = new Vector2(next);
         }
+
+        // public void UpdatePosition(C_Move packet, BaseObject obj)
 
         public Vector2 CollisionCoordinate(int x, int y)
         {

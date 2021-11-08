@@ -24,4 +24,17 @@ class PacketHandler
                 break;
         }
     }
+
+    public static void C_MoveHandler(PacketSession session, IMessage packet)
+    {
+        // 클라에서 받은 CellPos를 통해 서버의 맵에 업데이트.
+        C_Move pkt = packet as C_Move;
+
+        // 원자성이 보장되는 영역인 Room에서 해야 됨
+        Room pktRoom = RoomManager.Instance.Find(pkt.ObjectInfo.RoomId);
+        if (pktRoom != null)
+        {
+            pktRoom.Push(pktRoom.C_Move, pkt);
+        }
+    }
 }
