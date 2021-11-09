@@ -36,7 +36,6 @@ namespace Server
 
         public void LoadMap(MapId mapId)
         {
-            Console.WriteLine("Map Loading...");
             string fileName = string.Empty;
 
             // 맵 마다 해야할 일을 정하자.

@@ -8,7 +8,6 @@ using static Define;
 
 public class Player : Creature
 {
-    public int count = 0;
     bool _moveKeyPressed = true;
     Camera _myCamera;
 
@@ -41,27 +40,27 @@ public class Player : Creature
         // MOVE
         if (Input.GetKey(KeyCode.W))
         {
-            MoveDir = MoveDir.UP;
+            MoveDir = MoveDir.Up;
             _moveKeyPressed = true;
-            StateController.SetState(State.MOVING, MoveDir);
+            State = State.Moving;
         }
         else if (Input.GetKey(KeyCode.S))
         {
-            MoveDir = MoveDir.DOWN;
+            MoveDir = MoveDir.Down;
             _moveKeyPressed = true;
-            StateController.SetState(State.MOVING, MoveDir);
+            State = State.Moving;
         }
         else if (Input.GetKey(KeyCode.A))
         {
-            MoveDir = MoveDir.LEFT;
+            MoveDir = MoveDir.Left;
             _moveKeyPressed = true;
-            StateController.SetState(State.MOVING, MoveDir);
+            State = State.Moving;
         }
         else if (Input.GetKey(KeyCode.D))
         {
-            MoveDir = MoveDir.RIGHT;
+            MoveDir = MoveDir.Right;
             _moveKeyPressed = true;
-            StateController.SetState(State.MOVING, MoveDir);
+            State = State.Moving;
         }
         else
         {
@@ -74,10 +73,10 @@ public class Player : Creature
     {
         switch (State)
         {
-            case State.IDLE:
+            case State.Idle:
                 InputMoveControl();
                 break;
-            case State.MOVING:
+            case State.Moving:
                 InputMoveControl();
                 break;
         }
@@ -89,38 +88,38 @@ public class Player : Creature
     {
         if (_moveKeyPressed == true)
         {
-            StateController.SetState(State.MOVING, MoveDir);
+            State = State.Moving;
             return;
         }
         else
         {
-            StateController.SetState(State.IDLE, MoveDir);
+            State = State.Idle;
 
             if (Input.GetKey(KeyCode.Space))
             {
-                StateController.SetWeapon(WeaponType.BAREHAND);
-                StateController.SetState(State.ATTACK, MoveDir);
+                WeaponType = WeaponType.BAREHAND;
+                State = State.Attack;
             }
             else if (Input.GetKey(KeyCode.LeftControl))
             {
-                StateController.SetWeapon(WeaponType.BOW);
-                StateController.SetState(State.ATTACK, MoveDir);
+                WeaponType = WeaponType.BOW;
+                State = State.Attack;
             }
         }
     }
 
     protected override void V_UpdateAttack()
     {
-        if (StateController.IsAnimationDone())
+        if (IsAnimationDone)
         {
             _attackOnce = false;
-            StateController.SetState(State.IDLE, MoveDir);
+            State = State.Idle;
         }
         else
         {
             if (_attackOnce == false)
             {
-                switch (StateController.Weapontype)
+                switch (WeaponType)
                 {
                     case WeaponType.BAREHAND:
                         if (Manager.Map.IsCreatureAt(GetFrontCellPos()))
@@ -143,8 +142,8 @@ public class Player : Creature
     {
         switch (State)
         {
-            case State.ATTACK:
-                switch (StateController.Weapontype)
+            case State.Attack:
+                switch (WeaponType)
                 {
                     case WeaponType.BAREHAND:
                         if (Manager.Map.IsCreatureAt(GetFrontCellPos()))
@@ -165,7 +164,8 @@ public class Player : Creature
     {
         if (_moveKeyPressed == false)
         {
-            StateController.SetState(State.IDLE, MoveDir);
+            State = State.Idle;
+            Manager.Network.SendMovePacket(ObjectInfo);
             return;
         }
 
@@ -174,7 +174,7 @@ public class Player : Creature
             if (Manager.Map.CreatureAt(GetFrontCellPos()) == null)
             {
                 CellPos = GetFrontCellPos();
-                SendMovePacket(ObjectInfo);
+                Manager.Network.SendMovePacket(ObjectInfo);
             }
         }
     }

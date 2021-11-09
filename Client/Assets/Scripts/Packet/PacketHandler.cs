@@ -47,6 +47,10 @@ class PacketHandler
             gameObject.CellPos = new Vector3Int(pk.Position.X, pk.Position.Y, 0);
             Vector3 pos = Manager.Map.CurrentGrid.CellToWorld(gameObject.CellPos) + new Vector3(0.5f, 0.5f);
             gameObject.transform.position = pos;
+
+            // 플레이어 상태, 이동방향 정보 동기화
+            gameObject.MoveDir = pk.MoveDir;
+            gameObject.State = pk.State;
         }
     }
 
@@ -64,6 +68,8 @@ class PacketHandler
                 obj.CellPos = new Vector3Int(pk.Position.X, pk.Position.Y, 0);
 
                 // 플레이어 상태, 이동방향 정보 동기화
+                obj.MoveDir = pk.MoveDir;
+                obj.State = pk.State;
             }
         }
     }

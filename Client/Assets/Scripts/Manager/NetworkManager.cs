@@ -5,6 +5,7 @@ using ServerCore;
 using System.Net;
 using Google.Protobuf;
 using System;
+using Google.Protobuf.Protocol;
 
 public class NetworkManager
 {
@@ -24,6 +25,13 @@ public class NetworkManager
     public void Send(IMessage packet)
     {
         _session.Send(packet);
+    }
+
+    public void SendMovePacket(ObjectInfo objInfo)
+    {
+        C_Move pkt = new C_Move();
+        pkt.ObjectInfo = objInfo;
+        Manager.Network.Send(pkt);
     }
 
     public void Update()

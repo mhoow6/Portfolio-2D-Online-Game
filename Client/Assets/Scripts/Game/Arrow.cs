@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static Define;
+using Google.Protobuf.Protocol;
 
 public class Arrow : Projectile
 {
@@ -31,7 +31,7 @@ public class Arrow : Projectile
             if (target != null)
             {
                 // TODO: 공격 판정
-                StateController.SetState(State.IDLE, MoveDir); 
+                State = State.Attack;
                 target.V_Dead();
             }
             else
@@ -49,21 +49,21 @@ public class Arrow : Projectile
 
         switch (MoveDir)
         {
-            case MoveDir.UP:
+            case MoveDir.Up:
                 transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
                 break;
-            case MoveDir.DOWN:
+            case MoveDir.Down:
                 transform.rotation = Quaternion.Euler(new Vector3(0, 0, 180));
                 break;
-            case MoveDir.LEFT:
+            case MoveDir.Left:
                 transform.rotation = Quaternion.Euler(new Vector3(0, 0, 90));
                 break;
-            case MoveDir.RIGHT:
+            case MoveDir.Right:
                 transform.rotation = Quaternion.Euler(new Vector3(0, 0, -90));
                 break;
         }
 
-        State = State.MOVING;
+        State = State.Moving;
     }
     #endregion
     void Clear()

@@ -31,12 +31,45 @@ public class BaseObject : MonoBehaviour
 
     public MoveControl MoveController { get => _moveController; }
     MoveControl _moveController = null;
-    public MoveDir MoveDir { get => _moveController.direction; set => _moveController.SetDirection(value); }
-    public StateControl StateController { get => _stateController; }
-    StateControl _stateController = null;
+
+    public MoveDir MoveDir
+    {
+        get => _moveController.direction;
+        set
+        {
+            _moveController.SetDirection(value);
+            ObjectInfo.MoveDir = value;
+        }
+    }
 
     // SetState 시 자동으로 해당 애니메이션 호출
-    public State State { get => _stateController.State; set => _stateController.SetState(value, MoveDir); }
+    StateControl _stateController = null;
+
+    // 상태는 이동방향을 꼭 정해놓고 할 것!!
+    public State State
+    {
+        get => _stateController.State;
+        set
+        {
+            _stateController.SetState(value, MoveDir);
+            ObjectInfo.State = value;
+        }
+    }
+
+    public WeaponType WeaponType
+    {
+        get => _stateController.Weapontype;
+
+        set
+        {
+            _stateController.SetWeapon(value);
+        }
+    }
+
+    public bool IsAnimationDone
+    {
+        get => _stateController.IsAnimationDone();
+    }
 
     protected Vector3Int GetFrontCellPos()
     {
@@ -44,16 +77,16 @@ public class BaseObject : MonoBehaviour
 
         switch (MoveDir)
         {
-            case MoveDir.UP:
+            case MoveDir.Up:
                 cellPos += Vector3Int.up;
                 break;
-            case MoveDir.DOWN:
+            case MoveDir.Down:
                 cellPos += Vector3Int.down;
                 break;
-            case MoveDir.LEFT:
+            case MoveDir.Left:
                 cellPos += Vector3Int.left;
                 break;
-            case MoveDir.RIGHT:
+            case MoveDir.Right:
                 cellPos += Vector3Int.right;
                 break;
         }
@@ -65,27 +98,13 @@ public class BaseObject : MonoBehaviour
     {
         _moveController = new MoveControl(this.gameObject);
         _stateController = new StateControl(GetComponent<Animator>(), GetComponent<SpriteRenderer>());
-
-        // Manager.Map.UpdatePosition(CellPos, CellPos, this); // TODO: cellpos는 json 혹은 csv로 처음에 불러와야함
     }
 
     protected void OnStart()
     {
-        // 현재 그리드의 위치 + new Vector3(0.5f, 0.5f) 가 셀 포지션을 기준으로 움직일때 자연스러워서 이렇게 함
-        // Vector3 pos = Manager.Map.CurrentGrid.CellToWorld(CellPos) + new Vector3(0.5f, 0.5f);
-        // transform.position = pos;
-
-        _moveController.SetDirection(MoveDir.NONE);
-        _stateController.SetState(State.NONE, MoveDir.NONE);
+        _moveController.SetDirection(MoveDir.Up);
+        _stateController.SetState(State.Idle, MoveDir);
     }
-
-    protected void SendMovePacket(ObjectInfo objInfo)
-    {
-        C_Move pkt = new C_Move();
-        pkt.ObjectInfo = objInfo;
-        Manager.Network.Send(pkt);
-    }
-
 
     #region virtual
     // UpdateIdle, UpdateMoving, .. 이 실행되는 곳
@@ -93,16 +112,16 @@ public class BaseObject : MonoBehaviour
     {
         switch (State)
         {
-            case State.IDLE:
+            case State.Idle:
                 V_UpdateIdle();
                 break;
-            case State.MOVING:
+            case State.Moving:
                 V_UpdateMoving();
                 break;
-            case State.ATTACK:
+            case State.Attack:
                 V_UpdateAttack();
                 break;
-            case State.DEAD:
+            case State.Dead:
                 V_UpdateDead();
                 break;
         }
@@ -125,7 +144,7 @@ public class BaseObject : MonoBehaviour
         else
         {
             transform.position += moveDir.normalized * _moveSpeed * Time.deltaTime;
-            StateController.SetState(State.MOVING, MoveDir);
+            State = State.Moving;
         }
     }
 

@@ -15,6 +15,7 @@ enum MsgId
     S_MOVE = 5;
 }
 
+// Enum
 enum ObjectCode
 {
 	PLAYER = 0;
@@ -27,6 +28,24 @@ enum MapId
 {
     TOWN = 0;
     DUNGEON = 1;
+}
+
+enum MoveDir
+{
+    UP = 0;
+    DOWN = 1;
+    LEFT = 2;
+    RIGHT = 3;
+    STAY = 4;
+}
+
+enum State
+{
+    IDLE = 0;
+    MOVING = 1;
+    ATTACK = 2;
+    SKILL = 3;
+    DEAD = 4;
 }
 
 // Class
@@ -73,5 +92,7 @@ message ObjectInfo
     int32 objectId = 1;
     int32 objectCode = 2;
     int32 roomId = 3;
-    Vector2 position = 4;
+    MoveDir moveDir = 4;
+    State state = 5;
+    Vector2 position = 6;
 }

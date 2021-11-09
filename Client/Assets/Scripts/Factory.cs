@@ -26,7 +26,7 @@ public class StateControl
     {
         _animator = animator;
         _sprite = sprite;
-        _strategy = new StateIdle(animator, MoveDir.NONE, sprite);
+        _strategy = new StateIdle(animator, MoveDir.Up, sprite);
     }
 
     public void SetWeapon(WeaponType weaponType)
@@ -39,19 +39,19 @@ public class StateControl
     {
         switch (state)
         {
-            case State.IDLE:
+            case State.Idle:
                 _strategy = new StateIdle(_animator, dir, _sprite);
                 break;
-            case State.MOVING:
+            case State.Moving:
                 _strategy = new StateMoving(_animator, dir, _sprite);
                 break;
-            case State.ATTACK:
+            case State.Attack:
                 _strategy = new StateAttack(_animator, dir, _sprite, _weaponType);
                 break;
-            case State.SKILL:
+            case State.Skill:
                 _strategy = new StateSkill(_animator, dir, _sprite);
                 break;
-            case State.DEAD:
+            case State.Dead:
                 _strategy = new StateDead(_animator, dir, _sprite);
                 break;
         }
@@ -81,10 +81,10 @@ public class StateControl
 #region State-Case
 public abstract class StateStrategy
 {
-    public State _state = State.NONE;
+    public State _state = State.Idle;
 
     protected Animator _animator = null;
-    protected MoveDir _dir = MoveDir.NONE;
+    protected MoveDir _dir = MoveDir.Up;
     protected SpriteRenderer _sprite = null;
 
     public StateStrategy(Animator animator, MoveDir dir, SpriteRenderer sprite)
@@ -101,26 +101,26 @@ public class StateIdle : StateStrategy
 {
     public StateIdle(Animator animator, MoveDir dir, SpriteRenderer sprite) : base(animator, dir, sprite)
     {
-        _state = State.IDLE;
+        _state = State.Idle;
     }
 
     public override void PlayAnimation()
     {
         switch (_dir)
         {
-            case MoveDir.UP:
+            case MoveDir.Up:
                 _animator.Play("IDLE_BACK");
                 _sprite.flipX = false;
                 break;
-            case MoveDir.DOWN:
+            case MoveDir.Down:
                 _animator.Play("IDLE_FRONT");
                 _sprite.flipX = false;
                 break;
-            case MoveDir.LEFT:
+            case MoveDir.Left:
                 _animator.Play("IDLE_RIGHT");
                 _sprite.flipX = true;
                 break;
-            case MoveDir.RIGHT:
+            case MoveDir.Right:
                 _animator.Play("IDLE_RIGHT");
                 _sprite.flipX = false;
                 break;
@@ -132,26 +132,26 @@ public class StateMoving : StateStrategy
 {
     public StateMoving(Animator animator, MoveDir dir, SpriteRenderer sprite) : base(animator, dir, sprite)
     {
-        _state = State.MOVING;
+        _state = State.Moving;
     }
 
     public override void PlayAnimation()
     {
         switch (_dir)
         {
-            case MoveDir.UP:
+            case MoveDir.Up:
                 _animator.Play("WALK_BACK");
                 _sprite.flipX = false;
                 break;
-            case MoveDir.DOWN:
+            case MoveDir.Down:
                 _animator.Play("WALK_FRONT");
                 _sprite.flipX = false;
                 break;
-            case MoveDir.LEFT:
+            case MoveDir.Left:
                 _animator.Play("WALK_RIGHT");
                 _sprite.flipX = true;
                 break;
-            case MoveDir.RIGHT:
+            case MoveDir.Right:
                 _animator.Play("WALK_RIGHT");
                 _sprite.flipX = false;
                 break;
@@ -165,12 +165,12 @@ public class StateAttack : StateStrategy
 
     public StateAttack(Animator animator, MoveDir dir, SpriteRenderer sprite) : base(animator, dir, sprite)
     {
-        _state = State.ATTACK;
+        _state = State.Attack;
     }
 
     public StateAttack(Animator animator, MoveDir dir, SpriteRenderer sprite, WeaponType weaponType) : base(animator, dir, sprite)
     {
-        _state = State.ATTACK;
+        _state = State.Attack;
         _weaponType = weaponType;
     }
 
@@ -181,19 +181,19 @@ public class StateAttack : StateStrategy
             case WeaponType.BAREHAND:
                 switch (_dir)
                 {
-                    case MoveDir.UP:
+                    case MoveDir.Up:
                         _animator.Play("ATTACK_BACK");
                         _sprite.flipX = false;
                         break;
-                    case MoveDir.DOWN:
+                    case MoveDir.Down:
                         _animator.Play("ATTACK_FRONT");
                         _sprite.flipX = false;
                         break;
-                    case MoveDir.LEFT:
+                    case MoveDir.Left:
                         _animator.Play("ATTACK_RIGHT");
                         _sprite.flipX = true;
                         break;
-                    case MoveDir.RIGHT:
+                    case MoveDir.Right:
                         _animator.Play("ATTACK_RIGHT");
                         _sprite.flipX = false;
                         break;
@@ -202,19 +202,19 @@ public class StateAttack : StateStrategy
             case WeaponType.BOW:
                 switch (_dir)
                 {
-                    case MoveDir.UP:
+                    case MoveDir.Up:
                         _animator.Play("ATTACK_WEAPON_BACK");
                         _sprite.flipX = false;
                         break;
-                    case MoveDir.DOWN:
+                    case MoveDir.Down:
                         _animator.Play("ATTACK_WEAPON_FRONT");
                         _sprite.flipX = false;
                         break;
-                    case MoveDir.LEFT:
+                    case MoveDir.Left:
                         _animator.Play("ATTACK_WEAPON_RIGHT");
                         _sprite.flipX = true;
                         break;
-                    case MoveDir.RIGHT:
+                    case MoveDir.Right:
                         _animator.Play("ATTACK_WEAPON_RIGHT");
                         _sprite.flipX = false;
                         break;
@@ -229,7 +229,7 @@ public class StateSkill : StateStrategy
 {
     public StateSkill(Animator animator, MoveDir dir, SpriteRenderer sprite) : base(animator, dir, sprite)
     {
-        _state = State.SKILL;
+        _state = State.Skill;
     }
 
     public override void PlayAnimation()
@@ -242,7 +242,7 @@ public class StateDead : StateStrategy
 {
     public StateDead(Animator animator, MoveDir dir, SpriteRenderer sprite) : base(animator, dir, sprite)
     {
-        _state = State.DEAD;
+        _state = State.Dead;
     }
 
     public override void PlayAnimation()
@@ -276,19 +276,19 @@ public class MoveControl
     {
         switch (moveDir)
         {
-            case MoveDir.UP:
+            case MoveDir.Up:
                 _strategy = new MoveUp(_go);
                 break;
-            case MoveDir.DOWN:
+            case MoveDir.Down:
                 _strategy = new MoveDown(_go);
                 break;
-            case MoveDir.LEFT:
+            case MoveDir.Left:
                 _strategy = new MoveLeft(_go);
                 break;
-            case MoveDir.RIGHT:
+            case MoveDir.Right:
                 _strategy = new MoveRight(_go);
                 break;
-            case MoveDir.NONE:
+            default:
                 _strategy = new MoveStay(_go);
                 break;
         }
@@ -308,7 +308,7 @@ public abstract class MoveStrategy
 {
     protected GameObject _go = null;
     protected readonly float _moveUnit = 1f;
-    public MoveDir _dir = MoveDir.NONE;
+    public MoveDir _dir = MoveDir.Up;
 
     public MoveStrategy(GameObject go)
     {
@@ -322,7 +322,7 @@ public class MoveUp : MoveStrategy
 {
     public MoveUp(GameObject go) : base(go)
     {
-        _dir = MoveDir.UP;
+        _dir = MoveDir.Up;
     }
 
     public override Vector3 GetMovePos()
@@ -338,7 +338,7 @@ public class MoveDown : MoveStrategy
 {
     public MoveDown(GameObject go) : base(go)
     {
-        _dir = MoveDir.DOWN;
+        _dir = MoveDir.Down;
     }
 
     public override Vector3 GetMovePos()
@@ -354,7 +354,7 @@ public class MoveLeft : MoveStrategy
 {
     public MoveLeft(GameObject go) : base(go)
     {
-        _dir = MoveDir.LEFT;
+        _dir = MoveDir.Left;
     }
 
     public override Vector3 GetMovePos()
@@ -370,7 +370,7 @@ public class MoveRight : MoveStrategy
 {
     public MoveRight(GameObject go) : base(go)
     {
-        _dir = MoveDir.RIGHT;
+        _dir = MoveDir.Right;
     }
 
     public override Vector3 GetMovePos()

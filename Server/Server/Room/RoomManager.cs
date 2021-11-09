@@ -19,7 +19,6 @@ namespace Server
             {
                 gameRoom.roomId = RoomId;
                 _rooms.Add(RoomId, gameRoom);
-                Console.WriteLine($"Room Load Completed. ({RoomId})");
                 RoomId++;
             }
 

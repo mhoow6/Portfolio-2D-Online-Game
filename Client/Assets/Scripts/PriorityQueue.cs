@@ -49,13 +49,13 @@ public class PriorityQueue<T> where T : IComparable<T>
 		int now = 0;
 		while (true)
 		{
-			int left = 2 * now + 1;
+			int Left = 2 * now + 1;
 			int right = 2 * now + 2;
 
 			int next = now;
 			// 왼쪽값이 현재값보다 크면, 왼쪽으로 이동
-			if (left <= lastIndex && _heap[next].CompareTo(_heap[left]) < 0)
-				next = left;
+			if (Left <= lastIndex && _heap[next].CompareTo(_heap[Left]) < 0)
+				next = Left;
 			// 오른값이 현재값(왼쪽 이동 포함)보다 크면, 오른쪽으로 이동
 			if (right <= lastIndex && _heap[next].CompareTo(_heap[right]) < 0)
 				next = right;

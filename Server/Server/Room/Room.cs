@@ -31,6 +31,9 @@ namespace Server
             if (gameObject == null)
                 return;
 
+            // 로그
+            Console.WriteLine($"Object({gameObject.objectInfo.ObjectId}) entered Room({gameObject.objectInfo.RoomId})");
+
             ObjectCode code = PlayerManager.GetObjectCodeById(gameObject.objectInfo.ObjectId);
 
             switch (code)
@@ -115,6 +118,9 @@ namespace Server
                 Player player = null;
                 if (_players.TryGetValue(packet.ObjectInfo.ObjectId, out player) == true)
                 {
+                    // 플레이어 정보 업데이트
+                    player.objectInfo = packet.ObjectInfo;
+
                     // 맵에 위치 업데이트
                     pktRoom.Map.UpdatePosition(packet.ObjectInfo.Position, player);
 
@@ -130,6 +136,9 @@ namespace Server
                         }
                     }
                 }
+
+                // 로그
+                Console.WriteLine($"Object({player.objectInfo.ObjectId}) Move To ({player.objectInfo.Position.X}, {player.objectInfo.Position.Y})");
             }
         }
 
