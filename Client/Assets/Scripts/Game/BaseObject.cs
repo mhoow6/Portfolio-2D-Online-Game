@@ -16,6 +16,8 @@ public class BaseObject : MonoBehaviour
 
     protected float _moveSpeed = 5.0f;
 
+    public int Hp { get => ObjectInfo.Hp; set { ObjectInfo.Hp = value; } }
+
     [SerializeField]
     Vector3Int _cellPos = Vector3Int.zero;
     public virtual Vector3Int CellPos
@@ -153,7 +155,5 @@ public class BaseObject : MonoBehaviour
     protected virtual void V_UpdateAttack() { }
 
     protected virtual void V_UpdateDead() { }
-
-    public virtual void V_Attack() { }
     #endregion
 }

@@ -37,4 +37,17 @@ class PacketHandler
             pktRoom.Push(pktRoom.C_Move, pkt);
         }
     }
+
+    public static void C_AttackHandler(PacketSession session, IMessage packet)
+    {
+        // 클라에서 받은 CellPos를 통해 적이 공격을 받을 수 있는지 없는지 판단할 것임.
+        C_Attack pkt = packet as C_Attack;
+
+        // 원자성이 보장되는 영역인 Room에서 해야 됨
+        Room pktRoom = RoomManager.Instance.Find(pkt.AttackerInfo.RoomId);
+        if (pktRoom != null)
+        {
+            pktRoom.Push(pktRoom.C_Attack, pkt);
+        }
+    }
 }

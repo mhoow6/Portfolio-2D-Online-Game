@@ -12,7 +12,7 @@ public class Other : Player
 
     private void Start()
     {
-        OnStart();
+
     }
 
     private void Update()
@@ -41,28 +41,16 @@ public class Other : Player
 
     protected override void V_UpdateIdle()
     {
-        
+        // State, MoveDir, CellPos을 패킷으로 조작하므로 굳이 개별 클라에서 컨트롤할 필요없음
     }
 
     protected override void V_MoveToNextPos()
     {
-        #region 참고사항
         // State, MoveDir, CellPos을 패킷으로 조작하므로 굳이 개별 클라에서 컨트롤할 필요없음
-        /*if (_moveKeyPressed == false)
-        {
-            State = State.Idle;
-            return;
-        }*/
-
-
-        /*if (Manager.Map.CanGo(GetFrontCellPos()))
-        {
-            if (Manager.Map.CreatureAt(GetFrontCellPos()) == null)
-            {
-                CellPos = GetFrontCellPos();
-            }
-        }*/
-        #endregion
     }
 
+    protected override void V_UpdateAttack()
+    {
+        // State, MoveDir, CellPos을 패킷으로 조작하므로 굳이 개별 클라에서 컨트롤할 필요없음
+    }
 }

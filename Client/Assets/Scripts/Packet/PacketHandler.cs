@@ -73,4 +73,26 @@ class PacketHandler
             }
         }
     }
+
+    public static void S_AttackHandler(PacketSession session, IMessage packet)
+    {
+        // 서버에서 어떤 애가 맞았는지에 대한 정보가 올 것임. objectId를 이용하여 관리자 클래스에서 찾아서 Hp 감소
+        S_Attack pkt = packet as S_Attack;
+
+        // 공격자 애니메이션 변동
+        BaseObject attacker = Manager.ObjectManager.Find(pkt.AttackerInfo.ObjectId);
+        if (attacker != null)
+        {
+            attacker.MoveDir = pkt.AttackerInfo.MoveDir;
+            attacker.State = pkt.AttackerInfo.State;
+        }
+
+        // 타겟 HP 감소
+        BaseObject target = Manager.ObjectManager.Find(pkt.TargetInfo.ObjectId);
+        if (target != null)
+        {
+            target.Hp = pkt.TargetInfo.Hp;
+            Debug.Log($"Object{target.ObjectInfo.ObjectId} got Damaged by Object{attacker.ObjectInfo.ObjectId}. Current Object Health:{target.Hp}");
+        }
+    }
 }

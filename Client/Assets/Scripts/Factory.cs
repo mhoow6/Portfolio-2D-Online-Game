@@ -34,8 +34,8 @@ public class StateControl
         _weaponType = weaponType;
     }
 
-    // 2021-10-26: State를 설정할 때 애니메이션이 바로 실행되도록 변경함.
-    public StateStrategy SetState(State state, MoveDir dir)
+    // State를 설정할 때 애니메이션이 바로 실행되도록 변경함.
+    public void SetState(State state, MoveDir dir)
     {
         switch (state)
         {
@@ -57,7 +57,6 @@ public class StateControl
         }
 
         PlayAnimation();
-        return _strategy;
     }
 
     void PlayAnimation()
@@ -486,7 +485,7 @@ public class ObjectFactory
 
     public static BaseObject AddComponentToObject(ObjectInfo objInfo, GameObject obj)
     {
-        BaseObject ret;
+        BaseObject ret = null;
 
         switch ((ObjectCode)objInfo.ObjectCode)
         {
@@ -532,7 +531,7 @@ public class ObjectFactory
                 }
                 break;
         }
-
+        
         return null;
     }
 
@@ -557,6 +556,17 @@ public class ObjectFactory
         }
 
         return go;
+    }
+
+    static void InitalizeBaseObject(BaseObject obj, ObjectInfo objInfo)
+    {
+        obj.ObjectInfo = objInfo;
+        obj.MoveDir = objInfo.MoveDir;
+        obj.State = objInfo.State;
+
+        obj.CellPos = new Vector3Int(objInfo.Position.X, objInfo.Position.Y, 0);
+        Vector3 pos = Manager.Map.CurrentGrid.CellToWorld(obj.CellPos) + new Vector3(0.5f, 0.5f);
+        obj.transform.position = pos;
     }
 }
 #endregion

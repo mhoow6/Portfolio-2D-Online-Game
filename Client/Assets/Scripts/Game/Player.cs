@@ -114,6 +114,7 @@ public class Player : Creature
         {
             _attackOnce = false;
             State = State.Idle;
+            Manager.Network.SendMovePacket(ObjectInfo); // 내가 가만히 있다는 것을 알려야 함
         }
         else
         {
@@ -122,10 +123,7 @@ public class Player : Creature
                 switch (WeaponType)
                 {
                     case WeaponType.BAREHAND:
-                        if (Manager.Map.IsCreatureAt(GetFrontCellPos()))
-                        {
-                            Debug.Log("Hit Monster!"); // TODO: 체력 깎기
-                        }
+                        Manager.Network.SendAttackPacket(ObjectInfo);
                         break;
                     case WeaponType.BOW:
                         Arrow arrow = Manager.Spawner.SpawnObject(ObjectCode.Arrow) as Arrow;
@@ -135,28 +133,6 @@ public class Player : Creature
 
                 _attackOnce = true;
             }
-        }
-    }
-
-    public override void V_Attack()
-    {
-        switch (State)
-        {
-            case State.Attack:
-                switch (WeaponType)
-                {
-                    case WeaponType.BAREHAND:
-                        if (Manager.Map.IsCreatureAt(GetFrontCellPos()))
-                        {
-                            Debug.Log("Hit Monster!"); // TODO: 체력 깎기
-                        }
-                        break;
-                    case WeaponType.BOW:
-                        Arrow arrow = Manager.Spawner.SpawnObject(ObjectCode.Arrow) as Arrow;
-                        arrow.V_SetOwner(this);
-                        break;
-                }
-                break;
         }
     }
 

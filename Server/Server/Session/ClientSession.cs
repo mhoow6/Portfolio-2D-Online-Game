@@ -63,6 +63,9 @@ namespace Server
 			// 기본 상태, 이동방향
 			me.objectInfo.MoveDir = MoveDir.Up;
 			me.objectInfo.State = State.Idle;
+
+			// 기본 체력
+			me.objectInfo.Hp = 100;
 			
 			room.Push(room.EnterGame, me);
 		}

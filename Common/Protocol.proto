@@ -13,6 +13,8 @@ enum MsgId
     S_LEAVE_GAME = 3;
     C_MOVE = 4;
     S_MOVE = 5;
+    C_ATTACK = 6;
+    S_ATTACK = 7;
 }
 
 // Enum
@@ -87,6 +89,17 @@ message S_Move
     repeated ObjectInfo objects = 1;
 }
 
+message C_Attack
+{
+    ObjectInfo attackerInfo = 1;
+}
+
+message S_Attack
+{
+    ObjectInfo targetInfo = 1;
+    ObjectInfo attackerInfo = 2;
+}
+
 message ObjectInfo
 {
     int32 objectId = 1;
@@ -94,5 +107,6 @@ message ObjectInfo
     int32 roomId = 3;
     MoveDir moveDir = 4;
     State state = 5;
-    Vector2 position = 6;
+    int32 hp = 6;
+    Vector2 position = 7;
 }

@@ -79,7 +79,6 @@ public class SpawnManager
         // 2-2 멤버 변수 초기화
         obj.ObjectInfo = objInfo;
 
-
         objList.Add(obj);
 
         return obj;

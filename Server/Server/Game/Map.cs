@@ -118,5 +118,49 @@ namespace Server
 
             return vec;
         }
+
+        public bool IsCreatureAt(Vector2 cellPos)
+        {
+            if (BoundCheck(cellPos) == false)
+                return false;
+
+            Vector2 vec = CollisionCoordinate(cellPos.X, cellPos.Y);
+
+            if ((_objects[vec.Y, vec.X] != null))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public Creature CreatureAt(Vector2 cellPos)
+        {
+            if (BoundCheck(cellPos) == false)
+                return null;
+
+            // 셀 좌표계 -> 맵을 이진수로 표현한 배열 좌표계
+            Vector2 vec = CollisionCoordinate(cellPos.X, cellPos.Y);
+
+            if ((_objects[vec.Y, vec.X] != null))
+            {
+                if ((_objects[vec.Y, vec.X].objectInfo.ObjectCode != (int)ObjectCode.Arrow))
+                {
+                    return _objects[vec.Y, vec.X] as Creature;
+                }
+            }
+
+            return null;
+        }
+
+        bool BoundCheck(Vector2 cellPos)
+        {
+            if (cellPos.X < MinX || cellPos.X > MaxX)
+                return false;
+            if (cellPos.Y < MinY || cellPos.Y > MaxY)
+                return false;
+
+            return true;
+        }
     }
 }

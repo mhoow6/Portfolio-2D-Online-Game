@@ -142,6 +142,39 @@ namespace Server
             }
         }
 
+        public void C_Attack(C_Attack packet)
+        {
+            // 패킷을 보낸 플레이어의 방 검색 후 작업
+            Room pktRoom = RoomManager.Instance.Find(packet.AttackerInfo.RoomId);
+            if (pktRoom != null)
+            {
+                // TODO: 플레이어뿐만 아니라 임의의 오브젝트에 대해서 공격판정을 가능케 하기
+                Player attacker = null;
+                if (_players.TryGetValue(packet.AttackerInfo.ObjectId, out attacker) == true)
+                {
+                    // 공격자 정보 업데이트
+                    attacker.objectInfo = packet.AttackerInfo;
+
+                    // 검증: 공격자 앞에 뭔가 있는가?
+                    if (Map.IsCreatureAt(attacker.GetFrontCellPos()))
+                    {
+                        // 공격자 앞의 타겟
+                        Creature target = Map.CreatureAt(attacker.GetFrontCellPos());
+
+                        // 체력깎기
+                        Console.WriteLine($"Object({target.objectInfo.ObjectId}) got Damaged by Object({attacker.objectInfo.ObjectId})");
+                        target.objectInfo.Hp -= 10; // TODO
+
+                        // 타겟이 맞았다고 사람들에게 알리기
+                        S_Attack response = new S_Attack();
+                        response.TargetInfo = target.objectInfo;
+                        response.AttackerInfo = attacker.objectInfo;
+                        BroadCast(response);
+                    }
+                }
+            }
+        }
+
         public void BroadCast(IMessage packet)
         {
             foreach (Player player in _players.Values)

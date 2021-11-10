@@ -22,16 +22,18 @@ public class NetworkManager
         connector.Connect(_host, () => { return _session; }, 1);
     }
 
-    public void Send(IMessage packet)
-    {
-        _session.Send(packet);
-    }
-
     public void SendMovePacket(ObjectInfo objInfo)
     {
         C_Move pkt = new C_Move();
         pkt.ObjectInfo = objInfo;
-        Manager.Network.Send(pkt);
+        _session.Send(pkt);
+    }
+
+    public void SendAttackPacket(ObjectInfo objInfo)
+    {
+        C_Attack pkt = new C_Attack();
+        pkt.AttackerInfo = objInfo;
+        _session.Send(pkt);
     }
 
     public void Update()
