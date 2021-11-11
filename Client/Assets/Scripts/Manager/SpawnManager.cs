@@ -39,6 +39,7 @@ public class SpawnManager
         }
         BaseObject obj = ObjectFactory.AddComponentToObject(code, _obj);
         obj.code = code;
+
         objList.Add(obj);
         
         return obj;

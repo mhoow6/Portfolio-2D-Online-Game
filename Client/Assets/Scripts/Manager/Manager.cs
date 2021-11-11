@@ -23,8 +23,8 @@ public class Manager : MonoBehaviour
     public static NetworkManager Network { get => Instance._network; }
     NetworkManager _network = new NetworkManager();
 
-    public static ObjectManager ObjectManager { get => Instance._om; }
-    ObjectManager _om = new ObjectManager();
+    public static ObjectManager ObjectManager { get => Instance._objectManager; }
+    ObjectManager _objectManager = new ObjectManager();
     #endregion
 
     private void Start()
@@ -39,5 +39,10 @@ public class Manager : MonoBehaviour
     private void Update()
     {
         _network.Update();
+    }
+
+    private void OnApplicationQuit()
+    {
+        _network.SendLeaveGamePacket(_objectManager.Me.ObjectInfo);
     }
 }

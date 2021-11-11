@@ -9,7 +9,7 @@ public delegate void Callback();
 public class BaseObject : MonoBehaviour
 {
     public ObjectInfo ObjectInfo { get; set; } = new ObjectInfo();
-    
+
     public ObjectCode code { get => (ObjectCode)ObjectInfo.ObjectCode; set { ObjectInfo.ObjectCode = (int)value; } }
     public int id { get => ObjectInfo.ObjectId; set { ObjectInfo.ObjectId = value; } }
     public int roomId { get => ObjectInfo.RoomId; set { ObjectInfo.RoomId = value; } }
@@ -72,6 +72,8 @@ public class BaseObject : MonoBehaviour
     {
         get => _stateController.IsAnimationDone();
     }
+
+    
 
     protected Vector3Int GetFrontCellPos()
     {
@@ -155,5 +157,12 @@ public class BaseObject : MonoBehaviour
     protected virtual void V_UpdateAttack() { }
 
     protected virtual void V_UpdateDead() { }
+
+    public virtual void V_Clear()
+    {
+        gameObject.SetActive(false);
+    }
+
+    public virtual void V_Dead() { }
     #endregion
 }

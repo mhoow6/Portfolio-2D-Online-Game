@@ -33,7 +33,7 @@ namespace Server
             Room room = RoomManager.Instance.Add((int)MapId.Dungeon);
             if (room != null)
             {
-                Console.WriteLine($"Room({room.roomId}) initalize Map({MapId.Dungeon})");
+                Console.WriteLine($"Room:{room.roomId} initalize Map {MapId.Dungeon}");
                 TickRoom(room, 50); // 50ms마다 실행
             }
             

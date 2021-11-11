@@ -9,7 +9,7 @@ public class Creature : BaseObject
     protected bool _attackOnce;
 
     #region virtual
-    public virtual void V_Dead()
+    public override void V_Dead()
     {
         BaseObject deadEffect = Manager.Spawner.SpawnObject(ObjectCode.DeadEffect);
         deadEffect.transform.position = transform.position; // 게임 속에서의 위치 갱신

@@ -27,7 +27,13 @@ class PacketHandler
 
     public static void S_LeaveGameHandler(PacketSession session, IMessage packet)
     {
-        
+        S_LeaveGame pkt = packet as S_LeaveGame;
+
+        BaseObject leaver = Manager.ObjectManager.Find(pkt.ObjectId);
+        if (leaver != null)
+        {
+            leaver.V_Clear();
+        }
     }
 
     public static void S_SpawnHandler(PacketSession session, IMessage packet)
@@ -93,6 +99,32 @@ class PacketHandler
         {
             target.Hp = pkt.TargetInfo.Hp;
             Debug.Log($"Object{target.ObjectInfo.ObjectId} got Damaged by Object{attacker.ObjectInfo.ObjectId}. Current Object Health:{target.Hp}");
+        }
+    }
+
+    public static void S_DeadHandler(PacketSession session, IMessage packet)
+    {
+        S_Dead pkt = packet as S_Dead;
+
+        BaseObject leaver = Manager.ObjectManager.Find(pkt.ObjectId);
+        if (leaver != null)
+        {
+            leaver.V_Dead();
+        }
+    }
+
+    public static void S_SyncHandler(PacketSession session, IMessage packet)
+    {
+        // 서버에서 누가누가 움직였는지에 대한 정보가 올 것임. 그것을 토대로 움직일 것
+        S_Sync pkt = packet as S_Sync;
+
+        // 오브젝트가 게임 안에 있는 지 검사 후, 셀 좌표 이동
+        BaseObject obj = Manager.ObjectManager.Find(pkt.ObjectInfo.ObjectId);
+        if (obj != null)
+        {
+            // 플레이어 상태, 이동방향 정보 동기화
+            obj.MoveDir = pkt.ObjectInfo.MoveDir;
+            obj.State = pkt.ObjectInfo.State;
         }
     }
 }

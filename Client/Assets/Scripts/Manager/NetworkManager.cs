@@ -36,6 +36,20 @@ public class NetworkManager
         _session.Send(pkt);
     }
 
+    public void SendLeaveGamePacket(ObjectInfo objInfo)
+    {
+        C_LeaveGame pkt = new C_LeaveGame();
+        pkt.ObjectId = objInfo.ObjectId;
+        _session.Send(pkt);
+    }
+
+    public void SendSyncPacket(ObjectInfo objInfo)
+    {
+        C_Sync pkt = new C_Sync();
+        pkt.ObjectInfo = objInfo;
+        _session.Send(pkt);
+    }
+
     public void Update()
     {
         List<PacketMessage> list = PacketQueue.Instance.PopAll();

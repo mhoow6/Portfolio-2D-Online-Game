@@ -50,4 +50,32 @@ class PacketHandler
             pktRoom.Push(pktRoom.C_Attack, pkt);
         }
     }
+
+    public static void C_LeaveGameHandler(PacketSession session, IMessage packet)
+    {
+        C_LeaveGame pkt = packet as C_LeaveGame;
+
+        Player obj = PlayerManager.Instance.Find(pkt.ObjectId);
+
+        // 원자성이 보장되는 영역인 Room에서 해야 됨
+        Room pktRoom = RoomManager.Instance.Find(obj.objectInfo.RoomId);
+        if (pktRoom != null)
+        {
+            pktRoom.Push(pktRoom.C_Leave_Game, pkt.ObjectId);
+        }
+    }
+
+    public static void C_SyncHandler(PacketSession session, IMessage packet)
+    {
+        C_Sync pkt = packet as C_Sync;
+
+        Player obj = PlayerManager.Instance.Find(pkt.ObjectInfo.ObjectId);
+
+        // 원자성이 보장되는 영역인 Room에서 해야 됨
+        Room pktRoom = RoomManager.Instance.Find(obj.objectInfo.RoomId);
+        if (pktRoom != null)
+        {
+            pktRoom.Push(pktRoom.C_Sync, pkt);
+        }
+    }
 }

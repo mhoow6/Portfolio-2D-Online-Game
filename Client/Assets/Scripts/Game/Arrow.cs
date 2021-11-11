@@ -39,7 +39,7 @@ public class Arrow : Projectile
                 Debug.Log("벽을 맞췄습니다..");
             }
 
-            Clear();
+            V_Clear();
         }
     }
 
@@ -66,9 +66,9 @@ public class Arrow : Projectile
         State = State.Moving;
     }
     #endregion
-    void Clear()
+    public override void V_Clear()
     {
         _owner = null;
-        gameObject.SetActive(false);
+        base.V_Clear();
     }
 }

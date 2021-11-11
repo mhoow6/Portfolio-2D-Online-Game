@@ -91,23 +91,6 @@ namespace Server
             
         }
 
-        public void LeaveGame(int objectId)
-        {
-            ObjectCode code = PlayerManager.GetObjectCodeById(objectId);
-
-            // [TODO] 방에 있는 오브젝트의 종류에 따라 할 일을 다르게 처리해야 함.
-            switch (code)
-            {
-                case (ObjectCode.Player):
-                    _players.Remove(objectId);
-                    break;
-                case (ObjectCode.Monster):
-                    break;
-                case (ObjectCode.Arrow):
-                    break;
-            }
-        }
-
         public void C_Move(C_Move packet)
         {
             // 패킷을 보낸 플레이어의 방 검색 후 작업
@@ -164,16 +147,98 @@ namespace Server
                         // 체력깎기
                         Console.WriteLine($"Object({target.objectInfo.ObjectId}) got Damaged by Object({attacker.objectInfo.ObjectId})");
                         target.objectInfo.Hp -= 10; // TODO
-
-                        // 타겟이 맞았다고 사람들에게 알리기
-                        S_Attack response = new S_Attack();
-                        response.TargetInfo = target.objectInfo;
-                        response.AttackerInfo = attacker.objectInfo;
-                        BroadCast(response);
+                        if (target.objectInfo.Hp <= 0)
+                        {
+                            // 타겟이 죽었다고 사람들에게 알리기
+                            S_Dead deadPkt = new S_Dead();
+                            deadPkt.ObjectId = target.objectInfo.ObjectId;
+                            BroadCast(deadPkt);
+                            return;
+                        }
+                        else
+                        {
+                            // 타겟이 맞았다고 사람들에게 알리기
+                            S_Attack response = new S_Attack();
+                            response.TargetInfo = target.objectInfo;
+                            response.AttackerInfo = attacker.objectInfo;
+                            BroadCast(response);
+                        }
+                    }
+                    else
+                    {
+                        // 아무도 없는 데 때린거면 그냥 동기화만 해줌
+                        S_Sync response = new S_Sync();
+                        response.ObjectInfo = attacker.objectInfo;
+                        foreach (Player p in _players.Values)
+                        {
+                            // 나를 제외한 존재들에게만..
+                            if (p.objectInfo.ObjectId != attacker.objectInfo.ObjectId)
+                            {
+                                p.session.Send(response);
+                            }
+                        }
                     }
                 }
             }
         }
+
+        public void C_Leave_Game(int objectId)
+        {
+            ObjectCode code = PlayerManager.GetObjectCodeById(objectId);
+
+            // [TODO] 방에 있는 오브젝트의 종류에 따라 할 일을 다르게 처리해야 함.
+            switch (code)
+            {
+                case (ObjectCode.Player):
+                    // 방에서 삭제
+                    _players.Remove(objectId);
+
+                    // 오브젝트 관리자에서 삭제
+                    PlayerManager.Instance.Remove(objectId);
+
+                    // 모두에게 알림
+                    S_LeaveGame pkt = new S_LeaveGame();
+                    pkt.ObjectId = objectId;
+                    BroadCast(pkt);
+                    break;
+                case (ObjectCode.Monster):
+                    break;
+                case (ObjectCode.Arrow):
+                    break;
+            }
+        }
+
+        public void C_Sync(C_Sync packet)
+        {
+            // 패킷을 보낸 플레이어의 방 검색 후 작업
+            Room pktRoom = RoomManager.Instance.Find(packet.ObjectInfo.RoomId);
+            if (pktRoom != null)
+            {
+                // 해당 플레이어 찾고 나서 작업
+                Player player = null;
+                if (_players.TryGetValue(packet.ObjectInfo.ObjectId, out player) == true)
+                {
+                    // 플레이어 정보 업데이트
+                    player.objectInfo = packet.ObjectInfo;
+
+                    // 맵에 위치 업데이트
+                    pktRoom.Map.UpdatePosition(packet.ObjectInfo.Position, player);
+
+                    // 방에 있는 사람들에게 알림
+                    S_Sync response = new S_Sync();
+                    response.ObjectInfo = player.objectInfo;
+                    foreach (Player p in _players.Values)
+                    {
+                        // 나를 제외한 존재들에게만..
+                        if (p.objectInfo.ObjectId != player.objectInfo.ObjectId)
+                        {
+                            p.session.Send(response);
+                        }
+                    }
+                }
+            }
+        }
+
 
         public void BroadCast(IMessage packet)
         {

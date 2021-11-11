@@ -141,7 +141,7 @@ public class Player : Creature
         if (_moveKeyPressed == false)
         {
             State = State.Idle;
-            Manager.Network.SendMovePacket(ObjectInfo);
+            Manager.Network.SendMovePacket(ObjectInfo); // 내가 가만히 있다는 것을 알려야 함
             return;
         }
 
