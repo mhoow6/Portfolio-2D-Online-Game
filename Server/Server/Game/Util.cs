@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Google.Protobuf.Protocol;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -43,5 +44,33 @@ namespace Server
             }
         }
 
+    }
+
+    public class Vector2Helper
+    {
+        public static Vector2 Plus(Vector2 lhs, Vector2 rhs)
+        {
+            Vector2 ret = new Vector2();
+            ret.X = lhs.X + rhs.X;
+            ret.Y = lhs.Y + rhs.Y;
+            return ret;
+        }
+
+        public static Vector2 Minus(Vector2 lhs, Vector2 rhs)
+        {
+            Vector2 ret = new Vector2();
+            ret.X = lhs.X - rhs.X;
+            ret.Y = lhs.Y - rhs.Y;
+            return ret;
+        }
+
+        public static float Magnitude(Vector2 vec)
+        {
+            float ret = 0.0f;
+
+            ret = MathF.Sqrt(MathF.Pow(vec.X, 2) + MathF.Pow(vec.Y, 2));
+
+            return ret;
+        }
     }
 }

@@ -65,7 +65,7 @@ message Vector2
 // ps. repeated int32 = List<int>
 message C_Spawn
 {
-	ObjectInfo objectInfo = 1;
+    SpawnInfo spawnInfo = 1;
 }
 
 message S_Spawn
@@ -133,4 +133,11 @@ message ObjectInfo
     State state = 5;
     int32 hp = 6;
     Vector2 position = 7;
+}
+
+message SpawnInfo
+{
+    int32 spawnerId = 1;
+    int32 roomId = 2;
+    int32 objectCode = 3;
 }

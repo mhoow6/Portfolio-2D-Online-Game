@@ -6,11 +6,6 @@ namespace Server
 {
     public class Creature : BaseObject
     {
-        #region virtual
-        public virtual void V_Dead()
-        {
-            
-        }
-        #endregion
+        
     }
 }

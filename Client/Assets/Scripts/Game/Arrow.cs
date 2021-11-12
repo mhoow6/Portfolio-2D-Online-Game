@@ -8,45 +8,11 @@ public class Arrow : Projectile
     private void Awake()
     {
         OnAwake();
-        _moveSpeed = 10.0f; // TODO: 추후에 json 관리
+        _moveSpeed = 200.0f; // TODO: 추후에 json 관리
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        V_UpdateObject();
-    }
-
-
-    #region Override
-    protected override void V_MoveToNextPos()
-    {
-        if (Manager.Map.CanGo(GetFrontCellPos()))
-        {
-            CellPos = GetFrontCellPos(); // 이미 목적지에 있다는 것을 알림
-        }
-        else
-        {
-            Creature target = Manager.Map.CreatureAt(GetFrontCellPos());
-
-            if (target != null)
-            {
-                // TODO: 공격 판정
-                State = State.Attack;
-                target.V_Dead();
-            }
-            else
-            {
-                Debug.Log("벽을 맞췄습니다..");
-            }
-
-            V_Clear();
-        }
-    }
-
-    public override void V_SetOwner(Creature owner)
-    {
-        base.V_SetOwner(owner);
-
         switch (MoveDir)
         {
             case MoveDir.Up:
@@ -65,7 +31,38 @@ public class Arrow : Projectile
 
         State = State.Moving;
     }
-    #endregion
+
+    private void Start()
+    {
+        switch (MoveDir)
+        {
+            case MoveDir.Up:
+                transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
+                break;
+            case MoveDir.Down:
+                transform.rotation = Quaternion.Euler(new Vector3(0, 0, 180));
+                break;
+            case MoveDir.Left:
+                transform.rotation = Quaternion.Euler(new Vector3(0, 0, 90));
+                break;
+            case MoveDir.Right:
+                transform.rotation = Quaternion.Euler(new Vector3(0, 0, -90));
+                break;
+        }
+
+        State = State.Moving;
+    }
+
+    private void Update()
+    {
+        V_UpdateObject();
+    }
+
+    protected override void V_MoveToNextPos()
+    {
+        // 서버에서 이동 컨트롤
+    }
+
     public override void V_Clear()
     {
         _owner = null;

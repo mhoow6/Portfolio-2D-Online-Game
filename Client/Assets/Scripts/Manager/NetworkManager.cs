@@ -50,6 +50,13 @@ public class NetworkManager
         _session.Send(pkt);
     }
 
+    public void SendSpawnPacket(SpawnInfo spawnInfo)
+    {
+        C_Spawn pkt = new C_Spawn();
+        pkt.SpawnInfo = spawnInfo;
+        _session.Send(pkt);
+    }
+
     public void Update()
     {
         List<PacketMessage> list = PacketQueue.Instance.PopAll();

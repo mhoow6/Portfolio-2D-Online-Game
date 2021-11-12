@@ -11,6 +11,7 @@ namespace Server
         public int roomId;
         public Map Map { get; private set; } = new Map();
         Dictionary<int, Player> _players = new Dictionary<int, Player>();
+        Dictionary<int, Projectile> _projectiles = new Dictionary<int, Projectile>();
 
         public void Make(int mapId)
         {
@@ -20,13 +21,16 @@ namespace Server
         public void Update()
         {
             // [TODO] 방 안에 있는 모든 게임 오브젝트들을 갱신
-
+            foreach (Projectile proj in _projectiles.Values)
+            {
+                proj.V_UpdateObject();
+            }
 
             // 패킷으로 인해 오브젝트가 변동되는 일들을 처리한다.
             Flush();
         }
 
-        public void EnterGame(BaseObject gameObject)
+        public void C_EnterGame(BaseObject gameObject)
         {
             if (gameObject == null)
                 return;
@@ -34,39 +38,39 @@ namespace Server
             // 로그
             Console.WriteLine($"Object({gameObject.objectInfo.ObjectId}) entered Room({gameObject.objectInfo.RoomId})");
 
-            ObjectCode code = PlayerManager.GetObjectCodeById(gameObject.objectInfo.ObjectId);
+            ObjectCode code = ObjectManager.GetObjectCodeById(gameObject.objectInfo.ObjectId);
 
             switch (code)
             {
                 case (ObjectCode.Player):
-                    Player player = gameObject as Player;
-                    _players.Add(gameObject.objectInfo.ObjectId, player);
-
-                    // 1. 클라이언트에게 내가 들어왔다고 알림
-                    S_EnterGame enterPacket = new S_EnterGame();
-                    enterPacket.Player = player.objectInfo;
-
-                    // 맵에 업데이트
-                    Map.UpdatePosition(enterPacket.Player.Position, player);
-
-                    player.session.Send(enterPacket);
-
-                    /**************************************************************/
-
-                    // 2. 현재 방에 있는 플레이어들의 정보를 내가 알아야 한다
-                    S_Spawn spawnPacket = new S_Spawn();
-                    foreach (Player p in _players.Values)
                     {
-                        if (player != p)
+                        Player player = gameObject as Player;
+                        _players.Add(gameObject.objectInfo.ObjectId, player);
+
+                        // 1. 클라이언트에게 내가 들어왔다고 알림
+                        S_EnterGame enterPacket = new S_EnterGame();
+                        enterPacket.Player = player.objectInfo;
+
+                        // 맵에 업데이트
+                        Map.UpdatePosition(enterPacket.Player.Position, player);
+
+                        player.session.Send(enterPacket);
+
+                        /**************************************************************/
+
+                        // 2. 현재 방에 있는 플레이어들의 정보를 내가 알아야 한다
+                        S_Spawn spawnPacket = new S_Spawn();
+                        foreach (Player p in _players.Values)
                         {
-                            spawnPacket.Objects.Add(p.objectInfo);
+                            if (player != p)
+                            {
+                                spawnPacket.Objects.Add(p.objectInfo);
+                            }
                         }
+                        player.session.Send(spawnPacket);
+
+                        /**************************************************************/
                     }
-                    player.session.Send(spawnPacket);
-
-                    /**************************************************************/
-
-                    
                     break;
                 case (ObjectCode.Monster):
                     break;
@@ -101,6 +105,10 @@ namespace Server
                 Player player = null;
                 if (_players.TryGetValue(packet.ObjectInfo.ObjectId, out player) == true)
                 {
+                    // 맵에 있던 기존 오브젝트는 null로 만들어야 함
+                    Vector2 currentPos = player.objectInfo.Position;
+                    pktRoom.Map.RemoveCreature(currentPos);
+
                     // 플레이어 정보 업데이트
                     player.objectInfo = packet.ObjectInfo;
 
@@ -182,28 +190,42 @@ namespace Server
             }
         }
 
-        public void C_Leave_Game(int objectId)
+        public void C_LeaveGame(int objectId)
         {
-            ObjectCode code = PlayerManager.GetObjectCodeById(objectId);
+            ObjectCode code = ObjectManager.GetObjectCodeById(objectId);
 
             // [TODO] 방에 있는 오브젝트의 종류에 따라 할 일을 다르게 처리해야 함.
             switch (code)
             {
                 case (ObjectCode.Player):
-                    // 방에서 삭제
-                    _players.Remove(objectId);
+                    {
+                        // 방에서 삭제
+                        _players.Remove(objectId);
 
-                    // 오브젝트 관리자에서 삭제
-                    PlayerManager.Instance.Remove(objectId);
+                        // 오브젝트 관리자에서 삭제
+                        ObjectManager.Instance.Remove(objectId);
 
-                    // 모두에게 알림
-                    S_LeaveGame pkt = new S_LeaveGame();
-                    pkt.ObjectId = objectId;
-                    BroadCast(pkt);
+                        // 모두에게 알림
+                        S_LeaveGame pkt = new S_LeaveGame();
+                        pkt.ObjectId = objectId;
+                        BroadCast(pkt);
+                    }
                     break;
                 case (ObjectCode.Monster):
                     break;
                 case (ObjectCode.Arrow):
+                    {
+                        // 방에서 삭제
+                        _projectiles.Remove(objectId);
+
+                        // 오브젝트 관리자에서 삭제
+                        ObjectManager.Instance.Remove(objectId);
+
+                        // 모두에게 알림
+                        S_LeaveGame pkt = new S_LeaveGame();
+                        pkt.ObjectId = objectId;
+                        BroadCast(pkt);
+                    }
                     break;
             }
         }
@@ -239,6 +261,40 @@ namespace Server
             }
         }
 
+        public void C_Spawn(C_Spawn packet)
+        {
+            // 패킷을 보낸 플레이어의 방 검색 후 작업
+            Player p = null;
+            if (_players.TryGetValue(packet.SpawnInfo.SpawnerId, out p) == true)
+            {
+                Room pktRoom = RoomManager.Instance.Find(packet.SpawnInfo.RoomId);
+                if (pktRoom != null)
+                {
+                    // TODO: Code로 일일이 따지는 것이 아닌 나중에 오브젝트 종류별로 기본적인 처리를 나누고, 세부적인 것은 팩토리에서 처리 
+                    switch (packet.SpawnInfo.ObjectCode)
+                    {
+                        case (int)ObjectCode.Arrow:
+                            {
+                                // arrow 소환 (TODO: 플레이어의 상태에 따라 소환가능한지 검증)
+                                Arrow arrow = ObjectManager.Instance.Add<Arrow>(ObjectCode.Arrow);
+                                arrow.V_SetOwner(p);
+
+                                // 서버에서 피격판정을 계산하기 위해 방에 추가
+                                _projectiles.Add(arrow.objectInfo.ObjectId, arrow);
+
+                                // 맵에 업데이트
+                                Map.UpdatePosition(arrow.objectInfo.Position, arrow);
+                                
+                                // 화살이 소환되었다고 패킷 보내기
+                                S_Spawn spawnPkt = new S_Spawn();
+                                spawnPkt.Objects.Add(arrow.objectInfo);
+                                BroadCast(spawnPkt);
+                            }
+                            break;
+                    }
+                }
+            }
+        }
 
         public void BroadCast(IMessage packet)
         {

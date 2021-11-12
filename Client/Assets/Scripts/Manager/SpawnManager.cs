@@ -57,7 +57,7 @@ public class SpawnManager
                     if (item.gameObject.activeSelf == false && item.code == (ObjectCode)objInfo.ObjectCode)
                     {
                         item.gameObject.SetActive(true);
-                        item.id = objInfo.ObjectId;
+                        item.ObjectInfo = objInfo;
                         return item;
                     }
                 }

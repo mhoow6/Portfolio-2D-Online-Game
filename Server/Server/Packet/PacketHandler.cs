@@ -15,13 +15,11 @@ class PacketHandler
         
         ClientSession Session = session as ClientSession;
 
-        // Objectcode에 따라 스폰 지점 결정
-        switch (pkt.ObjectInfo.ObjectCode)
+        // 원자성이 보장되는 영역인 Room에서 해야 됨
+        Room pktRoom = RoomManager.Instance.Find(pkt.SpawnInfo.RoomId);
+        if (pktRoom != null)
         {
-            case (int)ObjectCode.Player:
-                break;
-            case (int)ObjectCode.Monster:
-                break;
+            pktRoom.Push(pktRoom.C_Spawn, pkt);
         }
     }
 
@@ -55,13 +53,13 @@ class PacketHandler
     {
         C_LeaveGame pkt = packet as C_LeaveGame;
 
-        Player obj = PlayerManager.Instance.Find(pkt.ObjectId);
+        Player obj = ObjectManager.Instance.Find(pkt.ObjectId);
 
         // 원자성이 보장되는 영역인 Room에서 해야 됨
         Room pktRoom = RoomManager.Instance.Find(obj.objectInfo.RoomId);
         if (pktRoom != null)
         {
-            pktRoom.Push(pktRoom.C_Leave_Game, pkt.ObjectId);
+            pktRoom.Push(pktRoom.C_LeaveGame, pkt.ObjectId);
         }
     }
 
@@ -69,7 +67,7 @@ class PacketHandler
     {
         C_Sync pkt = packet as C_Sync;
 
-        Player obj = PlayerManager.Instance.Find(pkt.ObjectInfo.ObjectId);
+        Player obj = ObjectManager.Instance.Find(pkt.ObjectInfo.ObjectId);
 
         // 원자성이 보장되는 영역인 Room에서 해야 됨
         Room pktRoom = RoomManager.Instance.Find(obj.objectInfo.RoomId);

@@ -40,9 +40,9 @@ namespace Server
 			Console.WriteLine($"OnConnected : {endPoint}");
 
 			// 오브젝트 기본 정보
-			me = PlayerManager.Instance.Add<Player>(ObjectCode.Player);
+			me = ObjectManager.Instance.Add<Player>(ObjectCode.Player);
 			me.session = this;
-			me.objectInfo = PlayerManager.Instance.Add<Player>(ObjectCode.Player).objectInfo;
+			me.objectInfo = ObjectManager.Instance.Add<Player>(ObjectCode.Player).objectInfo;
 
 			// 랜덤 스폰 장소
 			Random rnd = new Random(System.Environment.TickCount);
@@ -67,7 +67,7 @@ namespace Server
 			// 기본 체력
 			me.objectInfo.Hp = 100;
 			
-			room.Push(room.EnterGame, me);
+			room.Push(room.C_EnterGame, me);
 		}
 
 		public override void OnRecvPacket(ArraySegment<byte> buffer)

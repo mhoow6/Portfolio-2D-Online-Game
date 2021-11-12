@@ -114,7 +114,7 @@ public class Player : Creature
         {
             _attackOnce = false;
             State = State.Idle;
-            Manager.Network.SendMovePacket(ObjectInfo); // 내가 가만히 있다는 것을 알려야 함
+            Manager.Network.SendMovePacket(ObjectInfo); // 싱크 용도
         }
         else
         {
@@ -126,8 +126,7 @@ public class Player : Creature
                         Manager.Network.SendAttackPacket(ObjectInfo);
                         break;
                     case WeaponType.BOW:
-                        Arrow arrow = Manager.Spawner.SpawnObject(ObjectCode.Arrow) as Arrow;
-                        arrow.V_SetOwner(this);
+                        Manager.Network.SendSpawnPacket(new SpawnInfo() { SpawnerId = this.id, ObjectCode = (int)ObjectCode.Arrow, RoomId = ObjectInfo.RoomId });
                         break;
                 }
 
@@ -141,17 +140,14 @@ public class Player : Creature
         if (_moveKeyPressed == false)
         {
             State = State.Idle;
-            Manager.Network.SendMovePacket(ObjectInfo); // 내가 가만히 있다는 것을 알려야 함
+            Manager.Network.SendMovePacket(ObjectInfo); // 싱크 용도
             return;
         }
 
         if (Manager.Map.CanGo(GetFrontCellPos()))
         {
-            if (Manager.Map.CreatureAt(GetFrontCellPos()) == null)
-            {
-                CellPos = GetFrontCellPos();
-                Manager.Network.SendMovePacket(ObjectInfo);
-            }
+            CellPos = GetFrontCellPos();
+            Manager.Network.SendMovePacket(ObjectInfo);
         }
     }
     #endregion

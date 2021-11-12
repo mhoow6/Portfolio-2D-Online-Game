@@ -9,20 +9,20 @@ public class ObjectManager
     public Player Me { get; private set; }
     Dictionary<int, BaseObject> objects = new Dictionary<int, BaseObject>();
 
-    public void AddMe(BaseObject player)
+    public void AddMe(BaseObject obj)
     {
-        Me = player as Player;
+        Me = obj as Player;
         Add(Me);
     }
 
-    public bool Add(BaseObject player)
+    public bool Add(BaseObject obj)
     {
         BaseObject p = null;
-        if (objects.TryGetValue(player.id, out p) == false)
+        if (objects.TryGetValue(obj.id, out p) == false)
         {
-            p = player;
+            p = obj;
 
-            objects.Add(player.id, p);
+            objects.Add(obj.id, p);
             return true;
         }
 

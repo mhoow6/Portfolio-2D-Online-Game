@@ -6,7 +6,7 @@ using Google.Protobuf.Protocol;
 namespace Server
 {
     // 오브젝트 관리자
-    public class PlayerManager : SingleTon<PlayerManager>
+    public class ObjectManager : SingleTon<ObjectManager>
     {
         public static readonly int Unknown = -1;
 
@@ -15,7 +15,7 @@ namespace Server
 
         // UnUsed(1)ObjectCode(7)ObjectId(23)
         // [ ........ | ........ | ........ | ........ ]
-        public int PlayerCount { get; private set; }
+        public int ObjectCount { get; private set; }
 
         public T Add<T>(ObjectCode code) where T : BaseObject, new()
         {
@@ -68,7 +68,7 @@ namespace Server
 
             lock (_lock)
             {
-                return ((int)code << 24) | (PlayerCount++);
+                return ((int)code << 24) | (ObjectCount++);
             }
         }
 

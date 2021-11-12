@@ -9,6 +9,7 @@ namespace Server
     {
         public ObjectInfo objectInfo;
         public Room room;
+        public float _moveSpeed;
 
         public Vector2 GetFrontCellPos()
         {
@@ -40,7 +41,7 @@ namespace Server
                 case MoveDir.Right:
                     {
                         Vector2 frontcell = new Vector2(cellPos);
-                        frontcell.X += 0; frontcell.Y += 1;
+                        frontcell.X += 1; frontcell.Y += 0;
                         cellPos = frontcell;
                     }
                     break;
@@ -48,5 +49,39 @@ namespace Server
 
             return cellPos;
         }
+
+        #region virtual
+
+        public virtual void V_UpdateObject()
+        {
+            switch (objectInfo.State)
+            {
+                case State.Idle:
+                    V_UpdateIdle();
+                    break;
+                case State.Moving:
+                    V_UpdateMoving();
+                    break;
+                case State.Attack:
+                    V_UpdateAttack();
+                    break;
+                case State.Dead:
+                    V_UpdateDead();
+                    break;
+            }
+        }
+
+        protected virtual void V_UpdateIdle() { }
+
+        protected virtual void V_UpdateMoving() { }
+
+        protected virtual void V_MoveToNextPos() { }
+
+        protected virtual void V_UpdateAttack() { }
+
+        protected virtual void V_UpdateDead() { }
+
+        public virtual void V_Dead() { Console.WriteLine("V_Dead"); }
+        #endregion
     }
 }

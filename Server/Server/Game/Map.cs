@@ -93,11 +93,10 @@ namespace Server
             collisionCoord = CollisionCoordinate(collisionCoord.X, collisionCoord.Y);
 
             // map은 x,y가 거꾸로 되있으니 주의
-            if (_objects[collisionCoord.Y, collisionCoord.X] != null)
+            if (_objects[collisionCoord.Y, collisionCoord.X] == obj)
             {
                 _objects[collisionCoord.Y, collisionCoord.X] = null;
             }
-
 
             Vector2 nextPos = CollisionCoordinate(next.X, next.Y);
             
@@ -108,8 +107,6 @@ namespace Server
             obj.objectInfo.Position = new Vector2(next);
         }
 
-        // public void UpdatePosition(C_Move packet, BaseObject obj)
-
         public Vector2 CollisionCoordinate(int x, int y)
         {
             Vector2 vec = new Vector2();
@@ -117,6 +114,30 @@ namespace Server
             vec.Y = MaxY - y;
 
             return vec;
+        }
+
+        public bool CanGo(Vector2 cellPos)
+        {
+            if (BoundCheck(cellPos) == false)
+                return false;
+
+            // 셀 좌표계 -> 맵을 이진수로 표현한 배열 좌표계
+            Vector2 vec = CollisionCoordinate(cellPos.X, cellPos.Y);
+
+            if (_collision[vec.Y, vec.X] == true)
+            {
+                return false;
+            }
+
+            if (_objects[vec.Y, vec.X] != null)
+            {
+                if (_objects[vec.Y, vec.X].objectInfo.ObjectCode != (int)ObjectCode.Arrow)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public bool IsCreatureAt(Vector2 cellPos)
@@ -151,6 +172,22 @@ namespace Server
             }
 
             return null;
+        }
+
+        public bool RemoveCreature(Vector2 cellPos)
+        {
+            Vector2 vec = CollisionCoordinate(cellPos.X, cellPos.Y);
+
+            if ((_objects[vec.Y, vec.X] != null))
+            {
+                if ((_objects[vec.Y, vec.X].objectInfo.ObjectCode != (int)ObjectCode.Arrow))
+                {
+                    _objects[vec.Y, vec.X] = null;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         bool BoundCheck(Vector2 cellPos)
