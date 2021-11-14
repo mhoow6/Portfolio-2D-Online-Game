@@ -21,13 +21,22 @@ enum MsgId
     S_SYNC = 11;
 }
 
-// Enum
 enum ObjectCode
 {
 	PLAYER = 0;
     MONSTER = 1;
     DEAD_EFFECT = 2;
     ARROW = 3;
+    Barehand = 100;
+    Bow = 101;
+}
+
+enum ObjectType
+{
+    OT_PLAYER = 0;
+    OT_MONSTER = 1;
+    OT_PROJECTILE = 2;
+    OT_NONE = 3;
 }
 
 enum MapId
@@ -127,12 +136,13 @@ message S_Sync
 message ObjectInfo
 {
     int32 objectId = 1;
-    int32 objectCode = 2;
+    int32 spawnerId = 2;
     int32 roomId = 3;
-    MoveDir moveDir = 4;
-    State state = 5;
-    int32 hp = 6;
-    Vector2 position = 7;
+    int32 objectCode = 4;
+    MoveDir moveDir = 5;
+    State state = 6;
+    StatInfo stat = 7;
+    Vector2 position = 8;
 }
 
 message SpawnInfo
@@ -140,4 +150,11 @@ message SpawnInfo
     int32 spawnerId = 1;
     int32 roomId = 2;
     int32 objectCode = 3;
+}
+
+message StatInfo
+{
+    int32 hp = 1;
+    int32 movespeed = 2;
+    int32 weaponId = 3;
 }

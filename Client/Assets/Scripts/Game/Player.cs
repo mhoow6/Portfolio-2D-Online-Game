@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using static Define;
+ 
 
 public class Player : Creature
 {
@@ -97,12 +97,12 @@ public class Player : Creature
 
             if (Input.GetKey(KeyCode.Space))
             {
-                WeaponType = WeaponType.BAREHAND;
+                Weapon = ObjectCode.Barehand;
                 State = State.Attack;
             }
             else if (Input.GetKey(KeyCode.LeftControl))
             {
-                WeaponType = WeaponType.BOW;
+                Weapon = ObjectCode.Bow;
                 State = State.Attack;
             }
         }
@@ -114,19 +114,20 @@ public class Player : Creature
         {
             _attackOnce = false;
             State = State.Idle;
-            Manager.Network.SendMovePacket(ObjectInfo); // ½ÌÅ© ¿ëµµ
+            Manager.Network.SendSyncPacket(ObjectInfo);
         }
         else
         {
             if (_attackOnce == false)
             {
-                switch (WeaponType)
+                switch (Weapon)
                 {
-                    case WeaponType.BAREHAND:
+                    case ObjectCode.Barehand:
                         Manager.Network.SendAttackPacket(ObjectInfo);
                         break;
-                    case WeaponType.BOW:
-                        Manager.Network.SendSpawnPacket(new SpawnInfo() { SpawnerId = this.id, ObjectCode = (int)ObjectCode.Arrow, RoomId = ObjectInfo.RoomId });
+                    case ObjectCode.Bow:
+                        Manager.Network.SendSyncPacket(ObjectInfo);
+                        Manager.Network.SendSpawnPacket(new SpawnInfo() { SpawnerId = this.id, ObjectCode = (int)Google.Protobuf.Protocol.ObjectCode.Arrow, RoomId = ObjectInfo.RoomId });
                         break;
                 }
 

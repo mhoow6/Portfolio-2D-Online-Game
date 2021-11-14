@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class Util
@@ -75,5 +76,41 @@ public class Util
         return null;
     }
 
+    public static List<string> GetLinesFromTableFileStream(string filePath)
+    {
+        string line = string.Empty;
+        List<string> lines = new List<string>();
 
+        using (FileStream f = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+        {
+            using (StreamReader sr = new StreamReader(f, System.Text.Encoding.UTF8))
+            {
+                while ((line = sr.ReadLine()) != null)
+                {
+                    lines.Add(line);
+                }
+            }
+        }
+
+        return lines;
+    }
+
+    public static string GetLinesWithFileStream(string filePath)
+    {
+        string line = string.Empty;
+        string lines = string.Empty;
+
+        using (FileStream f = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+        {
+            using (StreamReader sr = new StreamReader(f, System.Text.Encoding.UTF8))
+            {
+                while ((line = sr.ReadLine()) != null)
+                {
+                    lines += line;
+                }
+            }
+        }
+
+        return lines;
+    }
 }

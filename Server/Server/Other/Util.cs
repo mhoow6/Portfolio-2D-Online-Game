@@ -26,24 +26,25 @@ namespace Server
 
             return lines;
         }
-    }
 
-    public class SingleTon<T> where T : class, new()
-    {
-        private static T inst = null;
-
-        public SingleTon() { }
-
-        public static T Instance
+        public static string GetLinesWithFileStream(string filePath)
         {
-            get
-            {
-                if (inst == null)
-                    inst = new T();
-                return inst;
-            }
-        }
+            string line = string.Empty;
+            string lines = string.Empty;
 
+            using (FileStream f = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                using (StreamReader sr = new StreamReader(f, System.Text.Encoding.UTF8))
+                {
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        lines += line;
+                    }
+                }
+            }
+
+            return lines;
+        }
     }
 
     public class Vector2Helper

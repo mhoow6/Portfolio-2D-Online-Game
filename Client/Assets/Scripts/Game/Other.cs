@@ -12,7 +12,7 @@ public class Other : Player
 
     private void Start()
     {
-
+        // Player의 Start 함수 실행 방지
     }
 
     private void Update()

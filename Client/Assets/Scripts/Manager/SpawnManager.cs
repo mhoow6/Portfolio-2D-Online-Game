@@ -2,7 +2,7 @@ using Google.Protobuf.Protocol;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static Define;
+ 
 
 public class SpawnManager
 {
@@ -37,7 +37,7 @@ public class SpawnManager
             objList = new List<BaseObject>();
             _objects.Add(code, objList);
         }
-        BaseObject obj = ObjectFactory.AddComponentToObject(code, _obj);
+        BaseObject obj = ObjectFactory.AddComponentToObject<BaseObject>(code, _obj);
         obj.code = code;
 
         objList.Add(obj);

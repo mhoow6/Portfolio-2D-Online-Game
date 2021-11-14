@@ -129,7 +129,7 @@ namespace Server
                 }
 
                 // 로그
-                Console.WriteLine($"Object({player.objectInfo.ObjectId}) Move To ({player.objectInfo.Position.X}, {player.objectInfo.Position.Y})");
+                Console.WriteLine($"Object({player.objectInfo.ObjectId}) move To ({player.objectInfo.Position.X}, {player.objectInfo.Position.Y})");
             }
         }
 
@@ -154,8 +154,8 @@ namespace Server
 
                         // 체력깎기
                         Console.WriteLine($"Object({target.objectInfo.ObjectId}) got Damaged by Object({attacker.objectInfo.ObjectId})");
-                        target.objectInfo.Hp -= 10; // TODO
-                        if (target.objectInfo.Hp <= 0)
+                        target.objectInfo.Stat.Hp -= attacker.Damage; // TODO
+                        if (target.objectInfo.Stat.Hp <= 0)
                         {
                             // 타겟이 죽었다고 사람들에게 알리기
                             S_Dead deadPkt = new S_Dead();
@@ -236,27 +236,40 @@ namespace Server
             Room pktRoom = RoomManager.Instance.Find(packet.ObjectInfo.RoomId);
             if (pktRoom != null)
             {
-                // 해당 플레이어 찾고 나서 작업
-                Player player = null;
-                if (_players.TryGetValue(packet.ObjectInfo.ObjectId, out player) == true)
+                ObjectCode code = ObjectManager.GetObjectCodeById(packet.ObjectInfo.ObjectId);
+
+                switch (code)
                 {
-                    // 플레이어 정보 업데이트
-                    player.objectInfo = packet.ObjectInfo;
-
-                    // 맵에 위치 업데이트
-                    pktRoom.Map.UpdatePosition(packet.ObjectInfo.Position, player);
-
-                    // 방에 있는 사람들에게 알림
-                    S_Sync response = new S_Sync();
-                    response.ObjectInfo = player.objectInfo;
-                    foreach (Player p in _players.Values)
-                    {
-                        // 나를 제외한 존재들에게만..
-                        if (p.objectInfo.ObjectId != player.objectInfo.ObjectId)
+                    case ObjectCode.Player:
                         {
-                            p.session.Send(response);
+                            // 해당 플레이어 찾고 나서 작업
+                            Player player = null;
+                            if (_players.TryGetValue(packet.ObjectInfo.ObjectId, out player) == true)
+                            {
+                                // 플레이어 정보 업데이트
+                                player.objectInfo = packet.ObjectInfo;
+
+                                // 방에 있는 사람들에게 알림
+                                S_Sync response = new S_Sync();
+                                response.ObjectInfo = player.objectInfo;
+                                foreach (Player p in _players.Values)
+                                {
+                                    // 나를 제외한 존재들에게만..
+                                    if (p.objectInfo.ObjectId != player.objectInfo.ObjectId)
+                                    {
+                                        p.session.Send(response);
+                                    }
+                                }
+
+                                // 로그
+                                Console.WriteLine($"Player({player.objectInfo.ObjectId}) wants to sync.");
+                            }
                         }
-                    }
+                        break;
+                    case ObjectCode.Monster:
+                        break;
+                    case ObjectCode.Arrow:
+                        break;
                 }
             }
         }

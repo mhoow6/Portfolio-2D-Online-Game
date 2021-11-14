@@ -1,0 +1,8 @@
+{
+	"Stat" : {
+		"hp" : 100,
+		"movespeed" : 5,
+		"code" : 0,
+		"weaponId" : 101
+	}
+}

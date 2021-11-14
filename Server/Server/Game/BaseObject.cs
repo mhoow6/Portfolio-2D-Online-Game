@@ -9,7 +9,6 @@ namespace Server
     {
         public ObjectInfo objectInfo;
         public Room room;
-        public float _moveSpeed;
 
         public Vector2 GetFrontCellPos()
         {

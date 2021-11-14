@@ -39,10 +39,12 @@ namespace Server
 		{
 			Console.WriteLine($"OnConnected : {endPoint}");
 
+			// TODO: DB에서 긁어오자
+			PlayerInfo playerStat = DataManager.Instance.GetPlayerData();
+
 			// 오브젝트 기본 정보
-			me = ObjectManager.Instance.Add<Player>(ObjectCode.Player);
+			me = ObjectManager.Instance.Add<Player>((ObjectCode)playerStat.code);
 			me.session = this;
-			me.objectInfo = ObjectManager.Instance.Add<Player>(ObjectCode.Player).objectInfo;
 
 			// 랜덤 스폰 장소
 			Random rnd = new Random(System.Environment.TickCount);
@@ -64,8 +66,8 @@ namespace Server
 			me.objectInfo.MoveDir = MoveDir.Up;
 			me.objectInfo.State = State.Idle;
 
-			// 기본 체력
-			me.objectInfo.Hp = 100;
+			// 게임에서 쓰일 스텟정보 초기화
+			me.objectInfo.Stat = new StatInfo() { Hp = playerStat.hp, Movespeed = playerStat.movespeed, WeaponId = playerStat.weaponId };
 			
 			room.Push(room.C_EnterGame, me);
 		}

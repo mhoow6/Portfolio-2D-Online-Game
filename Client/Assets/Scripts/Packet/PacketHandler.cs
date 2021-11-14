@@ -97,7 +97,7 @@ class PacketHandler
         BaseObject target = Manager.ObjectManager.Find(pkt.TargetInfo.ObjectId);
         if (target != null)
         {
-            target.Hp = pkt.TargetInfo.Hp;
+            target.Hp = pkt.TargetInfo.Stat.Hp;
             Debug.Log($"Object{target.ObjectInfo.ObjectId} got Damaged by Object{attacker.ObjectInfo.ObjectId}. Current Object Health:{target.Hp}");
         }
     }
@@ -115,15 +115,16 @@ class PacketHandler
 
     public static void S_SyncHandler(PacketSession session, IMessage packet)
     {
-        // 서버에서 누가누가 움직였는지에 대한 정보가 올 것임. 그것을 토대로 움직일 것
+        // 서버에서 누가 자기를 싱크 맞춰달라고 요청이 옴
         S_Sync pkt = packet as S_Sync;
 
-        // 오브젝트가 게임 안에 있는 지 검사 후, 셀 좌표 이동
+        // 오브젝트가 게임 안에 있는 지 검사 후
         BaseObject obj = Manager.ObjectManager.Find(pkt.ObjectInfo.ObjectId);
         if (obj != null)
         {
-            // 플레이어 상태, 이동방향 정보 동기화
-            obj.MoveDir = pkt.ObjectInfo.MoveDir;
+            obj.ObjectInfo = pkt.ObjectInfo;
+
+            obj.Weapon = (ObjectCode)pkt.ObjectInfo.Stat.WeaponId;
             obj.State = pkt.ObjectInfo.State;
         }
     }

@@ -2,7 +2,7 @@ using Google.Protobuf.Protocol;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static Define;
+ 
 
 #region State Factory
 public class StateControl
@@ -16,11 +16,7 @@ public class StateControl
         get => _strategy._state;
     }
 
-    public WeaponType Weapontype
-    {
-        get => _weaponType;
-    }
-    WeaponType _weaponType = WeaponType.BAREHAND;
+    ObjectCode _weaponType = ObjectCode.Barehand;
 
     public StateControl(Animator animator, SpriteRenderer sprite)
     {
@@ -29,7 +25,7 @@ public class StateControl
         _strategy = new StateIdle(animator, MoveDir.Up, sprite);
     }
 
-    public void SetWeapon(WeaponType weaponType)
+    public void SetWeapon(ObjectCode weaponType)
     {
         _weaponType = weaponType;
     }
@@ -160,14 +156,14 @@ public class StateMoving : StateStrategy
 
 public class StateAttack : StateStrategy
 {
-    WeaponType _weaponType;
+    ObjectCode _weaponType;
 
     public StateAttack(Animator animator, MoveDir dir, SpriteRenderer sprite) : base(animator, dir, sprite)
     {
         _state = State.Attack;
     }
 
-    public StateAttack(Animator animator, MoveDir dir, SpriteRenderer sprite, WeaponType weaponType) : base(animator, dir, sprite)
+    public StateAttack(Animator animator, MoveDir dir, SpriteRenderer sprite, ObjectCode weaponType) : base(animator, dir, sprite)
     {
         _state = State.Attack;
         _weaponType = weaponType;
@@ -177,7 +173,7 @@ public class StateAttack : StateStrategy
     {
         switch (_weaponType)
         {
-            case WeaponType.BAREHAND:
+            case ObjectCode.Barehand:
                 switch (_dir)
                 {
                     case MoveDir.Up:
@@ -198,7 +194,7 @@ public class StateAttack : StateStrategy
                         break;
                 }
                 break;
-            case WeaponType.BOW:
+            case ObjectCode.Bow:
                 switch (_dir)
                 {
                     case MoveDir.Up:
@@ -440,40 +436,40 @@ public class MapFactory
 #region Object Factory
 public class ObjectFactory
 {
-    public static BaseObject AddComponentToObject(ObjectCode code, GameObject obj)
+    public static T AddComponentToObject<T>(Google.Protobuf.Protocol.ObjectCode code, GameObject obj) where T : BaseObject
     {
-        BaseObject ret;
+        T ret;
 
         switch (code)
         {
-            case ObjectCode.Player:
+            case Google.Protobuf.Protocol.ObjectCode.Player:
                 if (obj.GetComponent<Player>() == null)
                 {
-                    ret = obj.AddComponent<Player>();
+                    ret = obj.AddComponent<Player>() as T;
                     obj.name = "Player";
                     return ret;
                 }
                 break;
-            case ObjectCode.Monster:
+            case Google.Protobuf.Protocol.ObjectCode.Monster:
                 if (obj.GetComponent<Monster>() == null)
                 {
-                    ret = obj.AddComponent<Monster>();
+                    ret = obj.AddComponent<Monster>() as T;
                     obj.name = "Monster";
                     return ret;
                 }
                 break;
-            case ObjectCode.DeadEffect:
+            case Google.Protobuf.Protocol.ObjectCode.DeadEffect:
                 if (obj.GetComponent<DeathEffect>() == null)
                 {
-                    ret = obj.AddComponent<DeathEffect>();
+                    ret = obj.AddComponent<DeathEffect>() as T;
                     obj.name = "DeathEffect";
                     return ret;
                 }
                 break;
-            case ObjectCode.Arrow:
+            case Google.Protobuf.Protocol.ObjectCode.Arrow:
                 if (obj.GetComponent<Arrow>() == null)
                 {
-                    ret = obj.AddComponent<Arrow>();
+                    ret = obj.AddComponent<Arrow>() as T;
                     obj.name = "Arrow";
                     return ret;
                 }
@@ -487,9 +483,9 @@ public class ObjectFactory
     {
         BaseObject ret = null;
 
-        switch ((ObjectCode)objInfo.ObjectCode)
+        switch ((Google.Protobuf.Protocol.ObjectCode)objInfo.ObjectCode)
         {
-            case ObjectCode.Player:
+            case Google.Protobuf.Protocol.ObjectCode.Player:
                 if (obj.GetComponent<Player>() == null && obj.GetComponent<Other>() == null)
                 {
                     if (Manager.ObjectManager.Me == null)
@@ -506,7 +502,7 @@ public class ObjectFactory
                     }
                 }
                 break;
-            case ObjectCode.Monster:
+            case Google.Protobuf.Protocol.ObjectCode.Monster:
                 if (obj.GetComponent<Monster>() == null)
                 {
                     ret = obj.AddComponent<Monster>();
@@ -514,7 +510,7 @@ public class ObjectFactory
                     return ret;
                 }
                 break;
-            case ObjectCode.DeadEffect:
+            case Google.Protobuf.Protocol.ObjectCode.DeadEffect:
                 if (obj.GetComponent<DeathEffect>() == null)
                 {
                     ret = obj.AddComponent<DeathEffect>();
@@ -522,7 +518,7 @@ public class ObjectFactory
                     return ret;
                 }
                 break;
-            case ObjectCode.Arrow:
+            case Google.Protobuf.Protocol.ObjectCode.Arrow:
                 if (obj.GetComponent<Arrow>() == null)
                 {
                     ret = obj.AddComponent<Arrow>();
@@ -535,22 +531,22 @@ public class ObjectFactory
         return null;
     }
 
-    public static GameObject LoadGameObject(ObjectCode code)
+    public static GameObject LoadGameObject(Google.Protobuf.Protocol.ObjectCode code)
     {
         GameObject go = null;
 
         switch (code)
         {
-            case ObjectCode.Player:
+            case Google.Protobuf.Protocol.ObjectCode.Player:
                 go = Resources.Load<GameObject>(ResourcePaths.Player_Prefab);
                 break;
-            case ObjectCode.Monster:
+            case Google.Protobuf.Protocol.ObjectCode.Monster:
                 go = Resources.Load<GameObject>(ResourcePaths.Monster_Prefab);
                 break;
-            case ObjectCode.DeadEffect:
+            case Google.Protobuf.Protocol.ObjectCode.DeadEffect:
                 go = Resources.Load<GameObject>(ResourcePaths.DeathEffect_Prefab);
                 break;
-            case ObjectCode.Arrow:
+            case Google.Protobuf.Protocol.ObjectCode.Arrow:
                 go = Resources.Load<GameObject>(ResourcePaths.Arrow_Prefab);
                 break;
         }

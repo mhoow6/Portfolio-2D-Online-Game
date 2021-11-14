@@ -2,21 +2,21 @@ using Google.Protobuf.Protocol;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static Define;
+ 
 
 public delegate void Callback();
 
 public class BaseObject : MonoBehaviour
 {
-    public ObjectInfo ObjectInfo { get; set; } = new ObjectInfo();
+    public ObjectInfo ObjectInfo { get; set; } = new ObjectInfo() { Stat = new StatInfo()};
 
-    public ObjectCode code { get => (ObjectCode)ObjectInfo.ObjectCode; set { ObjectInfo.ObjectCode = (int)value; } }
+    public Google.Protobuf.Protocol.ObjectCode code { get => (Google.Protobuf.Protocol.ObjectCode)ObjectInfo.ObjectCode; set { ObjectInfo.ObjectCode = (int)value; } }
     public int id { get => ObjectInfo.ObjectId; set { ObjectInfo.ObjectId = value; } }
     public int roomId { get => ObjectInfo.RoomId; set { ObjectInfo.RoomId = value; } }
 
-    protected float _moveSpeed = 5.0f;
+    protected int MoveSpeed { get => ObjectInfo.Stat.Movespeed; set { ObjectInfo.Stat.Movespeed = value; } }
 
-    public int Hp { get => ObjectInfo.Hp; set { ObjectInfo.Hp = value; } }
+    public int Hp { get => ObjectInfo.Stat.Hp; set { ObjectInfo.Stat.Hp = value; } }
 
     [SerializeField]
     Vector3Int _cellPos = Vector3Int.zero;
@@ -36,7 +36,7 @@ public class BaseObject : MonoBehaviour
 
     public MoveDir MoveDir
     {
-        get => _moveController.direction;
+        get => ObjectInfo.MoveDir;
         set
         {
             _moveController.SetDirection(value);
@@ -50,7 +50,7 @@ public class BaseObject : MonoBehaviour
     // 상태는 이동방향을 꼭 정해놓고 할 것!!
     public State State
     {
-        get => _stateController.State;
+        get => ObjectInfo.State;
         set
         {
             _stateController.SetState(value, MoveDir);
@@ -58,12 +58,13 @@ public class BaseObject : MonoBehaviour
         }
     }
 
-    public WeaponType WeaponType
+    public ObjectCode Weapon
     {
-        get => _stateController.Weapontype;
+        get => (ObjectCode)ObjectInfo.Stat.WeaponId;
 
         set
         {
+            ObjectInfo.Stat.WeaponId = (int)value;
             _stateController.SetWeapon(value);
         }
     }
@@ -72,8 +73,6 @@ public class BaseObject : MonoBehaviour
     {
         get => _stateController.IsAnimationDone();
     }
-
-    
 
     protected Vector3Int GetFrontCellPos()
     {
@@ -140,14 +139,14 @@ public class BaseObject : MonoBehaviour
 
         // 도착 여부 체크
         float dist = moveDir.magnitude;
-        if (dist < _moveSpeed * Time.deltaTime)
+        if (dist < MoveSpeed * Time.deltaTime)
         {
             transform.position = destPos;
             V_MoveToNextPos();
         }
         else
         {
-            transform.position += moveDir.normalized * _moveSpeed * Time.deltaTime;
+            transform.position += moveDir.normalized * MoveSpeed * Time.deltaTime;
             State = State.Moving;
         }
     }

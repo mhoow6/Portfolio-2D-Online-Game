@@ -16,12 +16,11 @@ namespace Server
             int originId = objectInfo.ObjectId;
 
             objectInfo = owner.objectInfo;
+            objectInfo.SpawnerId = owner.objectInfo.ObjectId;
             objectInfo.ObjectId = originId;
             objectInfo.State = State.Moving;
             objectInfo.ObjectCode = (int)ObjectCode.Arrow;
-
-            // TODO: json 또는 DB에서 불러와야 하는 값
-            _moveSpeed = 200.0f;
+            objectInfo.Stat.Movespeed = DataManager.Instance.GetBowData(objectInfo.Stat.WeaponId).arrowspeed;
         }
 
         public override void V_UpdateObject()
@@ -37,7 +36,7 @@ namespace Server
         {
             if (_owner.room != null)
             {
-                long tick = (long)(1000 / _moveSpeed); // tick -> ms
+                long tick = (long)(1000 / objectInfo.Stat.Movespeed); // tick -> ms
                 _nextMoveTick = Environment.TickCount64 + tick;
 
                 Vector2 destPos = GetFrontCellPos();

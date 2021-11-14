@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using UnityEngine.Tilemaps;
-using static Define;
+ 
 using Google.Protobuf.Protocol;
 
 #if UNITY_EDITOR
@@ -52,7 +52,7 @@ public static class SaveSpawnPosition
                                     TileBase tile = ptm.GetTile(new Vector3Int(x, y, 0));
                                     if (tile != null)
                                     {
-                                        sw.WriteLine($"{ObjectCode.Player},{x},{y}");
+                                        sw.WriteLine($"{Google.Protobuf.Protocol.ObjectCode.Player},{x},{y}");
                                     }
                                 }
                             }
@@ -71,7 +71,7 @@ public static class SaveSpawnPosition
                                     TileBase tile = mtm.GetTile(new Vector3Int(x, y, 0));
                                     if (tile != null)
                                     {
-                                        sw.WriteLine($"{ObjectCode.Monster},{x},{y}");
+                                        sw.WriteLine($"{Google.Protobuf.Protocol.ObjectCode.Monster},{x},{y}");
                                     }
                                 }
                             }
