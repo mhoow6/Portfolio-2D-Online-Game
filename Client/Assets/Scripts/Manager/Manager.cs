@@ -43,6 +43,7 @@ public class Manager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        _network.SendLeaveGamePacket(_objectManager.Me.ObjectInfo);
+        if (_objectManager.Me != null)
+            _network.SendLeaveGamePacket(_objectManager.Me.ObjectInfo);
     }
 }

@@ -46,16 +46,8 @@ namespace Server
 			me = ObjectManager.Instance.Add<Player>((ObjectCode)playerStat.code);
 			me.session = this;
 
-			// 랜덤 스폰 장소
-			Random rnd = new Random(System.Environment.TickCount);
-			int rndIndex = -1;
-			SpawnPosInfo pos = SpawnPosInfo.Zero;
-			rndIndex = rnd.Next(0, DataManager.Instance.DungeonPlayerSpawnPosition.Count - 1);
-			pos = DataManager.Instance.DungeonPlayerSpawnPosition[rndIndex];
-			Vector2 position = new Vector2();
-			position.X = pos.x;
-			position.Y = pos.y;
-			me.objectInfo.Position = position;
+			// 랜덤 스폰 장소 TODO: 만든 맵에 따라 포지션 다르게
+			me.objectInfo.Position = DataManager.Instance.SpawnData.GetRandomPosition(MapId.Dungeon);
 
 			// 방 번호
 			Room room = RoomManager.Instance.Find(1);

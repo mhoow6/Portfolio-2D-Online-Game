@@ -23,20 +23,22 @@ enum MsgId
 
 enum ObjectCode
 {
-	PLAYER = 0;
-    MONSTER = 1;
-    DEAD_EFFECT = 2;
-    ARROW = 3;
-    Barehand = 100;
-    Bow = 101;
+    Unvaild = 0;
+	ZeldaArcher = 1;
+    ZeldaMonster = 11;
+    Arrow = 21;
+    DeadEffect = 31;
+    Barehand = 101;
+    Bow = 102;
 }
 
 enum ObjectType
 {
-    OT_PLAYER = 0;
-    OT_MONSTER = 1;
-    OT_PROJECTILE = 2;
-    OT_NONE = 3;
+    OT_Player = 0;
+    OT_Monster = 1;
+    OT_Projectile = 2;
+    OT_Effect = 3;
+    OT_None = -1;
 }
 
 enum MapId
@@ -116,6 +118,7 @@ message S_Attack
 {
     ObjectInfo targetInfo = 1;
     ObjectInfo attackerInfo = 2;
+    int32 damage = 3;
 }
 
 message S_Dead

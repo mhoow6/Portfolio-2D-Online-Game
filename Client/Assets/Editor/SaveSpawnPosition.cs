@@ -19,9 +19,9 @@ public static class SaveSpawnPosition
     {
         if (EditorUtility.DisplayDialog("2D Map Spawn Position Saver", "Save Position?", "Yes", "No"))
         {
-            if (!Directory.Exists($"{ResourcePaths.Map_Collision_Save}"))
+            if (!Directory.Exists($"{ResourcePaths.Map_SpawnPos_Save}"))
             {
-                Directory.CreateDirectory($"{ResourcePaths.Map_Collision_Save}");
+                Directory.CreateDirectory($"{ResourcePaths.Map_SpawnPos_Save}");
                 throw new DirectoryNotFoundException("디렉토리가 없어서 파일 생성에 실패했습니다. 디렉토리를 만들었으니 다시 시도해주세요.");
             }
 
@@ -52,7 +52,7 @@ public static class SaveSpawnPosition
                                     TileBase tile = ptm.GetTile(new Vector3Int(x, y, 0));
                                     if (tile != null)
                                     {
-                                        sw.WriteLine($"{Google.Protobuf.Protocol.ObjectCode.Player},{x},{y}");
+                                        sw.WriteLine($"{(int)ObjectType.OtPlayer},{x},{y}");
                                     }
                                 }
                             }
@@ -71,7 +71,7 @@ public static class SaveSpawnPosition
                                     TileBase tile = mtm.GetTile(new Vector3Int(x, y, 0));
                                     if (tile != null)
                                     {
-                                        sw.WriteLine($"{Google.Protobuf.Protocol.ObjectCode.Monster},{x},{y}");
+                                        sw.WriteLine($"{(int)ObjectType.OtMonster},{x},{y}");
                                     }
                                 }
                             }

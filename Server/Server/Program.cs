@@ -27,12 +27,12 @@ namespace Server
         {
             // Data Load
             DataManager.Instance.LoadData();
-            Console.WriteLine("Data Load Completed.");
 
             // TODO: 클라이언트에서 방 생성 요청 받아서 하기
             Room room = RoomManager.Instance.Add((int)MapId.Dungeon);
             if (room != null)
             {
+                Console.WriteLine("-------------------------------------------------------");
                 Console.WriteLine($"Room:{room.roomId} initalize Map {MapId.Dungeon}");
                 TickRoom(room, 50); // 50ms마다 실행
             }
@@ -44,6 +44,7 @@ namespace Server
             IPEndPoint endPoint = new IPEndPoint(hostIp, 7080);
 
             _listener.Init(endPoint, () => { return SessionManager.Instance.Generate(); });
+            Console.WriteLine("-------------------------------------------------------");
             Console.WriteLine("Listening...");
 
             while (true)

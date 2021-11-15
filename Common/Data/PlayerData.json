@@ -2,7 +2,7 @@
 	"Stat" : {
 		"hp" : 100,
 		"movespeed" : 5,
-		"code" : 0,
+		"code" : 1,
 		"weaponId" : 101
 	}
 }

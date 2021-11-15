@@ -7,24 +7,45 @@ namespace Server
 {
     public class ObjectFactory
     {
-        public ObjectType GetObjectType(ObjectCode code)
+        public static ObjectType GetObjectType(ObjectCode code)
         {
-            if (code >= ObjectCode.Player && code < ObjectCode.Monster)
+            if (code >= ObjectCode.ZeldaArcher && code < ObjectCode.ZeldaMonster)
             {
                 return ObjectType.OtPlayer;
             }
-
-            if (code >= ObjectCode.Monster && code < ObjectCode.Arrow)
+            else if (code >= ObjectCode.ZeldaMonster && code < ObjectCode.Arrow)
             {
                 return ObjectType.OtMonster;
             }
-
-            if (code >= ObjectCode.Arrow && code < ObjectCode.DeadEffect)
+            else if (code >= ObjectCode.Arrow && code < ObjectCode.DeadEffect)
             {
                 return ObjectType.OtProjectile;
             }
+            else if (code >= ObjectCode.DeadEffect)
+            {
+                return ObjectType.OtEffect;
+            }
 
             return ObjectType.OtNone;
+        }
+    }
+
+    public class ProjectileFactory
+    {
+        public static Projectile GetProjectile(ObjectCode code, Creature owner)
+        {
+            switch (code)
+            {
+                case ObjectCode.Arrow:
+                    {
+                        // arrow 소환 (TODO: 플레이어의 상태에 따라 소환가능한지 검증)
+                        Arrow arrow = ObjectManager.Instance.Add<Arrow>(code);
+                        arrow.V_SetOwner(owner);
+                        return arrow;
+                    }
+            }
+
+            return null;
         }
     }
 }

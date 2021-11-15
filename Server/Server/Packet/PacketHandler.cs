@@ -53,7 +53,7 @@ class PacketHandler
     {
         C_LeaveGame pkt = packet as C_LeaveGame;
 
-        Player obj = ObjectManager.Instance.Find(pkt.ObjectId);
+        Player obj = ObjectManager.Instance.Find(pkt.ObjectId) as Player;
 
         // 원자성이 보장되는 영역인 Room에서 해야 됨
         Room pktRoom = RoomManager.Instance.Find(obj.objectInfo.RoomId);
@@ -67,7 +67,7 @@ class PacketHandler
     {
         C_Sync pkt = packet as C_Sync;
 
-        Player obj = ObjectManager.Instance.Find(pkt.ObjectInfo.ObjectId);
+        Player obj = ObjectManager.Instance.Find(pkt.ObjectInfo.ObjectId) as Player;
 
         // 원자성이 보장되는 영역인 Room에서 해야 됨
         Room pktRoom = RoomManager.Instance.Find(obj.objectInfo.RoomId);

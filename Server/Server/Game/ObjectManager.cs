@@ -11,7 +11,7 @@ namespace Server
         public static readonly int Unknown = -1;
 
         object _lock = new object();
-        Dictionary<int, Player> _objects = new Dictionary<int, Player>();
+        Dictionary<int, BaseObject> _objects = new Dictionary<int, BaseObject>();
 
         // UnUsed(1)ObjectCode(7)ObjectId(23)
         // [ ........ | ........ | ........ | ........ ]
@@ -26,9 +26,7 @@ namespace Server
                 gameObject.objectInfo = new ObjectInfo();
                 gameObject.objectInfo.ObjectCode = (int)code;
                 gameObject.objectInfo.ObjectId = GenerateId(code);
-
-                if (code == ObjectCode.Player)
-                    _objects.Add(gameObject.objectInfo.ObjectId, gameObject as Player);
+                _objects.Add(gameObject.objectInfo.ObjectId, gameObject);
             }
 
             return gameObject;
@@ -48,11 +46,11 @@ namespace Server
             return false;
         }
 
-        public Player Find(int objectId)
+        public BaseObject Find(int objectId)
         {
             lock (_lock)
             {
-                if (_objects.TryGetValue(objectId, out Player obj))
+                if (_objects.TryGetValue(objectId, out BaseObject obj))
                     return obj;
             }
 

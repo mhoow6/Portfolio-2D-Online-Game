@@ -8,8 +8,9 @@ namespace Server
 {
     public class Map
     {
+        public MapId Id { get; private set; }
         bool[,] _collision;
-        BaseObject[,] _objects;
+        Creature[,] _objects;
 
         public int XLength
         {
@@ -37,6 +38,7 @@ namespace Server
         public void LoadMap(MapId mapId)
         {
             string fileName = string.Empty;
+            Id = mapId;
 
             // 맵 마다 해야할 일을 정하자.
             switch (mapId)
@@ -46,7 +48,7 @@ namespace Server
                 case MapId.Dungeon:
                     fileName = ResourcePath.DungeonCollision;
 
-                    // [TODO] 몬스터 2마리 정도가 입구에서 대기
+                    // TODO: 몬스터 2마리 정도가 입구에서 대기
                     break;
             }
 
@@ -62,7 +64,7 @@ namespace Server
                     int xCount = MaxX - MinX + 1;
                     int yCount = MaxY - MinY + 1;
                     _collision = new bool[yCount, xCount];
-                    _objects = new BaseObject[yCount, xCount];
+                    _objects = new Creature[yCount, xCount];
 
                     // collision: 왼쪽 아래에서 오른쪽 위로 순회
                     for (int y = 0; y < yCount; y++)
@@ -78,16 +80,7 @@ namespace Server
             
         }
 
-        public void UpdatePosition(Vector2 current, Vector2 next, BaseObject obj)
-        {
-            Vector2 currentPos = CollisionCoordinate(current.X, current.Y);
-            _objects[currentPos.Y, currentPos.X] = null;
-
-            Vector2 nextPos = CollisionCoordinate(next.X, next.Y);
-            _objects[nextPos.Y, nextPos.X] = obj;
-        }
-
-        public void UpdatePosition(Vector2 next, BaseObject obj)
+        public void UpdatePosition(Vector2 next, Creature obj)
         {
             Vector2 collisionCoord = new Vector2(obj.objectInfo.Position);
             collisionCoord = CollisionCoordinate(collisionCoord.X, collisionCoord.Y);
@@ -131,10 +124,7 @@ namespace Server
 
             if (_objects[vec.Y, vec.X] != null)
             {
-                if (_objects[vec.Y, vec.X].objectInfo.ObjectCode != (int)ObjectCode.Arrow)
-                {
-                    return false;
-                }
+                return false;
             }
 
             return true;
@@ -163,12 +153,9 @@ namespace Server
             // 셀 좌표계 -> 맵을 이진수로 표현한 배열 좌표계
             Vector2 vec = CollisionCoordinate(cellPos.X, cellPos.Y);
 
-            if ((_objects[vec.Y, vec.X] != null))
+            if (_objects[vec.Y, vec.X] != null)
             {
-                if ((_objects[vec.Y, vec.X].objectInfo.ObjectCode != (int)ObjectCode.Arrow))
-                {
-                    return _objects[vec.Y, vec.X] as Creature;
-                }
+                return _objects[vec.Y, vec.X];
             }
 
             return null;
@@ -178,13 +165,10 @@ namespace Server
         {
             Vector2 vec = CollisionCoordinate(cellPos.X, cellPos.Y);
 
-            if ((_objects[vec.Y, vec.X] != null))
+            if (_objects[vec.Y, vec.X] != null)
             {
-                if ((_objects[vec.Y, vec.X].objectInfo.ObjectCode != (int)ObjectCode.Arrow))
-                {
-                    _objects[vec.Y, vec.X] = null;
-                    return true;
-                }
+                _objects[vec.Y, vec.X] = null;
+                return true;
             }
 
             return false;

@@ -89,7 +89,9 @@ class PacketHandler
         BaseObject attacker = Manager.ObjectManager.Find(pkt.AttackerInfo.ObjectId);
         if (attacker != null)
         {
-            attacker.MoveDir = pkt.AttackerInfo.MoveDir;
+            attacker.ObjectInfo = pkt.AttackerInfo;
+
+            attacker.Weapon = (ObjectCode)pkt.AttackerInfo.Stat.WeaponId;
             attacker.State = pkt.AttackerInfo.State;
         }
 
@@ -98,7 +100,8 @@ class PacketHandler
         if (target != null)
         {
             target.Hp = pkt.TargetInfo.Stat.Hp;
-            Debug.Log($"Object{target.ObjectInfo.ObjectId} got Damaged by Object{attacker.ObjectInfo.ObjectId}. Current Object Health:{target.Hp}");
+            Debug.Log($"Object({target.ObjectInfo.ObjectId}) got Damaged({pkt.Damage}) by Object({attacker.ObjectInfo.ObjectId}).\n" +
+                $"Current Object({target.ObjectInfo.ObjectId}) Health:{target.Hp}");
         }
     }
 
@@ -106,10 +109,10 @@ class PacketHandler
     {
         S_Dead pkt = packet as S_Dead;
 
-        BaseObject leaver = Manager.ObjectManager.Find(pkt.ObjectId);
-        if (leaver != null)
+        BaseObject deadObj = Manager.ObjectManager.Find(pkt.ObjectId);
+        if (deadObj != null)
         {
-            leaver.V_Dead();
+            deadObj.V_Dead();
         }
     }
 

@@ -39,10 +39,11 @@ namespace Server
             Console.WriteLine($"Object({gameObject.objectInfo.ObjectId}) entered Room({gameObject.objectInfo.RoomId})");
 
             ObjectCode code = ObjectManager.GetObjectCodeById(gameObject.objectInfo.ObjectId);
+            ObjectType type = ObjectFactory.GetObjectType(code);
 
-            switch (code)
+            switch (type)
             {
-                case (ObjectCode.Player):
+                case ObjectType.OtPlayer:
                     {
                         Player player = gameObject as Player;
                         _players.Add(gameObject.objectInfo.ObjectId, player);
@@ -68,13 +69,11 @@ namespace Server
                             }
                         }
                         player.session.Send(spawnPacket);
-
-                        /**************************************************************/
                     }
                     break;
-                case (ObjectCode.Monster):
+                case ObjectType.OtMonster:
                     break;
-                case (ObjectCode.Arrow):
+                default:
                     break;
             }
 
@@ -153,14 +152,29 @@ namespace Server
                         Creature target = Map.CreatureAt(attacker.GetFrontCellPos());
 
                         // 체력깎기
-                        Console.WriteLine($"Object({target.objectInfo.ObjectId}) got Damaged by Object({attacker.objectInfo.ObjectId})");
-                        target.objectInfo.Stat.Hp -= attacker.Damage; // TODO
+                        Console.WriteLine($"Object({target.objectInfo.ObjectId}) got Damaged({attacker.Damage}) by Object({attacker.objectInfo.ObjectId})");
+                        target.objectInfo.Stat.Hp -= attacker.Damage; // TODO 데미지 공식
                         if (target.objectInfo.Stat.Hp <= 0)
                         {
                             // 타겟이 죽었다고 사람들에게 알리기
                             S_Dead deadPkt = new S_Dead();
                             deadPkt.ObjectId = target.objectInfo.ObjectId;
                             BroadCast(deadPkt);
+
+                            // 방에는 존재하지만 맵에는 존재하지 않아야 한다.
+                            Map.RemoveCreature(target.objectInfo.Position);
+
+                            // 공격자의 애니메이션 동기화
+                            S_Sync response = new S_Sync();
+                            response.ObjectInfo = attacker.objectInfo;
+                            foreach (Player p in _players.Values)
+                            {
+                                // 나를 제외한 존재들에게만..
+                                if (p.objectInfo.ObjectId != attacker.objectInfo.ObjectId)
+                                {
+                                    p.session.Send(response);
+                                }
+                            }
                             return;
                         }
                         else
@@ -169,6 +183,7 @@ namespace Server
                             S_Attack response = new S_Attack();
                             response.TargetInfo = target.objectInfo;
                             response.AttackerInfo = attacker.objectInfo;
+                            response.Damage = attacker.Damage;
                             BroadCast(response);
                         }
                     }
@@ -193,11 +208,11 @@ namespace Server
         public void C_LeaveGame(int objectId)
         {
             ObjectCode code = ObjectManager.GetObjectCodeById(objectId);
+            ObjectType type = ObjectFactory.GetObjectType(code);
 
-            // [TODO] 방에 있는 오브젝트의 종류에 따라 할 일을 다르게 처리해야 함.
-            switch (code)
+            switch (type)
             {
-                case (ObjectCode.Player):
+                case ObjectType.OtPlayer:
                     {
                         // 방에서 삭제
                         _players.Remove(objectId);
@@ -211,9 +226,9 @@ namespace Server
                         BroadCast(pkt);
                     }
                     break;
-                case (ObjectCode.Monster):
+                case ObjectType.OtMonster:
                     break;
-                case (ObjectCode.Arrow):
+                case ObjectType.OtProjectile:
                     {
                         // 방에서 삭제
                         _projectiles.Remove(objectId);
@@ -227,6 +242,8 @@ namespace Server
                         BroadCast(pkt);
                     }
                     break;
+                case ObjectType.OtNone:
+                    break;
             }
         }
 
@@ -237,10 +254,11 @@ namespace Server
             if (pktRoom != null)
             {
                 ObjectCode code = ObjectManager.GetObjectCodeById(packet.ObjectInfo.ObjectId);
+                ObjectType type = ObjectFactory.GetObjectType(code);
 
-                switch (code)
+                switch (type)
                 {
-                    case ObjectCode.Player:
+                    case ObjectType.OtPlayer:
                         {
                             // 해당 플레이어 찾고 나서 작업
                             Player player = null;
@@ -266,9 +284,13 @@ namespace Server
                             }
                         }
                         break;
-                    case ObjectCode.Monster:
+                    case ObjectType.OtMonster:
                         break;
-                    case ObjectCode.Arrow:
+                    case ObjectType.OtProjectile:
+                        break;
+                    case ObjectType.OtNone:
+                        break;
+                    default:
                         break;
                 }
             }
@@ -277,30 +299,43 @@ namespace Server
         public void C_Spawn(C_Spawn packet)
         {
             // 패킷을 보낸 플레이어의 방 검색 후 작업
-            Player p = null;
-            if (_players.TryGetValue(packet.SpawnInfo.SpawnerId, out p) == true)
+            Player spawner = null;
+            if (_players.TryGetValue(packet.SpawnInfo.SpawnerId, out spawner) == true)
             {
                 Room pktRoom = RoomManager.Instance.Find(packet.SpawnInfo.RoomId);
                 if (pktRoom != null)
                 {
-                    // TODO: Code로 일일이 따지는 것이 아닌 나중에 오브젝트 종류별로 기본적인 처리를 나누고, 세부적인 것은 팩토리에서 처리 
-                    switch (packet.SpawnInfo.ObjectCode)
-                    {
-                        case (int)ObjectCode.Arrow:
-                            {
-                                // arrow 소환 (TODO: 플레이어의 상태에 따라 소환가능한지 검증)
-                                Arrow arrow = ObjectManager.Instance.Add<Arrow>(ObjectCode.Arrow);
-                                arrow.V_SetOwner(p);
+                    ObjectCode code = (ObjectCode)packet.SpawnInfo.ObjectCode;
+                    ObjectType type = ObjectFactory.GetObjectType(code);
 
-                                // 서버에서 피격판정을 계산하기 위해 방에 추가
-                                _projectiles.Add(arrow.objectInfo.ObjectId, arrow);
+                    switch (type)
+                    {
+                        // 플레이어를 소환하는 경우는 리스폰 요청
+                        case ObjectType.OtPlayer:
+                            {
+                                // 스폰 위치 정하기
+                                spawner.objectInfo.Position = DataManager.Instance.SpawnData.GetRandomPosition(Map.Id);
 
                                 // 맵에 업데이트
-                                Map.UpdatePosition(arrow.objectInfo.Position, arrow);
-                                
-                                // 화살이 소환되었다고 패킷 보내기
+                                Map.UpdatePosition(spawner.objectInfo.Position, spawner);
+
+                                // 방 안의 모든 플레이어들에게 알리기
+                                S_Spawn spawnPacket = new S_Spawn();
+                                spawnPacket.Objects.Add(spawner.objectInfo);
+                                BroadCast(spawnPacket);
+                            }
+                            break;
+
+                        case ObjectType.OtProjectile:
+                            {
+                                Projectile proj = ProjectileFactory.GetProjectile(code, spawner);
+
+                                // 서버에서 피격판정을 계산하기 위해 방에 추가
+                                _projectiles.Add(proj.objectInfo.ObjectId, proj);
+
+                                // 투사체가 소환되었다고 패킷 보내기
                                 S_Spawn spawnPkt = new S_Spawn();
-                                spawnPkt.Objects.Add(arrow.objectInfo);
+                                spawnPkt.Objects.Add(proj.objectInfo);
                                 BroadCast(spawnPkt);
                             }
                             break;

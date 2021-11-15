@@ -436,13 +436,15 @@ public class MapFactory
 #region Object Factory
 public class ObjectFactory
 {
-    public static T AddComponentToObject<T>(Google.Protobuf.Protocol.ObjectCode code, GameObject obj) where T : BaseObject
+    public static T AddComponentToObject<T>(ObjectCode code, GameObject obj) where T : BaseObject
     {
         T ret;
 
-        switch (code)
+        ObjectType type = GetObjectType(code);
+
+        switch (type)
         {
-            case Google.Protobuf.Protocol.ObjectCode.Player:
+            case ObjectType.OtPlayer:
                 if (obj.GetComponent<Player>() == null)
                 {
                     ret = obj.AddComponent<Player>() as T;
@@ -450,7 +452,7 @@ public class ObjectFactory
                     return ret;
                 }
                 break;
-            case Google.Protobuf.Protocol.ObjectCode.Monster:
+            case ObjectType.OtMonster:
                 if (obj.GetComponent<Monster>() == null)
                 {
                     ret = obj.AddComponent<Monster>() as T;
@@ -458,19 +460,19 @@ public class ObjectFactory
                     return ret;
                 }
                 break;
-            case Google.Protobuf.Protocol.ObjectCode.DeadEffect:
-                if (obj.GetComponent<DeathEffect>() == null)
-                {
-                    ret = obj.AddComponent<DeathEffect>() as T;
-                    obj.name = "DeathEffect";
-                    return ret;
-                }
-                break;
-            case Google.Protobuf.Protocol.ObjectCode.Arrow:
+            case ObjectType.OtProjectile: // Temp
                 if (obj.GetComponent<Arrow>() == null)
                 {
                     ret = obj.AddComponent<Arrow>() as T;
-                    obj.name = "Arrow";
+                    obj.name = "Projectile";
+                    return ret;
+                }
+                break;
+            case ObjectType.OtEffect: // Temp
+                if (obj.GetComponent<DeadEffect>() == null)
+                {
+                    ret = obj.AddComponent<DeadEffect>() as T;
+                    obj.name = "Effect";
                     return ret;
                 }
                 break;
@@ -479,74 +481,73 @@ public class ObjectFactory
         return null;
     }
 
-    public static BaseObject AddComponentToObject(ObjectInfo objInfo, GameObject obj)
+    public static T AddComponentToObject<T>(ObjectInfo objInfo, GameObject obj) where T : BaseObject
     {
-        BaseObject ret = null;
+        T ret = null;
 
-        switch ((Google.Protobuf.Protocol.ObjectCode)objInfo.ObjectCode)
+        ObjectType type = GetObjectType((ObjectCode)objInfo.ObjectCode);
+
+        switch (type)
         {
-            case Google.Protobuf.Protocol.ObjectCode.Player:
+            case ObjectType.OtPlayer:
                 if (obj.GetComponent<Player>() == null && obj.GetComponent<Other>() == null)
                 {
                     if (Manager.ObjectManager.Me == null)
                     {
-                        ret = obj.AddComponent<Player>();
+                        ret = obj.AddComponent<Player>() as T;
                         obj.name = "Player";
                         return ret;
                     }
                     else
                     {
-                        ret = obj.AddComponent<Other>();
+                        ret = obj.AddComponent<Other>() as T;
                         obj.name = "Other";
                         return ret;
                     }
                 }
                 break;
-            case Google.Protobuf.Protocol.ObjectCode.Monster:
+            case ObjectType.OtMonster:
                 if (obj.GetComponent<Monster>() == null)
                 {
-                    ret = obj.AddComponent<Monster>();
+                    ret = obj.AddComponent<Monster>() as T;
                     obj.name = "Monster";
                     return ret;
                 }
                 break;
-            case Google.Protobuf.Protocol.ObjectCode.DeadEffect:
-                if (obj.GetComponent<DeathEffect>() == null)
+            case ObjectType.OtProjectile:
+                if (obj.GetComponent<Projectile>() == null)
                 {
-                    ret = obj.AddComponent<DeathEffect>();
-                    obj.name = "DeathEffect";
+                    ret = ProjectileFactory.AddComponent((ObjectCode)objInfo.ObjectCode, objInfo, obj) as T;
                     return ret;
                 }
                 break;
-            case Google.Protobuf.Protocol.ObjectCode.Arrow:
-                if (obj.GetComponent<Arrow>() == null)
+            case ObjectType.OtEffect:
+                if (obj.GetComponent<Effect>() == null) // Temp
                 {
-                    ret = obj.AddComponent<Arrow>();
-                    obj.name = "Arrow";
+                    ret = EffectFactory.AddComponent((ObjectCode)objInfo.ObjectCode, obj) as T;
                     return ret;
                 }
                 break;
         }
-        
         return null;
     }
 
-    public static GameObject LoadGameObject(Google.Protobuf.Protocol.ObjectCode code)
+    public static GameObject LoadGameObject(ObjectCode code)
     {
         GameObject go = null;
 
         switch (code)
         {
-            case Google.Protobuf.Protocol.ObjectCode.Player:
+            case ObjectCode.ZeldaArcher:
                 go = Resources.Load<GameObject>(ResourcePaths.Player_Prefab);
                 break;
-            case Google.Protobuf.Protocol.ObjectCode.Monster:
+            case ObjectCode.ZeldaMonster:
                 go = Resources.Load<GameObject>(ResourcePaths.Monster_Prefab);
                 break;
-            case Google.Protobuf.Protocol.ObjectCode.DeadEffect:
+            case ObjectCode.DeadEffect:
                 go = Resources.Load<GameObject>(ResourcePaths.DeathEffect_Prefab);
                 break;
-            case Google.Protobuf.Protocol.ObjectCode.Arrow:
+            case ObjectCode.Arrow:
                 go = Resources.Load<GameObject>(ResourcePaths.Arrow_Prefab);
                 break;
         }
@@ -554,15 +555,63 @@ public class ObjectFactory
         return go;
     }
 
-    static void InitalizeBaseObject(BaseObject obj, ObjectInfo objInfo)
+    public static ObjectType GetObjectType(ObjectCode code)
     {
-        obj.ObjectInfo = objInfo;
-        obj.MoveDir = objInfo.MoveDir;
-        obj.State = objInfo.State;
+        if (code >= ObjectCode.ZeldaArcher && code < ObjectCode.ZeldaMonster)
+        {
+            return ObjectType.OtPlayer;
+        }
+        else if (code >= ObjectCode.ZeldaMonster && code < ObjectCode.Arrow)
+        {
+            return ObjectType.OtMonster;
+        }
+        else if (code >= ObjectCode.Arrow && code < ObjectCode.DeadEffect)
+        {
+            return ObjectType.OtProjectile;
+        }
+        else if (code >= ObjectCode.DeadEffect)
+        {
+            return ObjectType.OtEffect;
+        }
 
-        obj.CellPos = new Vector3Int(objInfo.Position.X, objInfo.Position.Y, 0);
-        Vector3 pos = Manager.Map.CurrentGrid.CellToWorld(obj.CellPos) + new Vector3(0.5f, 0.5f);
-        obj.transform.position = pos;
+        return ObjectType.OtNone;
     }
 }
 #endregion
+
+public class ProjectileFactory
+{
+    public static Projectile AddComponent(ObjectCode code, ObjectInfo objInfo, GameObject obj)
+    {
+        switch (code)
+        {
+            case ObjectCode.Arrow:
+                {
+                    Arrow arrow = obj.AddComponent<Arrow>();
+                    arrow.SetOwner(objInfo.SpawnerId);
+                    arrow.name = "Arrow";
+                    return arrow;
+                }
+        }
+
+        return null;
+    }
+}
+
+public class EffectFactory
+{
+    public static Effect AddComponent(ObjectCode code, GameObject obj)
+    {
+        switch (code)
+        {
+            case ObjectCode.DeadEffect:
+                {
+                    DeadEffect deffect = obj.AddComponent<DeadEffect>();
+                    deffect.name = "DeadEffect";
+                    return deffect;
+                }
+        }
+
+        return null;
+    }
+}

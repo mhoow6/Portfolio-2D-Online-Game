@@ -8,6 +8,6 @@ namespace Server
     {
         public int Hp { get => objectInfo.Stat.Hp; set { objectInfo.Stat.Hp = value; } }
         public int Movespeed { get => objectInfo.Stat.Movespeed; set { objectInfo.Stat.Movespeed = value; } }
-        public int Damage { get => DataManager.Instance.GetWeaponData(objectInfo.Stat.WeaponId).damage;}
+        public int Damage { get => DataManager.Instance.WeaponData.GetWeaponData(objectInfo.Stat.WeaponId).damage;}
     }
 }

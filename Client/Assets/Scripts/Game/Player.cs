@@ -127,7 +127,7 @@ public class Player : Creature
                         break;
                     case ObjectCode.Bow:
                         Manager.Network.SendSyncPacket(ObjectInfo);
-                        Manager.Network.SendSpawnPacket(new SpawnInfo() { SpawnerId = this.id, ObjectCode = (int)Google.Protobuf.Protocol.ObjectCode.Arrow, RoomId = ObjectInfo.RoomId });
+                        Manager.Network.SendSpawnPacket(new SpawnInfo() { SpawnerId = this.id, ObjectCode = (int)ObjectCode.Arrow, RoomId = ObjectInfo.RoomId });
                         break;
                 }
 

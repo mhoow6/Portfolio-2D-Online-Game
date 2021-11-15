@@ -56,8 +56,8 @@ public class SpawnManager
                 {
                     if (item.gameObject.activeSelf == false && item.code == (ObjectCode)objInfo.ObjectCode)
                     {
-                        item.gameObject.SetActive(true);
                         item.ObjectInfo = objInfo;
+                        item.gameObject.SetActive(true);
                         return item;
                     }
                 }
@@ -75,7 +75,7 @@ public class SpawnManager
             objList = new List<BaseObject>();
             _objects.Add((ObjectCode)objInfo.ObjectCode, objList);
         }
-        BaseObject obj = ObjectFactory.AddComponentToObject(objInfo, _obj);
+        BaseObject obj = ObjectFactory.AddComponentToObject<BaseObject>(objInfo, _obj);
 
         // 2-2 멤버 변수 초기화
         obj.ObjectInfo = objInfo;

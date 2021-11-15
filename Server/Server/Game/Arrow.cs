@@ -20,7 +20,7 @@ namespace Server
             objectInfo.ObjectId = originId;
             objectInfo.State = State.Moving;
             objectInfo.ObjectCode = (int)ObjectCode.Arrow;
-            objectInfo.Stat.Movespeed = DataManager.Instance.GetBowData(objectInfo.Stat.WeaponId).arrowspeed;
+            objectInfo.Stat.Movespeed = DataManager.Instance.WeaponData.GetBowData(objectInfo.Stat.WeaponId).arrowspeed;
         }
 
         public override void V_UpdateObject()
