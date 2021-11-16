@@ -28,6 +28,23 @@ namespace Server
 
             return ObjectType.OtNone;
         }
+
+        public static int GetRespawnTime(ObjectCode code)
+        {
+            int respawnTime = 0; // ms
+
+            ObjectType type = ObjectFactory.GetObjectType(code);
+            switch (type)
+            {
+                case ObjectType.OtPlayer:
+                    {
+                        respawnTime = 5000;
+                    }
+                    break;
+            }
+
+            return respawnTime;
+        }
     }
 
     public class ProjectileFactory

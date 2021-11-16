@@ -1,4 +1,5 @@
 ﻿using Google.Protobuf.Protocol;
+using ServerCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,11 +7,28 @@ using System.Text;
 
 namespace Server
 {
+    public class RespawnCreature : IComparable<RespawnCreature>
+    {
+        public Creature creature;
+        public int respawnTime;
+
+        public int CompareTo(RespawnCreature creature)
+        {
+            if (this.respawnTime == creature.respawnTime)
+                return 0;
+
+            // <0 lhs < rhs     0 lhs = rhs     1 lhs > rhs
+            return this.respawnTime < creature.respawnTime ? -1 : 1;
+        }
+    }
+
     public class Map
     {
         public MapId Id { get; private set; }
         bool[,] _collision;
         Creature[,] _objects;
+        public PriorityQueue<RespawnCreature> Respawns { get; private set; }
+        = new PriorityQueue<RespawnCreature>();
 
         public int XLength
         {
@@ -172,6 +190,50 @@ namespace Server
             }
 
             return false;
+        }
+
+        public void RespawnUpdate()
+        {
+            if (Respawns.Peek() != null)
+            {
+                if (Respawns.Peek().respawnTime < System.Environment.TickCount)
+                {
+                    Creature respawn = Respawns.Pop().creature;
+                    ObjectCode code = (ObjectCode)respawn.objectInfo.ObjectCode;
+                    ObjectType type = ObjectFactory.GetObjectType(code);
+
+                    switch (type)
+                    {
+                        case ObjectType.OtPlayer:
+                            {
+                                // 스폰 위치 정하기
+                                respawn.objectInfo.Position = DataManager.Instance.SpawnData.GetRandomPosition(Id);
+
+                                // 맵에 업데이트
+                                UpdatePosition(respawn.objectInfo.Position, respawn);
+
+                                // 방 안의 모든 플레이어들에게 알리기
+                                Console.WriteLine($"Object({respawn.objectInfo.ObjectId}) Respawn!");
+                                S_Spawn spawnPacket = new S_Spawn();
+                                spawnPacket.Objects.Add(respawn.objectInfo);
+                                respawn.room.Push(respawn.room.BroadCast, spawnPacket);
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
+        public void AddRespawn(Creature creature)
+        {
+            int tick = ObjectFactory.GetRespawnTime((ObjectCode)creature.objectInfo.ObjectCode);
+
+            RespawnCreature respawnCreature = new RespawnCreature();
+            respawnCreature.creature = creature;
+            respawnCreature.respawnTime = System.Environment.TickCount + tick;
+
+            Console.WriteLine($"Object({respawnCreature.creature.objectInfo.ObjectId}) will be respawn at {respawnCreature.respawnTime}");
+            Respawns.Push(respawnCreature);
         }
 
         bool BoundCheck(Vector2 cellPos)

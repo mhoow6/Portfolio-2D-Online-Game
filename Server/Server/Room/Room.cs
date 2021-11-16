@@ -20,7 +20,8 @@ namespace Server
 
         public void Update()
         {
-            // [TODO] 방 안에 있는 모든 게임 오브젝트들을 갱신
+            Map.RespawnUpdate();
+
             foreach (Projectile proj in _projectiles.Values)
             {
                 proj.V_UpdateObject();
@@ -161,8 +162,11 @@ namespace Server
                             deadPkt.ObjectId = target.objectInfo.ObjectId;
                             BroadCast(deadPkt);
 
-                            // 방에는 존재하지만 맵에는 존재하지 않아야 한다.
+                            // 죽은 플레이어는 방에는 존재하지만 맵에는 존재하지 않아야 한다.
                             Map.RemoveCreature(target.objectInfo.Position);
+
+                            // 죽은 플레이어는 리스폰 큐에 들어간다
+                            Map.AddRespawn(target);
 
                             // 공격자의 애니메이션 동기화
                             S_Sync response = new S_Sync();
