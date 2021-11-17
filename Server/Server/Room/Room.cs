@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Google.Protobuf;
 using Google.Protobuf.Protocol;
+using ServerCore;
 
 namespace Server
 {
@@ -31,68 +32,130 @@ namespace Server
             Flush();
         }
 
-        public void C_EnterGame(BaseObject gameObject)
+        public void C_EnterGame(C_EnterGame packet, PacketSession session)
         {
-            if (gameObject == null)
-                return;
+            PlayerInfo playerStat = DataManager.Instance.GetPlayerData();
+            ClientSession client = session as ClientSession;
 
-            // 로그
-            Console.WriteLine($"Object({gameObject.objectInfo.ObjectId}) entered Room({gameObject.objectInfo.RoomId})");
+            // 오브젝트 기본 정보 초기화
+            Player player = ObjectManager.Instance.Add<Player>((ObjectCode)playerStat.code);
+            {
+                player.session = client;
 
-            ObjectCode code = ObjectManager.GetObjectCodeById(gameObject.objectInfo.ObjectId);
+                // 랜덤 스폰 장소
+                player.objectInfo.Position = DataManager.Instance.SpawnData.GetRandomPosition((MapId)packet.RoomInfo.MapId);
+
+                // 방 번호
+                Room room = this;
+                player.room = room;
+                player.objectInfo.RoomId = packet.RoomInfo.RoomId;
+
+                // 기본 상태, 이동방향
+                player.objectInfo.MoveDir = MoveDir.Up;
+                player.objectInfo.State = State.Idle;
+
+                // 게임에서 쓰일 스텟정보 초기화
+                player.objectInfo.Stat = new StatInfo() { Hp = playerStat.hp, Movespeed = playerStat.movespeed, WeaponId = playerStat.weaponId, OriginHp = playerStat.hp };
+
+                // 방의 players에 추가
+                _players.Add(player.objectInfo.ObjectId, player);
+            }  
+
+            /*******************************************************************/
+
+            // 자기 자신 클라이언트에게 내가 들어왔다고 알림
+            {
+                S_EnterGame enterPacket = new S_EnterGame();
+                enterPacket.Player = player.objectInfo;
+
+                // 맵에 업데이트
+                Map.UpdatePosition(enterPacket.Player.Position, player);
+
+                player.session.Send(enterPacket);
+            }            
+
+            /*******************************************************************/
+
+            // 현재 방에 있는 플레이어들의 정보를 내가 알아야 한다
+            {
+                S_Spawn spawnPacket = new S_Spawn();
+                foreach (Player p in _players.Values)
+                {
+                    if (player != p)
+                    {
+                        spawnPacket.Objects.Add(p.objectInfo);
+                    }
+                }
+                player.session.Send(spawnPacket);
+            }
+
+            /********************************************************************/
+
+            // 방에 있는 존재들에게 내가 스폰됬다고 알린다
+            {
+                S_Spawn spawnPacket = new S_Spawn();
+
+                spawnPacket.Objects.Add(player.objectInfo);
+                foreach (Player p in _players.Values)
+                {
+                    // 나를 제외한 존재들에게만..
+                    if (p.objectInfo.ObjectId != player.objectInfo.ObjectId)
+                    {
+                        p.session.Send(spawnPacket);
+                    }
+                }
+            }
+
+            Console.WriteLine($"Object({player.objectInfo.ObjectId}) entered Room({player.objectInfo.RoomId})");
+        }
+
+        public void C_LeaveGame(int objectId)
+        {
+            ObjectCode code = ObjectManager.GetObjectCodeById(objectId);
             ObjectType type = ObjectFactory.GetObjectType(code);
 
             switch (type)
             {
                 case ObjectType.OtPlayer:
                     {
-                        Player player = gameObject as Player;
-                        _players.Add(gameObject.objectInfo.ObjectId, player);
+                        // 방에서 삭제
+                        _players.Remove(objectId);
 
-                        // 1. 클라이언트에게 내가 들어왔다고 알림
-                        S_EnterGame enterPacket = new S_EnterGame();
-                        enterPacket.Player = player.objectInfo;
+                        // 오브젝트 관리자에서 삭제
+                        ObjectManager.Instance.Remove(objectId);
 
-                        // 맵에 업데이트
-                        Map.UpdatePosition(enterPacket.Player.Position, player);
+                        // 모두에게 알림
+                        S_LeaveGame pkt = new S_LeaveGame();
+                        pkt.ObjectId = objectId;
+                        BroadCast(pkt);
 
-                        player.session.Send(enterPacket);
-
-                        /**************************************************************/
-
-                        // 2. 현재 방에 있는 플레이어들의 정보를 내가 알아야 한다
-                        S_Spawn spawnPacket = new S_Spawn();
-                        foreach (Player p in _players.Values)
+                        // 방에 아무도 없다면 방 폭파
+                        if (_players.Count == 0)
                         {
-                            if (player != p)
-                            {
-                                spawnPacket.Objects.Add(p.objectInfo);
-                            }
+                            RoomManager.Instance.Remove(roomId);
+                            Console.WriteLine($"Room:{roomId} Removed.");
                         }
-                        player.session.Send(spawnPacket);
                     }
                     break;
                 case ObjectType.OtMonster:
                     break;
-                default:
+                case ObjectType.OtProjectile:
+                    {
+                        // 방에서 삭제
+                        _projectiles.Remove(objectId);
+
+                        // 오브젝트 관리자에서 삭제
+                        ObjectManager.Instance.Remove(objectId);
+
+                        // 모두에게 알림
+                        S_LeaveGame pkt = new S_LeaveGame();
+                        pkt.ObjectId = objectId;
+                        BroadCast(pkt);
+                    }
+                    break;
+                case ObjectType.OtNone:
                     break;
             }
-
-            // 4. 방에 있는 존재들에게 내가 스폰됬다고 알린다
-            {
-                S_Spawn spawnPacket = new S_Spawn();
-
-                spawnPacket.Objects.Add(gameObject.objectInfo);
-                foreach (Player p in _players.Values)
-                {
-                    // 나를 제외한 존재들에게만..
-                    if (p.objectInfo.ObjectId != gameObject.objectInfo.ObjectId) 
-                    {
-                        p.session.Send(spawnPacket);
-                    }
-                }
-            }
-            
         }
 
         public void C_Move(C_Move packet)
@@ -208,49 +271,7 @@ namespace Server
                 }
             }
         }
-
-        public void C_LeaveGame(int objectId)
-        {
-            ObjectCode code = ObjectManager.GetObjectCodeById(objectId);
-            ObjectType type = ObjectFactory.GetObjectType(code);
-
-            switch (type)
-            {
-                case ObjectType.OtPlayer:
-                    {
-                        // 방에서 삭제
-                        _players.Remove(objectId);
-
-                        // 오브젝트 관리자에서 삭제
-                        ObjectManager.Instance.Remove(objectId);
-
-                        // 모두에게 알림
-                        S_LeaveGame pkt = new S_LeaveGame();
-                        pkt.ObjectId = objectId;
-                        BroadCast(pkt);
-                    }
-                    break;
-                case ObjectType.OtMonster:
-                    break;
-                case ObjectType.OtProjectile:
-                    {
-                        // 방에서 삭제
-                        _projectiles.Remove(objectId);
-
-                        // 오브젝트 관리자에서 삭제
-                        ObjectManager.Instance.Remove(objectId);
-
-                        // 모두에게 알림
-                        S_LeaveGame pkt = new S_LeaveGame();
-                        pkt.ObjectId = objectId;
-                        BroadCast(pkt);
-                    }
-                    break;
-                case ObjectType.OtNone:
-                    break;
-            }
-        }
-
+        
         public void C_Sync(C_Sync packet)
         {
             // 패킷을 보낸 플레이어의 방 검색 후 작업
@@ -346,6 +367,15 @@ namespace Server
                     }
                 }
             }
+        }
+
+        public void C_CreateRoom(PacketSession session)
+        {
+            ClientSession client = session as ClientSession;
+            S_CreateRoom response = new S_CreateRoom() { RoomInfo = new RoomInfo() };
+            response.RoomInfo.MapId = (int)Map.Id;
+            response.RoomInfo.RoomId = roomId;
+            client.Send(response);
         }
 
         public void BroadCast(IMessage packet)

@@ -19,13 +19,13 @@ public static class SaveSpawnPosition
     {
         if (EditorUtility.DisplayDialog("2D Map Spawn Position Saver", "Save Position?", "Yes", "No"))
         {
-            if (!Directory.Exists($"{ResourcePaths.Map_SpawnPos_Save}"))
+            if (!Directory.Exists($"{FilePath.MapSpawnposFile}"))
             {
-                Directory.CreateDirectory($"{ResourcePaths.Map_SpawnPos_Save}");
+                Directory.CreateDirectory($"{FilePath.MapSpawnposFile}");
                 throw new DirectoryNotFoundException("디렉토리가 없어서 파일 생성에 실패했습니다. 디렉토리를 만들었으니 다시 시도해주세요.");
             }
 
-            GameObject[] maps = Resources.LoadAll<GameObject>(ResourcePaths.Map_Prefabs);
+            GameObject[] maps = Resources.LoadAll<GameObject>(ResourceLoadPath.MapPrefab);
 
             for (int i = 0; i < maps.Length; i++)
             {
@@ -35,7 +35,7 @@ public static class SaveSpawnPosition
                 Tilemap mtm = Util.FindChild<Tilemap>(maps[i], "Tilemap_MonsterSpawn", true);
                 if (ptm != null && mtm != null)
                 {
-                    using (StreamWriter sw = File.CreateText($"{ResourcePaths.Map_SpawnPos_Save}/{maps[i].name}.txt"))
+                    using (StreamWriter sw = File.CreateText($"{FilePath.MapSpawnposFile}/{maps[i].name}.txt"))
                     {
                         sw.WriteLine("objectcode,x,y");
 

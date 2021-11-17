@@ -4,20 +4,17 @@ using System.Collections.Generic;
 using UnityEngine;
  
 
-public abstract class BaseScene : MonoBehaviour
+public class BaseScene : MonoBehaviour
 {
-    public abstract MapId mapId
-    {
-        get;
-    }
+    MapId _mapId;
+    int _roomId;
 
-    void Start()
+    public void SetScene(MapId mapId, int roomId)
     {
-        Init();
-    }
+        _mapId = mapId;
+        _roomId = roomId;
 
-    protected virtual void Init()
-    {
-        
+        // 맵이 생겼으니 플레이어 생성 요청
+        Manager.Network.SendEnterGamePacket(new RoomInfo() { MapId = (int)_mapId, RoomId = _roomId });
     }
 }

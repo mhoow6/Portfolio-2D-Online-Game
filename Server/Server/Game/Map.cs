@@ -61,8 +61,6 @@ namespace Server
             // 맵 마다 해야할 일을 정하자.
             switch (mapId)
             {
-                case MapId.Town:
-                    break;
                 case MapId.Dungeon:
                     fileName = ResourcePath.DungeonCollision;
 

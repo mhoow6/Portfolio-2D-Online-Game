@@ -403,11 +403,8 @@ public class MapFactory
 
         switch (mapId)
         {
-            case MapId.Town:
-                map = Resources.Load<GameObject>(ResourcePaths.Map_Prefabs + "/Map_001");
-                break;
             case MapId.Dungeon:
-                map = Resources.Load<GameObject>(ResourcePaths.Map_Prefabs + "/Map_Dungeon");
+                map = Resources.Load<GameObject>(ResourceLoadPath.MapPrefab + "/Map_Dungeon");
                 break;
         }
 
@@ -420,11 +417,8 @@ public class MapFactory
 
         switch (mapId)
         {
-            case MapId.Town:
-                map = Resources.Load<TextAsset>(ResourcePaths.Map_Collision_Save_Resource + "/Map_001");
-                break;
             case MapId.Dungeon:
-                map = Resources.Load<TextAsset>(ResourcePaths.Map_Collision_Save_Resource + "/Map_Dungeon");
+                map = Resources.Load<TextAsset>(ResourceLoadPath.MapCollisionFile + "/Map_Dungeon");
                 break;
         }
 
@@ -460,19 +454,17 @@ public class ObjectFactory
                     return ret;
                 }
                 break;
-            case ObjectType.OtProjectile: // Temp
-                if (obj.GetComponent<Arrow>() == null)
+            case ObjectType.OtProjectile:
+                if (obj.GetComponent<Projectile>() == null)
                 {
-                    ret = obj.AddComponent<Arrow>() as T;
-                    obj.name = "Projectile";
+                    ret = ProjectileFactory.AddComponent(code, obj) as T;
                     return ret;
                 }
                 break;
-            case ObjectType.OtEffect: // Temp
-                if (obj.GetComponent<DeadEffect>() == null)
+            case ObjectType.OtEffect:
+                if (obj.GetComponent<Effect>() == null)
                 {
-                    ret = obj.AddComponent<DeadEffect>() as T;
-                    obj.name = "Effect";
+                    ret = EffectFactory.AddComponent(code, obj) as T;
                     return ret;
                 }
                 break;
@@ -494,14 +486,20 @@ public class ObjectFactory
                 {
                     if (Manager.ObjectManager.Me == null)
                     {
-                        ret = obj.AddComponent<Player>() as T;
+                        Player player = obj.AddComponent<Player>();
+                        player.ObjectInfo = objInfo;
+                        player.AttachHpBar();
                         obj.name = "Player";
+                        ret = player as T;
                         return ret;
                     }
                     else
                     {
-                        ret = obj.AddComponent<Other>() as T;
+                        Other other = obj.AddComponent<Other>();
+                        other.ObjectInfo = objInfo;
+                        other.AttachHpBar();
                         obj.name = "Other";
+                        ret = other as T;
                         return ret;
                     }
                 }
@@ -510,6 +508,7 @@ public class ObjectFactory
                 if (obj.GetComponent<Monster>() == null)
                 {
                     ret = obj.AddComponent<Monster>() as T;
+                    ret.ObjectInfo = objInfo;
                     obj.name = "Monster";
                     return ret;
                 }
@@ -517,14 +516,16 @@ public class ObjectFactory
             case ObjectType.OtProjectile:
                 if (obj.GetComponent<Projectile>() == null)
                 {
-                    ret = ProjectileFactory.AddComponent((ObjectCode)objInfo.ObjectCode, objInfo, obj) as T;
+                    ret = ProjectileFactory.AddComponent((ObjectCode)objInfo.ObjectCode, obj) as T;
+                    ret.ObjectInfo = objInfo;
                     return ret;
                 }
                 break;
             case ObjectType.OtEffect:
-                if (obj.GetComponent<Effect>() == null) // Temp
+                if (obj.GetComponent<Effect>() == null)
                 {
                     ret = EffectFactory.AddComponent((ObjectCode)objInfo.ObjectCode, obj) as T;
+                    ret.ObjectInfo = objInfo;
                     return ret;
                 }
                 break;
@@ -539,16 +540,16 @@ public class ObjectFactory
         switch (code)
         {
             case ObjectCode.ZeldaArcher:
-                go = Resources.Load<GameObject>(ResourcePaths.Player_Prefab);
+                go = Resources.Load<GameObject>(ResourceLoadPath.ZeldaArcherPrefab);
                 break;
             case ObjectCode.ZeldaMonster:
-                go = Resources.Load<GameObject>(ResourcePaths.Monster_Prefab);
+                go = Resources.Load<GameObject>(ResourceLoadPath.ZeldaMonsterPrefab);
                 break;
             case ObjectCode.DeadEffect:
-                go = Resources.Load<GameObject>(ResourcePaths.DeathEffect_Prefab);
+                go = Resources.Load<GameObject>(ResourceLoadPath.DeadEffectPrefab);
                 break;
             case ObjectCode.Arrow:
-                go = Resources.Load<GameObject>(ResourcePaths.Arrow_Prefab);
+                go = Resources.Load<GameObject>(ResourceLoadPath.ArrowPrefab);
                 break;
         }
 
@@ -581,14 +582,19 @@ public class ObjectFactory
 
 public class ProjectileFactory
 {
-    public static Projectile AddComponent(ObjectCode code, ObjectInfo objInfo, GameObject obj)
+    public static Projectile AddComponent(ObjectCode code, GameObject obj, ObjectInfo objInfo = null)
     {
         switch (code)
         {
             case ObjectCode.Arrow:
                 {
                     Arrow arrow = obj.AddComponent<Arrow>();
-                    arrow.SetOwner(objInfo.SpawnerId);
+
+                    if (objInfo != null)
+                    {
+                        arrow.SetOwner(objInfo.SpawnerId);
+                    }
+                    
                     arrow.name = "Arrow";
                     return arrow;
                 }

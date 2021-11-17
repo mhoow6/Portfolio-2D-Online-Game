@@ -17,19 +17,19 @@ public static class CollisionGenerator
     {
         if (EditorUtility.DisplayDialog("2D Map Collision Generator", "Create Collision?", "Create", "Cancel"))
         {
-            if (!Directory.Exists($"{ResourcePaths.Map_Collision_Save}"))
+            if (!Directory.Exists($"{ResourceLoadPath.MapCollisionFile}"))
             {
-                Directory.CreateDirectory($"{ResourcePaths.Map_Collision_Save}");
+                Directory.CreateDirectory($"{ResourceLoadPath.MapCollisionFile}");
                 throw new DirectoryNotFoundException("디렉토리가 없어서 콜라이더 생성에 실패했습니다. 디렉토리를 만들었으니 다시 시도해주세요.");
             }
 
-            GameObject[] gameObjects = Resources.LoadAll<GameObject>(ResourcePaths.Map_Prefabs);
+            GameObject[] gameObjects = Resources.LoadAll<GameObject>(ResourceLoadPath.MapPrefab);
 
             foreach (GameObject go in gameObjects)
             {
                 Tilemap tm = Util.FindChild<Tilemap>(go, "Tilemap_Collision", true);
 
-                using (StreamWriter sw = File.CreateText($"{ResourcePaths.Map_Collision_Save}/{go.name}.txt"))
+                using (StreamWriter sw = File.CreateText($"{ResourceLoadPath.MapCollisionFile}/{go.name}.txt"))
                 {
                     int xMin = tm.cellBounds.xMin;
                     int xMax = tm.cellBounds.xMax;

@@ -257,6 +257,7 @@ namespace ServerCore
     {
         public override void OnConnected(EndPoint endPoint)
         {
+
 			Debug.Log($"OnConnected : {endPoint}");
 
 			// 연결하면 Monobehaviour를 상속받은 PacketManager의 큐에서 꺼내 쓰도록만 할 것이다.

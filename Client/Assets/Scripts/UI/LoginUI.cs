@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LoginManager : MonoBehaviour
+public class LoginUI : MonoBehaviour
 {
     public void Login()
     {

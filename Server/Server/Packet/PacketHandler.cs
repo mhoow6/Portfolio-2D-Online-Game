@@ -49,6 +49,19 @@ class PacketHandler
         }
     }
 
+    //C_EnterGameHandler
+    public static void C_EnterGameHandler(PacketSession session, IMessage packet)
+    {
+        C_EnterGame pkt = packet as C_EnterGame;
+
+        Room pktRoom = RoomManager.Instance.Find(pkt.RoomInfo.RoomId);
+        if (pktRoom != null)
+        {
+            pktRoom.Push(pktRoom.C_EnterGame, pkt, session);
+        }
+        
+    }
+
     public static void C_LeaveGameHandler(PacketSession session, IMessage packet)
     {
         C_LeaveGame pkt = packet as C_LeaveGame;
@@ -74,6 +87,22 @@ class PacketHandler
         if (pktRoom != null)
         {
             pktRoom.Push(pktRoom.C_Sync, pkt);
+        }
+    }
+
+    public static void C_CreateRoomHandler(PacketSession session, IMessage packet)
+    {
+        C_CreateRoom pkt = packet as C_CreateRoom;
+
+        // RoomManager 안에서 락을 걸고 방을 만들기 때문에 100% 다른 방이 나옴
+        Room room = RoomManager.Instance.Add(pkt.MapId); 
+        if (room != null)
+        {
+            Console.WriteLine("-------------------------------------------------------");
+            Console.WriteLine($"Room:{room.roomId} initalize Map {room.Map.Id}");
+            Program.TickRoom(room, 50); // 50ms마다 실행
+
+            room.Push(room.C_CreateRoom, session);
         }
     }
 }

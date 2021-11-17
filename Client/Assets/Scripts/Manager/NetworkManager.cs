@@ -36,6 +36,13 @@ public class NetworkManager
         _session.Send(pkt);
     }
 
+    public void SendEnterGamePacket(RoomInfo roomInfo)
+    {
+        C_EnterGame pkt = new C_EnterGame();
+        pkt.RoomInfo = roomInfo;
+        _session.Send(pkt);
+    }
+
     public void SendLeaveGamePacket(ObjectInfo objInfo)
     {
         C_LeaveGame pkt = new C_LeaveGame();
@@ -54,6 +61,13 @@ public class NetworkManager
     {
         C_Spawn pkt = new C_Spawn();
         pkt.SpawnInfo = spawnInfo;
+        _session.Send(pkt);
+    }
+
+    public void SendCreateRoomPacket(MapId mapId)
+    {
+        C_CreateRoom pkt = new C_CreateRoom();
+        pkt.MapId = (int)mapId;
         _session.Send(pkt);
     }
 

@@ -9,16 +9,19 @@ enum MsgId
 {
 	C_SPAWN = 0;
 	S_SPAWN = 1;
-    S_ENTER_GAME = 2;
-    C_LEAVE_GAME = 3;
-    S_LEAVE_GAME = 4;
-    C_MOVE = 5;
-    S_MOVE = 6;
-    C_ATTACK = 7;
-    S_ATTACK = 8;
-    S_DEAD = 9;
-    C_SYNC = 10;
-    S_SYNC = 11;
+    C_ENTER_GAME = 2;
+    S_ENTER_GAME = 3;
+    C_LEAVE_GAME = 4;
+    S_LEAVE_GAME = 5;
+    C_MOVE = 6;
+    S_MOVE = 7;
+    C_ATTACK = 8;
+    S_ATTACK = 9;
+    S_DEAD = 10;
+    C_SYNC = 11;
+    S_SYNC = 12;
+    C_CREATE_ROOM = 13;
+    S_CREATE_ROOM = 14;
 }
 
 enum ObjectCode
@@ -43,8 +46,7 @@ enum ObjectType
 
 enum MapId
 {
-    TOWN = 0;
-    DUNGEON = 1;
+    DUNGEON = 0;
 }
 
 enum MoveDir
@@ -82,6 +84,11 @@ message C_Spawn
 message S_Spawn
 {
     repeated ObjectInfo objects = 1;
+}
+
+message C_EnterGame
+{
+    RoomInfo roomInfo = 1;
 }
 
 message S_EnterGame
@@ -136,6 +143,21 @@ message S_Sync
     ObjectInfo objectInfo = 1;
 }
 
+message C_CreateRoom
+{
+    int32 mapId = 1;
+}
+
+message S_CreateRoom
+{
+    RoomInfo roomInfo = 1;
+}
+
+message C_ShowRoom
+{
+    repeated RoomInfo rooms = 1;
+}
+
 message ObjectInfo
 {
     int32 objectId = 1;
@@ -157,7 +179,14 @@ message SpawnInfo
 
 message StatInfo
 {
-    int32 hp = 1;
-    int32 movespeed = 2;
-    int32 weaponId = 3;
+    int32 originHp = 1;
+    int32 hp = 2;
+    int32 movespeed = 3;
+    int32 weaponId = 4;
+}
+
+message RoomInfo
+{
+    int32 roomId = 1;
+    int32 mapId = 2;
 }

@@ -39,8 +39,9 @@ namespace Server
 		{
 			Console.WriteLine($"OnConnected : {endPoint}");
 
-			// TODO: DB에서 긁어오자
-			PlayerInfo playerStat = DataManager.Instance.GetPlayerData();
+            #region 게임이 시작될 때 하는 행동
+            /*// TODO: DB에서 긁어오자
+            PlayerInfo playerStat = DataManager.Instance.GetPlayerData();
 
 			// 오브젝트 기본 정보
 			me = ObjectManager.Instance.Add<Player>((ObjectCode)playerStat.code);
@@ -59,12 +60,13 @@ namespace Server
 			me.objectInfo.State = State.Idle;
 
 			// 게임에서 쓰일 스텟정보 초기화
-			me.objectInfo.Stat = new StatInfo() { Hp = playerStat.hp, Movespeed = playerStat.movespeed, WeaponId = playerStat.weaponId };
+			me.objectInfo.Stat = new StatInfo() { Hp = playerStat.hp, Movespeed = playerStat.movespeed, WeaponId = playerStat.weaponId, OriginHp = playerStat.hp };
 			
-			room.Push(room.C_EnterGame, me);
-		}
+			room.Push(room.C_EnterGame, me);*/
+            #endregion
+        }
 
-		public override void OnRecvPacket(ArraySegment<byte> buffer)
+        public override void OnRecvPacket(ArraySegment<byte> buffer)
 		{
 			PacketManager.Instance.OnRecvPacket(this, buffer);
 		}

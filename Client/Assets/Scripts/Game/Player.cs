@@ -14,18 +14,41 @@ public class Player : Creature
     private void Awake()
     {
         OnAwake();
-
         _myCamera = Camera.main;
+    }
+
+    private void OnEnable()
+    {
+        if (HpBar != null)
+        {
+            HpBar.SetOwner(this);
+        }
     }
 
     private void Start()
     {
         OnStart();
+
+        // 초기에 만들어진 화살 방향 오류 때문에 미리 비활성화된 화살을 만들자.
+        {
+            List<BaseObject> arrows = new List<BaseObject>();
+            for (int i = 0; i < 10; i++)
+            {
+                var obj = Manager.Spawner.SpawnObject(ObjectCode.Arrow);
+                arrows.Add(obj);
+            }
+            foreach (var arrow in arrows)
+            {
+                arrow.gameObject.SetActive(false);
+            }
+        }
+        
     }
 
     private void Update()
     {
         V_UpdateObject();
+        
     }
 
     private void LateUpdate()
@@ -82,6 +105,7 @@ public class Player : Creature
         }
 
         base.V_UpdateObject();
+        HpBar.UpdateHpBar();
     }
 
     protected override void V_UpdateIdle()

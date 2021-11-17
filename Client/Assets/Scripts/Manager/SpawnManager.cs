@@ -75,10 +75,9 @@ public class SpawnManager
             objList = new List<BaseObject>();
             _objects.Add((ObjectCode)objInfo.ObjectCode, objList);
         }
-        BaseObject obj = ObjectFactory.AddComponentToObject<BaseObject>(objInfo, _obj);
 
-        // 2-2 멤버 변수 초기화
-        obj.ObjectInfo = objInfo;
+        // 2-2. 컴포넌트를 달고 그 안에서 objectInfo 넣기
+        BaseObject obj = ObjectFactory.AddComponentToObject<BaseObject>(objInfo, _obj);
 
         objList.Add(obj);
 

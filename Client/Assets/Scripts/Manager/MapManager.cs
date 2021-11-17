@@ -33,12 +33,13 @@ public class MapManager
     public int MinY { get; private set; }
     public int MaxY { get; private set; }
 
-    public void LoadMap(MapId mapId)
+    public void LoadMap(MapId mapId, int roomId)
     {
         DestroyMap();
 
         GameObject _go = MapFactory.GetMapObject(mapId);
         GameObject go = GameObject.Instantiate<GameObject>(_go);
+        go.AddComponent<BaseScene>().SetScene(mapId, roomId);
         go.name = "Map";
 
         GameObject collision = Util.FindChild(go, "Tilemap_Collision", true);
