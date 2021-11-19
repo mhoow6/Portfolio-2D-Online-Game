@@ -132,17 +132,21 @@ class PacketHandler
         }
     }
 
-    // S_CreateRoomHandler
     public static void S_CreateRoomHandler(PacketSession session, IMessage packet)
     {
         // 자신이 요청한 방을 서버에 만든 뒤에 이어서 클라이언트에서도 만든다.
         S_CreateRoom pkt = packet as S_CreateRoom;
 
-        // 현재 켜져있는 UI들은 모두 방 설정에 관한 UI이니까 꺼준다.
-        UIManager.Instance.ClosePopupAll();
-
         // 맵 로드
-        Screen.SetResolution(640, 480, false);
         Manager.Map.LoadMap((MapId)pkt.RoomInfo.MapId, pkt.RoomInfo.RoomId);
+    }
+
+    public static void S_ShowRoomHandler(PacketSession session, IMessage packet)
+    {
+        LobbyUI lobby = UIManager.Instance.FindPopup(PopUI.Lobby) as LobbyUI;
+        if (lobby != null)
+        {
+            lobby.ShowRoom(packet as S_ShowRoom);
+        }
     }
 }

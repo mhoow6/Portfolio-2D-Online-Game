@@ -56,8 +56,7 @@ namespace Server
 
                     if (target != null) // 적이라면?
                     {
-                        // TODO: 공격 판정
-                        target.V_Dead(); // 일단은 바로 죽게 하자.
+                        DamageCalcuator.Attack(_owner, target);
                     }
 
                     // 어찌됐든 화살을 사라지게 함

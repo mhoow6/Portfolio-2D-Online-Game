@@ -209,28 +209,17 @@ namespace Server
                     // 공격자 정보 업데이트
                     attacker.objectInfo = packet.AttackerInfo;
 
+                    // 공격자 앞의 타겟
+                    Creature target = null;
+
                     // 검증: 공격자 앞에 뭔가 있는가?
                     if (Map.IsCreatureAt(attacker.GetFrontCellPos()))
                     {
-                        // 공격자 앞의 타겟
-                        Creature target = Map.CreatureAt(attacker.GetFrontCellPos());
+                        target = Map.CreatureAt(attacker.GetFrontCellPos());
 
-                        // 체력깎기
-                        Console.WriteLine($"Object({target.objectInfo.ObjectId}) got Damaged({attacker.Damage}) by Object({attacker.objectInfo.ObjectId})");
-                        target.objectInfo.Stat.Hp -= attacker.Damage; // TODO 데미지 공식
-                        if (target.objectInfo.Stat.Hp <= 0)
+                        // 데미지 판정
+                        DamageCalcuator.Attack(attacker, target, () =>
                         {
-                            // 타겟이 죽었다고 사람들에게 알리기
-                            S_Dead deadPkt = new S_Dead();
-                            deadPkt.ObjectId = target.objectInfo.ObjectId;
-                            BroadCast(deadPkt);
-
-                            // 죽은 플레이어는 방에는 존재하지만 맵에는 존재하지 않아야 한다.
-                            Map.RemoveCreature(target.objectInfo.Position);
-
-                            // 죽은 플레이어는 리스폰 큐에 들어간다
-                            Map.AddRespawn(target);
-
                             // 공격자의 애니메이션 동기화
                             S_Sync response = new S_Sync();
                             response.ObjectInfo = attacker.objectInfo;
@@ -242,30 +231,21 @@ namespace Server
                                     p.session.Send(response);
                                 }
                             }
-                            return;
-                        }
-                        else
-                        {
-                            // 타겟이 맞았다고 사람들에게 알리기
-                            S_Attack response = new S_Attack();
-                            response.TargetInfo = target.objectInfo;
-                            response.AttackerInfo = attacker.objectInfo;
-                            response.Damage = attacker.Damage;
-                            BroadCast(response);
-                        }
+                        });
+                        return;
                     }
-                    else
+                }
+                else
+                {
+                    // 아무도 없는 데 때린거면 그냥 동기화만 해줌
+                    S_Sync response = new S_Sync();
+                    response.ObjectInfo = attacker.objectInfo;
+                    foreach (Player p in _players.Values)
                     {
-                        // 아무도 없는 데 때린거면 그냥 동기화만 해줌
-                        S_Sync response = new S_Sync();
-                        response.ObjectInfo = attacker.objectInfo;
-                        foreach (Player p in _players.Values)
+                        // 나를 제외한 존재들에게만..
+                        if (p.objectInfo.ObjectId != attacker.objectInfo.ObjectId)
                         {
-                            // 나를 제외한 존재들에게만..
-                            if (p.objectInfo.ObjectId != attacker.objectInfo.ObjectId)
-                            {
-                                p.session.Send(response);
-                            }
+                            p.session.Send(response);
                         }
                     }
                 }

@@ -65,4 +65,50 @@ namespace Server
             return null;
         }
     }
+
+    public class DamageCalcuator
+    {
+        public static void Attack(Creature attacker, Creature target, Action deadAfter = null)
+        {
+            Room room = attacker.room;
+            if (room != null)
+            {
+                // 체력깎기
+                Console.WriteLine($"Object({target.objectInfo.ObjectId}) got Damaged({attacker.Damage}) by Object({attacker.objectInfo.ObjectId})");
+                target.objectInfo.Stat.Hp -= attacker.Damage; // TODO 데미지 공식
+
+                // 체력을 깎았는데 죽어버렸으면?
+                if (target.objectInfo.Stat.Hp <= 0)
+                {
+                    // 타겟이 죽었다고 사람들에게 알리기
+                    Console.WriteLine($"Object({target.objectInfo.ObjectId}) dead by Object({attacker.objectInfo.ObjectId}) at [{DateTime.Now}]");
+                    S_Dead deadPkt = new S_Dead();
+                    deadPkt.ObjectId = target.objectInfo.ObjectId;
+                    room.Push(room.BroadCast, deadPkt);
+
+                    // 죽은 플레이어는 방에는 존재하지만 맵에는 존재하지 않아야 한다.
+                    room.Map.RemoveCreature(target.objectInfo.Position);
+
+                    // 죽은 플레이어는 리스폰 큐에 들어간다
+                    room.Map.AddRespawn(target);
+
+                    // 죽은 뒤의 콜백 함수
+                    if (deadAfter != null)
+                    {
+                        deadAfter.Invoke();
+                    }
+                }
+                else
+                {
+                    // 타겟이 맞았다고 사람들에게 알리기
+                    S_Attack response = new S_Attack();
+                    response.TargetInfo = target.objectInfo;
+                    response.AttackerInfo = attacker.objectInfo;
+                    response.Damage = attacker.Damage;
+                    room.Push(room.BroadCast, response);
+                }
+            }
+            
+        }
+    }
 }

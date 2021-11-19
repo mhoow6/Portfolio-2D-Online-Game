@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Google.Protobuf.Protocol;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,7 +11,7 @@ namespace Server
 		public static SessionManager Instance { get { return _session; } }
 
 		int _sessionId = 0;
-		Dictionary<int, ClientSession> _sessions = new Dictionary<int, ClientSession>();
+		public Dictionary<int, ClientSession> Sessions { get; private set; } = new Dictionary<int, ClientSession>();
 		object _lock = new object();
 
 		public ClientSession Generate()
@@ -21,7 +22,7 @@ namespace Server
 
 				ClientSession session = new ClientSession();
 				session.SessionId = sessionId;
-				_sessions.Add(sessionId, session);
+				Sessions.Add(sessionId, session);
 
 				Console.WriteLine($"Session Generated. (SessionId: {sessionId})");
 
@@ -34,7 +35,7 @@ namespace Server
 			lock (_lock)
 			{
 				ClientSession session = null;
-				_sessions.TryGetValue(id, out session);
+				Sessions.TryGetValue(id, out session);
 				return session;
 			}
 		}
@@ -43,7 +44,7 @@ namespace Server
 		{
 			lock (_lock)
 			{
-				_sessions.Remove(session.SessionId);
+				Sessions.Remove(session.SessionId);
 			}
 		}
 	}

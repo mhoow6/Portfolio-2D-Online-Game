@@ -207,6 +207,9 @@ namespace Server
                                 // 스폰 위치 정하기
                                 respawn.objectInfo.Position = DataManager.Instance.SpawnData.GetRandomPosition(Id);
 
+                                // HP 복구
+                                respawn.objectInfo.Stat.Hp = 100;
+
                                 // 맵에 업데이트
                                 UpdatePosition(respawn.objectInfo.Position, respawn);
 
@@ -230,7 +233,10 @@ namespace Server
             respawnCreature.creature = creature;
             respawnCreature.respawnTime = System.Environment.TickCount + tick;
 
-            Console.WriteLine($"Object({respawnCreature.creature.objectInfo.ObjectId}) will be respawn at {respawnCreature.respawnTime}");
+            DateTime cur = DateTime.Now;
+            DateTime respawnTime = cur.AddSeconds(tick / 1000);
+
+            Console.WriteLine($"Object({respawnCreature.creature.objectInfo.ObjectId}) will be respawn at [{respawnTime}]");
             Respawns.Push(respawnCreature);
         }
 

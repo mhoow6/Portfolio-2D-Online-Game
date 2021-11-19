@@ -14,13 +14,12 @@ public class MakeRoomUI : PopupUI
 
     private void Awake()
     {
-        Uid = UI.MakeRoom;
+        Uid = PopUI.MakeRoom;
     }
 
     public void GameStart()
     {
-        // TODO: 패킷 보내기
-        Manager.Network.SendCreateRoomPacket(_mapId);
+        Manager.Network.RequestCreateRoom(_mapId);
     }
 
     public void ChangeMap()

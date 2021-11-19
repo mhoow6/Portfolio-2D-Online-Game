@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum UI
+public enum PopUI
 {
     Login,
     Lobby,
@@ -42,7 +42,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void OpenPopup(UI ui)
+    public void OpenPopup(PopUI ui)
     {
         GameObject _obj = null;
 
@@ -55,17 +55,17 @@ public class UIManager : MonoBehaviour
 
         switch (ui)
         {
-            case UI.Login:
+            case PopUI.Login:
                 {
                     _obj = Resources.Load<GameObject>(ResourceLoadPath.LoginPrefab);
                 }
                 break;
-            case UI.Lobby:
+            case PopUI.Lobby:
                 {
                     _obj = Resources.Load<GameObject>(ResourceLoadPath.LobbyPrefab);
                 }
                 break;
-            case UI.MakeRoom:
+            case PopUI.MakeRoom:
                 {
                     _obj = Resources.Load<GameObject>(ResourceLoadPath.MakeRoomPrefab);
                 }
@@ -93,7 +93,6 @@ public class UIManager : MonoBehaviour
 
     public void ClosePopup()
     {
-        // TODO: UI Ç®¸µ
         if (_openPopups.Count != 0)
         {
             PopupUI lastLayer = _openPopups.Pop();
@@ -110,7 +109,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public PopupUI FindPopup(UI ui)
+    public PopupUI FindPopup(PopUI ui)
     {
         foreach (var pop in _openPopups)
         {

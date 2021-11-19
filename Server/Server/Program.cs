@@ -23,6 +23,18 @@ namespace Server
 
             _timers.Add(timer);
         }
+
+        public static void TickRoomList(int tick = 15000)
+        {
+            var timer = new System.Timers.Timer();
+            timer.Interval = tick; // 몇 틱마다 실행이 될지 설정
+            timer.Elapsed += ((s, e) => { RoomManager.Instance.RoomListUpdate(); }); // 시간이 지났으면 무엇을 실행할 것인지
+            timer.AutoReset = true; // 실행하고 자동 리셋
+            timer.Enabled = true; // timer 실행시작
+
+            _timers.Add(timer);
+        }
+
         static void Main(string[] args)
         {
             // Data Load
@@ -33,6 +45,9 @@ namespace Server
             IPHostEntry hostEntry = Dns.GetHostEntry(hostName);
             IPAddress hostIp = hostEntry.AddressList[0];
             IPEndPoint endPoint = new IPEndPoint(hostIp, 7080);
+
+            // Update Room List
+            TickRoomList();
 
             _listener.Init(endPoint, () => { return SessionManager.Instance.Generate(); });
             Console.WriteLine("-------------------------------------------------------");

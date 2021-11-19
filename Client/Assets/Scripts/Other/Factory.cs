@@ -229,7 +229,7 @@ public class StateSkill : StateStrategy
 
     public override void PlayAnimation()
     {
-        // TODO
+        
     }
 }
 
@@ -242,7 +242,7 @@ public class StateDead : StateStrategy
 
     public override void PlayAnimation()
     {
-        // TODO
+        
     }
 }
 #endregion
@@ -423,6 +423,22 @@ public class MapFactory
         }
 
         return map;
+    }
+
+    public static Sprite GetMapThumbnail(MapId mapId)
+    {
+        Sprite spr = null;
+
+        switch (mapId)
+        {
+            case MapId.Dungeon:
+                spr = Resources.Load<Sprite>(ResourceLoadPath.MapThumbnail + "/Map_Dungeon");
+                break;
+            default:
+                break;
+        }
+
+        return spr;
     }
 }
 #endregion

@@ -22,6 +22,7 @@ enum MsgId
     S_SYNC = 12;
     C_CREATE_ROOM = 13;
     S_CREATE_ROOM = 14;
+    S_SHOW_ROOM = 15;
 }
 
 enum ObjectCode
@@ -153,9 +154,10 @@ message S_CreateRoom
     RoomInfo roomInfo = 1;
 }
 
-message C_ShowRoom
+message S_ShowRoom
 {
     repeated RoomInfo rooms = 1;
+    repeated int32 deletedRooms = 2;
 }
 
 message ObjectInfo

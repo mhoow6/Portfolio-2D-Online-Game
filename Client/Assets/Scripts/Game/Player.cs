@@ -138,7 +138,7 @@ public class Player : Creature
         {
             _attackOnce = false;
             State = State.Idle;
-            Manager.Network.SendSyncPacket(ObjectInfo);
+            Manager.Network.RequestSync(ObjectInfo);
         }
         else
         {
@@ -147,11 +147,11 @@ public class Player : Creature
                 switch (Weapon)
                 {
                     case ObjectCode.Barehand:
-                        Manager.Network.SendAttackPacket(ObjectInfo);
+                        Manager.Network.RequestAttack(ObjectInfo);
                         break;
                     case ObjectCode.Bow:
-                        Manager.Network.SendSyncPacket(ObjectInfo);
-                        Manager.Network.SendSpawnPacket(new SpawnInfo() { SpawnerId = this.id, ObjectCode = (int)ObjectCode.Arrow, RoomId = ObjectInfo.RoomId });
+                        Manager.Network.RequestSync(ObjectInfo);
+                        Manager.Network.RequestSpawn(new SpawnInfo() { SpawnerId = this.id, ObjectCode = (int)ObjectCode.Arrow, RoomId = ObjectInfo.RoomId });
                         break;
                 }
 
@@ -165,14 +165,14 @@ public class Player : Creature
         if (_moveKeyPressed == false)
         {
             State = State.Idle;
-            Manager.Network.SendMovePacket(ObjectInfo); // 教农 侩档
+            Manager.Network.RequestMove(ObjectInfo); // 教农 侩档
             return;
         }
 
         if (Manager.Map.CanGo(GetFrontCellPos()))
         {
             CellPos = GetFrontCellPos();
-            Manager.Network.SendMovePacket(ObjectInfo);
+            Manager.Network.RequestMove(ObjectInfo);
         }
     }
     #endregion

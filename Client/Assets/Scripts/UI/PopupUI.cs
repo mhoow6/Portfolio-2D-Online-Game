@@ -4,5 +4,5 @@ using UnityEngine;
 
 public class PopupUI : MonoBehaviour
 {
-    public UI Uid { get; protected set; }
+    public PopUI Uid { get; protected set; }
 }

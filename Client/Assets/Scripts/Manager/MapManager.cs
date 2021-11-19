@@ -35,39 +35,46 @@ public class MapManager
 
     public void LoadMap(MapId mapId, int roomId)
     {
+        // 현재 켜져있는 UI들은 모두 방 설정에 관한 UI이니까 꺼준다.
+        UIManager.Instance.ClosePopupAll();
+
         DestroyMap();
+        Screen.SetResolution(640, 480, false);
 
         GameObject _go = MapFactory.GetMapObject(mapId);
-        GameObject go = GameObject.Instantiate<GameObject>(_go);
-        go.AddComponent<BaseScene>().SetScene(mapId, roomId);
-        go.name = "Map";
-
-        GameObject collision = Util.FindChild(go, "Tilemap_Collision", true);
-        if (collision != null)
-            collision.SetActive(false);
-
-        CurrentGrid = go.GetComponent<Grid>();
-        TextAsset txt = MapFactory.GetMapCollisionTextAsset(mapId);
-
-        using (StringReader sr = new StringReader(txt.text))
+        if (_go != null)
         {
-            MinX = int.Parse(sr.ReadLine());
-            MaxX = int.Parse(sr.ReadLine());
-            MinY = int.Parse(sr.ReadLine());
-            MaxY = int.Parse(sr.ReadLine());
+            GameObject go = GameObject.Instantiate<GameObject>(_go);
+            go.AddComponent<BaseScene>().Initalize(mapId, roomId);
+            go.name = "Map";
 
-            int xCount = MaxX - MinX + 1;
-            int yCount = MaxY - MinY + 1;
-            _collision = new bool[yCount, xCount];
-            _objects = new BaseObject[yCount, xCount];
+            GameObject collision = Util.FindChild(go, "Tilemap_Collision", true);
+            if (collision != null)
+                collision.SetActive(false);
 
-            // collision: 왼쪽 아래에서 오른쪽 위로 순회
-            for (int y = 0; y < yCount; y++)
+            CurrentGrid = go.GetComponent<Grid>();
+            TextAsset txt = MapFactory.GetMapCollisionTextAsset(mapId);
+
+            using (StringReader sr = new StringReader(txt.text))
             {
-                string line = sr.ReadLine();
-                for (int x = 0; x < xCount; x++)
+                MinX = int.Parse(sr.ReadLine());
+                MaxX = int.Parse(sr.ReadLine());
+                MinY = int.Parse(sr.ReadLine());
+                MaxY = int.Parse(sr.ReadLine());
+
+                int xCount = MaxX - MinX + 1;
+                int yCount = MaxY - MinY + 1;
+                _collision = new bool[yCount, xCount];
+                _objects = new BaseObject[yCount, xCount];
+
+                // collision: 왼쪽 아래에서 오른쪽 위로 순회
+                for (int y = 0; y < yCount; y++)
                 {
-                    _collision[y, x] = (line[x] == '1' ? true : false);
+                    string line = sr.ReadLine();
+                    for (int x = 0; x < xCount; x++)
+                    {
+                        _collision[y, x] = (line[x] == '1' ? true : false);
+                    }
                 }
             }
         }

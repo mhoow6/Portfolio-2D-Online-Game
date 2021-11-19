@@ -38,33 +38,7 @@ namespace Server
 		public override void OnConnected(EndPoint endPoint)
 		{
 			Console.WriteLine($"OnConnected : {endPoint}");
-
-            #region 게임이 시작될 때 하는 행동
-            /*// TODO: DB에서 긁어오자
-            PlayerInfo playerStat = DataManager.Instance.GetPlayerData();
-
-			// 오브젝트 기본 정보
-			me = ObjectManager.Instance.Add<Player>((ObjectCode)playerStat.code);
-			me.session = this;
-
-			// 랜덤 스폰 장소 TODO: 만든 맵에 따라 포지션 다르게
-			me.objectInfo.Position = DataManager.Instance.SpawnData.GetRandomPosition(MapId.Dungeon);
-
-			// 방 번호
-			Room room = RoomManager.Instance.Find(1);
-			me.room = room;
-			me.objectInfo.RoomId = me.room.roomId;
-
-			// 기본 상태, 이동방향
-			me.objectInfo.MoveDir = MoveDir.Up;
-			me.objectInfo.State = State.Idle;
-
-			// 게임에서 쓰일 스텟정보 초기화
-			me.objectInfo.Stat = new StatInfo() { Hp = playerStat.hp, Movespeed = playerStat.movespeed, WeaponId = playerStat.weaponId, OriginHp = playerStat.hp };
-			
-			room.Push(room.C_EnterGame, me);*/
-            #endregion
-        }
+		}
 
         public override void OnRecvPacket(ArraySegment<byte> buffer)
 		{

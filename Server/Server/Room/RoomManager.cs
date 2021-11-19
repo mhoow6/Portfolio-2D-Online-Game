@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Google.Protobuf.Protocol;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -7,8 +8,10 @@ namespace Server
     public class RoomManager : SingleTon<RoomManager>
     {
         object _lock = new object();
-        Dictionary<int, Room> _rooms = new Dictionary<int, Room>();
+        public Dictionary<int, Room> Rooms { get; private set; } =
+        new Dictionary<int, Room>(); 
         public int RoomId { get; private set; } = 1;
+        public Queue<int> DeletedRooms { get; private set; } = new Queue<int>();
 
         public Room Add(int mapId)
         {
@@ -18,7 +21,7 @@ namespace Server
             lock (_lock)
             {
                 gameRoom.roomId = RoomId;
-                _rooms.Add(RoomId, gameRoom);
+                Rooms.Add(RoomId, gameRoom);
                 RoomId++;
             }
 
@@ -29,7 +32,8 @@ namespace Server
         {
             lock (_lock)
             {
-                return _rooms.Remove(roomId);
+                DeletedRooms.Enqueue(roomId);
+                return Rooms.Remove(roomId);
             }
         }
 
@@ -38,10 +42,37 @@ namespace Server
             lock (_lock)
             {
                 Room room = null;
-                if (_rooms.TryGetValue(roomId, out room))
+                if (Rooms.TryGetValue(roomId, out room))
                     return room;
 
                 return null;
+            }
+        }
+
+        public void RoomListUpdate()
+        {
+            Console.WriteLine("-------------------------------------------------------");
+            Console.WriteLine($"Updating Room List.. ({DateTime.Now})");
+            Console.WriteLine("-------------------------------------------------------");
+            foreach (var session in SessionManager.Instance.Sessions.Values)
+            {
+                S_ShowRoom pkt = new S_ShowRoom();
+
+                // 현재 존재하는 방 리스트
+                foreach (var room in Rooms.Values)
+                {
+                    RoomInfo info = new RoomInfo();
+                    info.MapId = (int)room.Map.Id;
+                    info.RoomId = room.roomId;
+                    pkt.Rooms.Add(info);
+                }
+
+                while (DeletedRooms.Count != 0)
+                {
+                    pkt.DeletedRooms.Add(DeletedRooms.Dequeue());
+                }
+
+                session.Send(pkt);
             }
         }
     }
