@@ -394,10 +394,9 @@ public class MoveStay : MoveStrategy
 }
 #endregion
 
-#region Map Factory
 public class MapFactory
 {
-    public static GameObject GetMapObject(MapId mapId)
+    public static GameObject LoadGameObject(MapId mapId)
     {
         GameObject map = null;
 
@@ -411,7 +410,7 @@ public class MapFactory
         return map;
     }
 
-    public static TextAsset GetMapCollisionTextAsset(MapId mapId)
+    public static TextAsset GetMapCollision(MapId mapId)
     {
         TextAsset map = null;
 
@@ -441,9 +440,7 @@ public class MapFactory
         return spr;
     }
 }
-#endregion
 
-#region Object Factory
 public class ObjectFactory
 {
     public static T AddComponentToObject<T>(ObjectCode code, GameObject obj) where T : BaseObject
@@ -594,7 +591,6 @@ public class ObjectFactory
         return ObjectType.OtNone;
     }
 }
-#endregion
 
 public class ProjectileFactory
 {
@@ -635,5 +631,33 @@ public class EffectFactory
         }
 
         return null;
+    }
+}
+
+public class UIFactory
+{
+    public static GameObject LoadGameObject(UICode uid)
+    {
+        GameObject ret = null;
+        switch (uid)
+        {
+            case UICode.Login:
+                {
+                    ret = Resources.Load<GameObject>(ResourceLoadPath.LoginPrefab);
+                }
+                break;
+            case UICode.Lobby:
+                {
+                    ret = Resources.Load<GameObject>(ResourceLoadPath.LobbyPrefab);
+                }
+                break;
+            case UICode.MakeRoom:
+                {
+                    ret = Resources.Load<GameObject>(ResourceLoadPath.MakeRoomPrefab);
+                }
+                break;
+        }
+
+        return ret;
     }
 }

@@ -44,6 +44,10 @@ public class Manager : MonoBehaviour
     private void OnApplicationQuit()
     {
         if (_objectManager.Me != null)
+        {
             _network.RequestLeaveGame(_objectManager.Me.ObjectInfo);
+        }
+
+        _network.Disconnect();
     }
 }

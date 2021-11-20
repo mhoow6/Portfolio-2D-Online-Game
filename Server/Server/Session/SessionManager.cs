@@ -12,6 +12,8 @@ namespace Server
 
 		int _sessionId = 0;
 		public Dictionary<int, ClientSession> Sessions { get; private set; } = new Dictionary<int, ClientSession>();
+		public Dictionary<int, ClientSession> LobbySessions { get; private set; } = new Dictionary<int, ClientSession>();
+
 		object _lock = new object();
 
 		public ClientSession Generate()
@@ -23,6 +25,7 @@ namespace Server
 				ClientSession session = new ClientSession();
 				session.SessionId = sessionId;
 				Sessions.Add(sessionId, session);
+				LobbySessions.Add(sessionId, session);
 
 				Console.WriteLine($"Session Generated. (SessionId: {sessionId})");
 
@@ -45,7 +48,21 @@ namespace Server
 			lock (_lock)
 			{
 				Sessions.Remove(session.SessionId);
+
+				ClientSession client = null;
+				if (LobbySessions.TryGetValue(session.SessionId, out client) == true)
+                {
+					LobbySessions.Remove(client.SessionId);
+                }
 			}
 		}
+
+		public void OutLobby(ClientSession session)
+        {
+			lock (_lock)
+            {
+				LobbySessions.Remove(session.SessionId);
+			}				
+        }
 	}
 }

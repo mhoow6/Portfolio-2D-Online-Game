@@ -22,6 +22,12 @@ public class NetworkManager
         connector.Connect(_host, () => { return _session; }, 1);
     }
 
+    public void Disconnect()
+    {
+        _session.Disconnect();
+    }
+
+
     public void RequestMove(ObjectInfo objInfo)
     {
         C_Move pkt = new C_Move();

@@ -10,6 +10,8 @@ namespace Server
     public class Room : JobSerializer
     {
         public int roomId;
+        public int PlayerCount { get => _players.Count; }
+
         public Map Map { get; private set; } = new Map();
         Dictionary<int, Player> _players = new Dictionary<int, Player>();
         Dictionary<int, Projectile> _projectiles = new Dictionary<int, Projectile>();
@@ -36,6 +38,9 @@ namespace Server
         {
             PlayerInfo playerStat = DataManager.Instance.GetPlayerData();
             ClientSession client = session as ClientSession;
+
+            // 이 클라이언트는 더 이상 로비에 있지 않다.
+            SessionManager.Instance.OutLobby(client);
 
             // 오브젝트 기본 정보 초기화
             Player player = ObjectManager.Instance.Add<Player>((ObjectCode)playerStat.code);
@@ -118,6 +123,13 @@ namespace Server
             {
                 case ObjectType.OtPlayer:
                     {
+                        // 맵에서 삭제
+                        Player leaver = null;
+                        if (_players.TryGetValue(objectId, out leaver))
+                        {
+                            Map.RemoveCreature(leaver.objectInfo.Position);
+                        }
+
                         // 방에서 삭제
                         _players.Remove(objectId);
 

@@ -68,13 +68,6 @@ enum State
     DEAD = 4;
 }
 
-// Class
-message Vector2
-{
-    int32 x = 1;
-    int32 y = 2;
-}
-
 // Packet Structure Design like clas
 // ps. repeated int32 = List<int>
 message C_Spawn
@@ -191,4 +184,11 @@ message RoomInfo
 {
     int32 roomId = 1;
     int32 mapId = 2;
+    int32 players = 3;
+}
+
+message Vector2
+{
+    int32 x = 1;
+    int32 y = 2;
 }

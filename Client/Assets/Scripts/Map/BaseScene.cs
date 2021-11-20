@@ -6,15 +6,12 @@ using UnityEngine;
 
 public class BaseScene : MonoBehaviour
 {
-    MapId _mapId;
-    int _roomId;
+    public MapId MapId { get; private set; }
+    public int RoomId { get; private set; }
 
     public void Initalize(MapId mapId, int roomId)
     {
-        _mapId = mapId;
-        _roomId = roomId;
-
-        // 맵이 생겼으니 플레이어 생성 요청
-        Manager.Network.RequestEnterGame(new RoomInfo() { MapId = (int)_mapId, RoomId = _roomId });
+        MapId = mapId;
+        RoomId = roomId;
     }
 }

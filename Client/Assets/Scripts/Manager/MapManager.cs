@@ -36,24 +36,31 @@ public class MapManager
     public void LoadMap(MapId mapId, int roomId)
     {
         // 현재 켜져있는 UI들은 모두 방 설정에 관한 UI이니까 꺼준다.
-        UIManager.Instance.ClosePopupAll();
+        UIManager.Instance.CloseAll();
 
         DestroyMap();
         Screen.SetResolution(640, 480, false);
 
-        GameObject _go = MapFactory.GetMapObject(mapId);
+        GameObject _go = MapFactory.LoadGameObject(mapId);
         if (_go != null)
         {
+            #region 맵 오브젝트 생성
             GameObject go = GameObject.Instantiate<GameObject>(_go);
-            go.AddComponent<BaseScene>().Initalize(mapId, roomId);
             go.name = "Map";
+            BaseScene scene = go.AddComponent<BaseScene>();
+            scene.Initalize(mapId, roomId);
 
+            // 맵이 생겼으니 플레이어 생성 요청
+            Manager.Network.RequestEnterGame(new RoomInfo() { MapId = (int)scene.MapId, RoomId = scene.RoomId });
+            #endregion
+
+            #region 충돌영역 생성
             GameObject collision = Util.FindChild(go, "Tilemap_Collision", true);
             if (collision != null)
                 collision.SetActive(false);
 
             CurrentGrid = go.GetComponent<Grid>();
-            TextAsset txt = MapFactory.GetMapCollisionTextAsset(mapId);
+            TextAsset txt = MapFactory.GetMapCollision(mapId);
 
             using (StringReader sr = new StringReader(txt.text))
             {
@@ -77,6 +84,7 @@ public class MapManager
                     }
                 }
             }
+            #endregion
         }
     }
 
@@ -148,15 +156,28 @@ public class MapManager
         // 셀 좌표계 -> 맵을 이진수로 표현한 배열 좌표계
         Vector2Int vec = CollisionCoordinate(cellPos.x, cellPos.y);
 
-        if ((_objects[vec.y, vec.x] != null))
+        if (_objects[vec.y, vec.x] != null)
         {
-            if ((_objects[vec.y, vec.x].code != ObjectCode.Arrow))
+            if (_objects[vec.y, vec.x].code != ObjectCode.Arrow)
             {
                 return _objects[vec.y, vec.x] as Creature;
             }
         }
 
         return null;
+    }
+
+    public bool RemoveCreature(Vector3Int cellPos)
+    {
+        Vector2Int vec = CollisionCoordinate(cellPos.x, cellPos.y);
+
+        if (_objects[vec.y, vec.x] != null)
+        {
+            _objects[vec.y, vec.x] = null;
+            return true;
+        }
+
+        return false;
     }
 
     bool BoundCheck(Vector3Int cellPos)

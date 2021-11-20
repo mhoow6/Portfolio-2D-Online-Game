@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 public class ObjectManager
 {
     public Player Me { get; private set; }
-    Dictionary<int, BaseObject> objects = new Dictionary<int, BaseObject>();
+    Dictionary<int, BaseObject> _objects = new Dictionary<int, BaseObject>();
 
     public void AddMe(BaseObject obj)
     {
@@ -18,11 +18,11 @@ public class ObjectManager
     public bool Add(BaseObject obj)
     {
         BaseObject p = null;
-        if (objects.TryGetValue(obj.id, out p) == false)
+        if (_objects.TryGetValue(obj.id, out p) == false)
         {
             p = obj;
 
-            objects.Add(obj.id, p);
+            _objects.Add(obj.id, p);
             return true;
         }
 
@@ -32,8 +32,19 @@ public class ObjectManager
     public BaseObject Find(int objectId)
     {
         BaseObject obj = null;
-        if (objects.TryGetValue(objectId, out obj) == true)
+        if (_objects.TryGetValue(objectId, out obj) == true)
         {
+            return obj;
+        }
+        return null;
+    }
+
+    public BaseObject Pop(int objectId)
+    {
+        BaseObject obj = null;
+        if (_objects.TryGetValue(objectId, out obj) == true)
+        {
+            _objects.Remove(objectId);
             return obj;
         }
         return null;

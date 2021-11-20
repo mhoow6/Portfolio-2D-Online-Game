@@ -14,7 +14,7 @@ public class MakeRoomUI : PopupUI
 
     private void Awake()
     {
-        Uid = PopUI.MakeRoom;
+        Code = UICode.MakeRoom;
     }
 
     public void GameStart()

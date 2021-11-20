@@ -29,9 +29,10 @@ class PacketHandler
     {
         S_LeaveGame pkt = packet as S_LeaveGame;
 
-        BaseObject leaver = Manager.ObjectManager.Find(pkt.ObjectId);
+        BaseObject leaver = Manager.ObjectManager.Pop(pkt.ObjectId);
         if (leaver != null)
         {
+            Manager.Map.RemoveCreature(leaver.CellPos);
             leaver.V_Clear();
         }
     }
@@ -143,7 +144,7 @@ class PacketHandler
 
     public static void S_ShowRoomHandler(PacketSession session, IMessage packet)
     {
-        LobbyUI lobby = UIManager.Instance.FindPopup(PopUI.Lobby) as LobbyUI;
+        LobbyUI lobby = UIManager.Instance.Lobby;
         if (lobby != null)
         {
             lobby.ShowRoom(packet as S_ShowRoom);

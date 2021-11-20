@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LobbyUI : PopupUI
+public class LobbyUI : MonoBehaviour
 {
+    public UICode Code { get; private set; }
+
     [SerializeField]
     RectTransform _content;
     [SerializeField]
@@ -15,7 +17,8 @@ public class LobbyUI : PopupUI
 
     private void Awake()
     {
-        Uid = PopUI.Lobby;
+        Code = UICode.Lobby;
+        UIManager.Instance.Lobby = this;
     }
 
     private void Start()
@@ -27,7 +30,7 @@ public class LobbyUI : PopupUI
     // Make Room Button
     public void MakeRoom()
     {
-        UIManager.Instance.OpenPopup(PopUI.MakeRoom);
+        UIManager.Instance.OpenPopup(UICode.MakeRoom);
     }
 
     // Join Room Button
@@ -55,13 +58,17 @@ public class LobbyUI : PopupUI
                 RoomElementUI newRoom = Instantiate(_dummy);
 
                 // 방 설정 초기화
-                newRoom.SetRoom(new RoomInfo() { MapId = pkt.MapId, RoomId = pkt.RoomId });
+                newRoom.SetRoom(new RoomInfo(pkt));
 
                 newRoom.transform.SetParent(_content);
                 newRoom.gameObject.SetActive(true);
                 _rooms.Add(pkt.RoomId, newRoom);
             }
-            // 기존 방에서 갱신이 일어난거라면? -> 게임 시작 도중에 바뀌는 정보가 없으므로 "지금은" 아무것도 안 해도 괜찮음
+            else
+            {
+                // 플레이어 수 갱신
+                roomElement.SetRoom(new RoomInfo(pkt));
+            }
         }
 
         // 갱신 주기 도중에 사라진 방 처리
@@ -70,7 +77,6 @@ public class LobbyUI : PopupUI
             RoomElementUI roomElement = null;
             if (_rooms.TryGetValue(roomId, out roomElement) == true)
             {
-                // TODO: 풀링
                 Destroy(roomElement.gameObject);
                 _rooms.Remove(roomId);
             }

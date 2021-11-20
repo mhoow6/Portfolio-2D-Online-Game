@@ -12,7 +12,7 @@ public struct ResourceLoadPath
     public readonly static string LobbyPrefab = "Prefabs/UI/Lobby";
     public readonly static string MakeRoomPrefab = "Prefabs/UI/MakeRoom";
     public readonly static string MapCollisionFile = "Map/Collision";
-    public readonly static string MapThumbnail = "Textures";
+    public readonly static string MapThumbnail = "Map/Thumbnail";
 
     /*********************************************************************/
    
