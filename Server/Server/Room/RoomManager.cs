@@ -9,10 +9,11 @@ namespace Server
     {
         object _lock = new object();
         public Dictionary<int, Room> Rooms { get; private set; } =
-        new Dictionary<int, Room>(); 
-        public int RoomId { get; private set; } = 1;
+        new Dictionary<int, Room>();
         Queue<int> _deletedRooms = new Queue<int>();
 
+        public int RoomId { get; private set; } = 1;
+        
         public Room Add(int mapId)
         {
             Room gameRoom = new Room();

@@ -16,37 +16,7 @@ namespace Server
 
     public class SpawnData : ILoader
     {
-        List<SpawnPosInfo> DungeonSpawnPosition = new List<SpawnPosInfo>();
-        public List<SpawnPosInfo> DungeonPlayerSpawnPosition
-        {
-            get
-            {
-                List<SpawnPosInfo> list = new List<SpawnPosInfo>();
-
-                foreach (var item in DungeonSpawnPosition)
-                {
-                    if (ObjectType.OtPlayer == item.type)
-                        list.Add(item);
-                }
-
-                return list;
-            }
-        }
-        public List<SpawnPosInfo> DungeonMonsterSpawnPosition
-        {
-            get
-            {
-                List<SpawnPosInfo> list = new List<SpawnPosInfo>();
-
-                foreach (var item in DungeonSpawnPosition)
-                {
-                    if (ObjectType.OtMonster == item.type)
-                        list.Add(item);
-                }
-
-                return list;
-            }
-        }
+        public DungeonSpawnData DungeonSpawnData { get; private set; }
 
         public SpawnData()
         {
@@ -54,6 +24,40 @@ namespace Server
         }
 
         public void LoadData()
+        {
+            DungeonSpawnData = new DungeonSpawnData();
+        }
+
+        public Vector2 GetRandomPosition(MapId mapId)
+        {
+            switch (mapId)
+            {
+                case MapId.Dungeon:
+                    {
+                        // 랜덤 스폰 장소
+                        Random rnd = new Random(System.Environment.TickCount);
+                        int rndIndex = -1;
+                        SpawnPosInfo pos = SpawnPosInfo.Zero;
+                        rndIndex = rnd.Next(0, DungeonSpawnData.DungeonPlayerSpawnPosition.Count - 1);
+                        pos = DungeonSpawnData.DungeonPlayerSpawnPosition[rndIndex];
+                        Vector2 position = new Vector2();
+                        position.X = pos.x;
+                        position.Y = pos.y;
+                        return position;
+                    }
+            }
+
+            return null;
+        }
+    }
+
+    public class DungeonSpawnData
+    {
+        List<SpawnPosInfo> DungeonSpawnPosition = new List<SpawnPosInfo>();
+        public List<SpawnPosInfo> DungeonPlayerSpawnPosition { get; private set; } = new List<SpawnPosInfo>();
+        public List<SpawnPosInfo> DungeonAoniSpawnPosition { get; private set; } = new List<SpawnPosInfo>();
+
+        public DungeonSpawnData()
         {
             List<string> text = Util.GetLinesFromTableFileStream(ResourcePath.DungeonSpawnPosition);
 
@@ -67,30 +71,19 @@ namespace Server
                 info.x = int.Parse(datas[1]);
                 info.y = int.Parse(datas[2]);
 
+                switch (info.type)
+                {
+                    case ObjectType.OtPlayer:
+                        DungeonPlayerSpawnPosition.Add(info);
+                        break;
+                    case ObjectType.OtMonster:
+                        DungeonAoniSpawnPosition.Add(info);
+                        break;
+                }
                 DungeonSpawnPosition.Add(info);
             }
-        }
 
-        public Vector2 GetRandomPosition(MapId mapId)
-        {
-            switch (mapId)
-            {
-                case MapId.Dungeon:
-                    {
-                        // 랜덤 스폰 장소
-                        Random rnd = new Random(System.Environment.TickCount);
-                        int rndIndex = -1;
-                        SpawnPosInfo pos = SpawnPosInfo.Zero;
-                        rndIndex = rnd.Next(0, DataManager.Instance.SpawnData.DungeonPlayerSpawnPosition.Count - 1);
-                        pos = DataManager.Instance.SpawnData.DungeonPlayerSpawnPosition[rndIndex];
-                        Vector2 position = new Vector2();
-                        position.X = pos.x;
-                        position.Y = pos.y;
-                        return position;
-                    }
-            }
 
-            return null;
         }
     }
 }

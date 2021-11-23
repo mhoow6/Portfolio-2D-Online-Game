@@ -44,9 +44,7 @@ namespace Server
                 {
                     objectInfo.Position = destPos; // 다음 Update에서 이동하자!
 
-                    S_Move movePkt = new S_Move();
-                    movePkt.Objects.Add(objectInfo);
-                    _owner.room.BroadCast(movePkt);
+                    SendMovePacket(_owner.room);
 
                     Console.WriteLine($"Arrow is moving to ({destPos.X},{destPos.Y})");
                 }
@@ -56,7 +54,7 @@ namespace Server
 
                     if (target != null) // 적이라면?
                     {
-                        DamageCalcuator.Attack(_owner, target);
+                        AttackHelper.Attack(_owner, target);
                     }
 
                     // 어찌됐든 화살을 사라지게 함

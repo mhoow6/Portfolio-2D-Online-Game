@@ -57,11 +57,11 @@ namespace Server
             return ret;
         }
 
-        public static Vector2 Minus(Vector2 lhs, Vector2 rhs)
+        public static Vector2 Minus(Vector2 dest, Vector2 start)
         {
             Vector2 ret = new Vector2();
-            ret.X = lhs.X - rhs.X;
-            ret.Y = lhs.Y - rhs.Y;
+            ret.X = dest.X - start.X;
+            ret.Y = dest.Y - start.Y;
             return ret;
         }
 
@@ -70,6 +70,15 @@ namespace Server
             float ret = 0.0f;
 
             ret = MathF.Sqrt(MathF.Pow(vec.X, 2) + MathF.Pow(vec.Y, 2));
+
+            return ret;
+        }
+
+        public static float PowMagnitude(Vector2 vec)
+        {
+            float ret = 0.0f;
+
+            ret = MathF.Pow(vec.X, 2) + MathF.Pow(vec.Y, 2);
 
             return ret;
         }

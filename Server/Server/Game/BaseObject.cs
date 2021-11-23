@@ -49,6 +49,13 @@ namespace Server
             return cellPos;
         }
 
+        protected void SendMovePacket(Room here)
+        {
+            S_Move movePkt = new S_Move();
+            movePkt.Objects.Add(objectInfo);
+            here.BroadCast(movePkt);
+        }
+
         #region virtual
 
         public virtual void V_UpdateObject()

@@ -8,7 +8,6 @@ namespace Server
     public class WeaponInfo
     {
         public int id;
-        public int type;
         public string name;
         public int damage;
     }
@@ -41,9 +40,8 @@ namespace Server
 
                     WeaponInfo weaponInfo = new WeaponInfo();
                     weaponInfo.id = int.Parse(split[0]);
-                    weaponInfo.type = int.Parse(split[1]);
-                    weaponInfo.name = split[2];
-                    weaponInfo.damage = int.Parse(split[3]);
+                    weaponInfo.name = split[1];
+                    weaponInfo.damage = int.Parse(split[2]);
 
                     WeaponInfoMap.Add(weaponInfo.id, weaponInfo);
                 }

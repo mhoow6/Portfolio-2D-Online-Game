@@ -29,7 +29,10 @@ public class Creature : BaseObject
         deadEffect.transform.position = transform.position; // 게임 속에서의 위치 갱신
         deadEffect.CellPos = CellPos; // 서버로 넘겨줄 2차원 배열에서의 위치 갱신
 
-        HpBar.Clear();
+        if (HpBar != null)
+        {
+            HpBar.Clear();
+        }
 
         gameObject.SetActive(false);
     }

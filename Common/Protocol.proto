@@ -30,6 +30,7 @@ enum ObjectCode
     Unvaild = 0;
 	ZeldaArcher = 1;
     ZeldaMonster = 11;
+    Aoni = 12;
     Arrow = 21;
     DeadEffect = 31;
     Barehand = 101;

@@ -63,8 +63,6 @@ namespace Server
             {
                 case MapId.Dungeon:
                     fileName = ResourcePath.DungeonCollision;
-
-                    // TODO: 몬스터 2마리 정도가 입구에서 대기
                     break;
             }
 
@@ -94,6 +92,41 @@ namespace Server
                 }
             }
             
+        }
+
+        public Dictionary<int, Aoni> LoadAoni(MapId mapId, Room aoniRoom)
+        {
+            Dictionary<int, Aoni> ret = new Dictionary<int, Aoni>();
+            switch (mapId)
+            {
+                case MapId.Dungeon:
+                    foreach (var spawnpos in DataManager.Instance.SpawnData.DungeonSpawnData.DungeonAoniSpawnPosition)
+                    {
+                        // 아오오니 생성
+                        Aoni aoni = ObjectManager.Instance.Add<Aoni>(ObjectCode.Aoni);
+                        aoni.room = aoniRoom;
+
+                        // 아오오니 스텟
+                        aoni.objectInfo.Stat = MonsterFactory.GetAoniInfo();
+                        aoni.objectInfo.MoveDir = MoveDir.Down;
+                        aoni.objectInfo.State = State.Idle;
+
+                        // 스폰 위치
+                        Vector2 aoniPos = new Vector2();
+                        aoniPos.X = spawnpos.x;
+                        aoniPos.Y = spawnpos.y;
+                        aoni.objectInfo.Position = aoniPos;
+
+                        // 맵에 업데이트
+                        UpdatePosition(aoniPos, aoni);
+
+                        // 반환값에 추가
+                        ret.Add(aoni.objectInfo.ObjectId, aoni);
+                    }
+                    return ret;
+            }
+
+            return null;
         }
 
         public void UpdatePosition(Vector2 next, Creature obj)
@@ -190,6 +223,16 @@ namespace Server
             return false;
         }
 
+        bool BoundCheck(Vector2 cellPos)
+        {
+            if (cellPos.X < MinX || cellPos.X > MaxX)
+                return false;
+            if (cellPos.Y < MinY || cellPos.Y > MaxY)
+                return false;
+
+            return true;
+        }
+
         public void RespawnUpdate()
         {
             if (Respawns.Peek() != null)
@@ -238,16 +281,15 @@ namespace Server
 
             Console.WriteLine($"Object({respawnCreature.creature.objectInfo.ObjectId}) will be respawn at [{respawnTime}]");
             Respawns.Push(respawnCreature);
-        }
+        } 
 
-        bool BoundCheck(Vector2 cellPos)
+        public List<Vector2> FindPath(Vector2 startPos, Vector2 destPos, bool ignoreObject = true)
         {
-            if (cellPos.X < MinX || cellPos.X > MaxX)
-                return false;
-            if (cellPos.Y < MinY || cellPos.Y > MaxY)
-                return false;
+            List<Vector2> path = new List<Vector2>();
 
-            return true;
+
+
+            return path;
         }
     }
 }

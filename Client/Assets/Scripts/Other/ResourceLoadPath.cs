@@ -13,9 +13,10 @@ public struct ResourceLoadPath
     public readonly static string MakeRoomPrefab = "Prefabs/UI/MakeRoom";
     public readonly static string MapCollisionFile = "Map/Collision";
     public readonly static string MapThumbnail = "Map/Thumbnail";
+    public readonly static string AoniPrefab = "Prefabs/Aoni";
 
     /*********************************************************************/
-   
+
 }
 
 public struct FilePath

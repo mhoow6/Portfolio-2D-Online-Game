@@ -1,4 +1,5 @@
 ﻿using Google.Protobuf.Protocol;
+using SimpleJSON;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -66,7 +67,28 @@ namespace Server
         }
     }
 
-    public class DamageCalcuator
+    public class MonsterFactory
+    {
+        public static StatInfo GetAoniInfo()
+        {
+            string txt = Util.GetLinesWithFileStream(ResourcePath.PlayerData);
+            if (txt != null)
+            {
+                JSONNode root = JSON.Parse(txt);
+                JSONNode stat = root["Stat"];
+
+                StatInfo aoniStat = new StatInfo();
+                aoniStat.Hp = int.Parse(stat["hp"]);
+                aoniStat.Movespeed = int.Parse(stat["movespeed"]);
+                aoniStat.OriginHp = aoniStat.Hp;
+                aoniStat.WeaponId = int.Parse(stat["weaponId"]);
+                return aoniStat;
+            }
+            return null;
+        }
+    }
+
+    public class AttackHelper
     {
         public static void Attack(Creature attacker, Creature target, Action deadAfter = null)
         {

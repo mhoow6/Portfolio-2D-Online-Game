@@ -460,10 +460,9 @@ public class ObjectFactory
                 }
                 break;
             case ObjectType.OtMonster:
-                if (obj.GetComponent<Monster>() == null)
+                if (obj.GetComponent<Creature>() == null)
                 {
-                    ret = obj.AddComponent<Monster>() as T;
-                    obj.name = "Monster";
+                    ret = MonsterFactory.AddComponent(code, obj) as T;
                     return ret;
                 }
                 break;
@@ -518,11 +517,10 @@ public class ObjectFactory
                 }
                 break;
             case ObjectType.OtMonster:
-                if (obj.GetComponent<Monster>() == null)
+                if (obj.GetComponent<Creature>() == null)
                 {
-                    ret = obj.AddComponent<Monster>() as T;
+                    ret = MonsterFactory.AddComponent((ObjectCode)objInfo.ObjectCode, obj) as T;
                     ret.ObjectInfo = objInfo;
-                    obj.name = "Monster";
                     return ret;
                 }
                 break;
@@ -563,6 +561,9 @@ public class ObjectFactory
                 break;
             case ObjectCode.Arrow:
                 go = Resources.Load<GameObject>(ResourceLoadPath.ArrowPrefab);
+                break;
+            case ObjectCode.Aoni:
+                go = Resources.Load<GameObject>(ResourceLoadPath.AoniPrefab);
                 break;
         }
 
@@ -627,6 +628,26 @@ public class EffectFactory
                     DeadEffect deffect = obj.AddComponent<DeadEffect>();
                     deffect.name = "DeadEffect";
                     return deffect;
+                }
+        }
+
+        return null;
+    }
+}
+
+public class MonsterFactory
+{
+    public static Creature AddComponent(ObjectCode code, GameObject obj)
+    {
+        switch (code)
+        {
+            case ObjectCode.ZeldaMonster:
+                break;
+            case ObjectCode.Aoni:
+                {
+                    Aoni aoni = obj.AddComponent<Aoni>();
+                    aoni.name = "Aoni";
+                    return aoni;
                 }
         }
 

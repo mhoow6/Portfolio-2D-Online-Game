@@ -15,15 +15,22 @@ namespace Server
         public Map Map { get; private set; } = new Map();
         Dictionary<int, Player> _players = new Dictionary<int, Player>();
         Dictionary<int, Projectile> _projectiles = new Dictionary<int, Projectile>();
+        Dictionary<int, Aoni> _aonis = new Dictionary<int, Aoni>();
 
         public void Make(int mapId)
         {
             Map.LoadMap((MapId)mapId);
+            _aonis = Map.LoadAoni(Map.Id, this);
         }
 
         public void Update()
         {
             Map.RespawnUpdate();
+
+            foreach (Aoni aoni in _aonis.Values)
+            {
+                aoni.V_UpdateObject();
+            }
 
             foreach (Projectile proj in _projectiles.Values)
             {
@@ -34,6 +41,34 @@ namespace Server
             Flush();
         }
 
+        public Player FindNearestPlayer(int searchRange, Vector2 pivotPos)
+        {
+            Player nearest = null;
+            float minDistance = float.MaxValue;
+
+            foreach (Player p in _players.Values)
+            {
+                Vector2 dis = Vector2Helper.Minus(p.objectInfo.Position, pivotPos);
+                float distance = Vector2Helper.PowMagnitude(dis);
+
+                if (distance < MathF.Pow(searchRange, 2)) // 제곱근 연산 방지
+                {
+                    if (minDistance > distance)
+                    {
+                        minDistance = distance;
+                        nearest = p;
+                    }
+                }
+                else
+                {
+                    continue;
+                }
+            }
+
+            return nearest;
+        }
+
+        #region 패킷
         public void C_EnterGame(C_EnterGame packet, PacketSession session)
         {
             PlayerInfo playerStat = DataManager.Instance.GetPlayerData();
@@ -81,9 +116,11 @@ namespace Server
 
             /*******************************************************************/
 
-            // 현재 방에 있는 플레이어들의 정보를 내가 알아야 한다
+            // 현재 방에 있는 정보를 내가 알아야 한다
             {
                 S_Spawn spawnPacket = new S_Spawn();
+                
+                // 플레이어들
                 foreach (Player p in _players.Values)
                 {
                     if (player != p)
@@ -91,6 +128,13 @@ namespace Server
                         spawnPacket.Objects.Add(p.objectInfo);
                     }
                 }
+
+                // 몬스터들
+                foreach (Aoni aoni in _aonis.Values)
+                {
+                    spawnPacket.Objects.Add(aoni.objectInfo);
+                }
+
                 player.session.Send(spawnPacket);
             }
 
@@ -230,7 +274,7 @@ namespace Server
                         target = Map.CreatureAt(attacker.GetFrontCellPos());
 
                         // 데미지 판정
-                        DamageCalcuator.Attack(attacker, target, () =>
+                        AttackHelper.Attack(attacker, target, () =>
                         {
                             // 공격자의 애니메이션 동기화
                             S_Sync response = new S_Sync();
@@ -377,5 +421,6 @@ namespace Server
                 player.session.Send(packet);
             }
         }
+        #endregion
     }
 }
