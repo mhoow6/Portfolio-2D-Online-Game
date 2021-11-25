@@ -10,7 +10,7 @@ public class BaseObject : MonoBehaviour
 {
     public ObjectInfo ObjectInfo { get; set; } = new ObjectInfo() { Stat = new StatInfo()};
 
-    public Google.Protobuf.Protocol.ObjectCode code { get => (Google.Protobuf.Protocol.ObjectCode)ObjectInfo.ObjectCode; set { ObjectInfo.ObjectCode = (int)value; } }
+    public ObjectCode code { get => (Google.Protobuf.Protocol.ObjectCode)ObjectInfo.ObjectCode; set { ObjectInfo.ObjectCode = (int)value; } }
     public int id { get => ObjectInfo.ObjectId; set { ObjectInfo.ObjectId = value; } }
     public int roomId { get => ObjectInfo.RoomId; set { ObjectInfo.RoomId = value; } }
 

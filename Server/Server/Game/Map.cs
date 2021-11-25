@@ -2,6 +2,7 @@
 using ServerCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 
@@ -100,7 +101,11 @@ namespace Server
             switch (mapId)
             {
                 case MapId.Dungeon:
-                    foreach (var spawnpos in DataManager.Instance.SpawnData.DungeonSpawnData.DungeonAoniSpawnPosition)
+                    // TEMP: 아오오니 1명만 배치
+                    var temp = DataManager.Instance.SpawnData.DungeonSpawnData.DungeonAoniSpawnPosition;
+                    temp.RemoveAt(1);
+
+                    foreach (var spawnpos in temp)
                     {
                         // 아오오니 생성
                         Aoni aoni = ObjectManager.Instance.Add<Aoni>(ObjectCode.Aoni);
@@ -174,6 +179,30 @@ namespace Server
             if (_objects[vec.Y, vec.X] != null)
             {
                 return false;
+            }
+
+            return true;
+        }
+
+        public bool CanGo(Vector2 cellPos, bool ignoreObject = true)
+        {
+            if (BoundCheck(cellPos) == false)
+                return false;
+
+            // 셀 좌표계 -> 맵을 이진수로 표현한 배열 좌표계
+            Vector2 vec = CollisionCoordinate(cellPos.X, cellPos.Y);
+
+            if (_collision[vec.Y, vec.X] == true)
+            {
+                return false;
+            }
+
+            if (ignoreObject == false)
+            {
+                if (_objects[vec.Y, vec.X] != null)
+                {
+                    return false;
+                }
             }
 
             return true;
@@ -283,13 +312,123 @@ namespace Server
             Respawns.Push(respawnCreature);
         } 
 
+        // A*
         public List<Vector2> FindPath(Vector2 startPos, Vector2 destPos, bool ignoreObject = true)
         {
+            // 최종적으로 생성할 길
             List<Vector2> path = new List<Vector2>();
+            // 비교 평가를 위한 딕셔너리
+            Dictionary<Vector2, AstarCapsule> openMap = new Dictionary<Vector2, AstarCapsule>();
+            // 평가할 노드 큐
+            PriorityQueue<AstarCapsule> openQueue = new PriorityQueue<AstarCapsule>();
+            // 해당 좌표가 어느 좌표로부터 왔는지
+            Vector2[,] whereIcome = new Vector2[XLength, YLength];
 
+            // 1. 시작 지점은 이미 다녀온 길
+            openMap.Add(startPos, new AstarCapsule() { X = startPos.X, Y = startPos.Y, G = 0, H = 0});
+            openQueue.Push(openMap[startPos]);
+            
+            // 2. Astar 시작
+            int[] yCheck = new int[4] { -1, 0, 1, 0 }; // UP LEFT DOWN RIGHT
+            int[] xCheck = new int[4] { 0, -1, 0, 1 };
+            int[] cost = new int[4] { 1, 1, 1, 1 };
+            while (openQueue.Count != 0)
+            {
+                // F값; 목적지까지 거리가 낮은 후보 추출
+                AstarCapsule node = openQueue.Pop();
+                // 2-1. 갈 수 있는 길 4 방향 검사
+                for (int i = 0; i < 4; i++)
+                {
+                    Vector2 target = new Vector2() { X = node.X + xCheck[i], Y = node.Y + yCheck[i] };
+                    // 2-1-1. 해당 방향으로 갈 수 있다면?
+                    if (CanGo(target, ignoreObject))
+                    {
+                        AstarCapsule capsule = null;
+                        // 최초 방문지역이라면?
+                        if (openMap.TryGetValue(target, out capsule) == false)
+                        {
+                            capsule = new AstarCapsule();
+                            capsule.X = target.X;
+                            capsule.Y = target.Y;
+                            capsule.G = node.G + cost[i];
+                            capsule.H = Heuristics(target, destPos);
+                            // 데이터 추가
+                            openMap.Add(target, capsule);
+                            openQueue.Push(capsule);
+                            Vector2 collisionCoordinate = CollisionCoordinate(target.X, target.Y);
+                            whereIcome[collisionCoordinate.X, collisionCoordinate.Y] = new Vector2() { X = node.X, Y = node.Y };
+                        }
+                        // 이미 방문했다면 지금 내가 있는 위치와 거리(F)를 비교해본다
+                        else
+                        {
+                            AstarCapsule candidate = new AstarCapsule();
+                            candidate.X = target.X;
+                            candidate.Y = target.Y;
+                            candidate.G = node.G + cost[i];
+                            candidate.H = Heuristics(target, destPos);
+                            // 지금 내가 있는 위치가 더 목적지에 가깝다면 교체
+                            if (candidate.F < capsule.F)
+                            {
+                                // 데이터 추가
+                                openMap[target] = candidate;
+                                openQueue.Push(candidate);
+                                Vector2 collisionCoordinate = CollisionCoordinate(target.X, target.Y);
+                                whereIcome[collisionCoordinate.X, collisionCoordinate.Y] = new Vector2() { X = node.X, Y = node.Y };
+                            }
+                        }
+                    }
+                }
+            }
 
+            // 3. 길 만들기
+            {
+                Vector2 collisionCoordinate = CollisionCoordinate(destPos.X, destPos.Y);
+                Vector2 parent = whereIcome[collisionCoordinate.X, collisionCoordinate.Y];
+                while (parent != null)
+                {
+                    path.Add(parent);
+                    Vector2 coord = CollisionCoordinate(parent.X, parent.Y);
+                    parent = whereIcome[coord.X, coord.Y];
+                }
+            }
+
+            // 4. 길 뒤집기
+            path.Reverse();
+            path.RemoveAt(0); // 자신의 위치 제외
 
             return path;
         }
+
+        int Heuristics(Vector2 startPos, Vector2 destPos)
+        {
+            int result = -1;
+
+            int xHeuristic = destPos.X - startPos.X;
+            int xAbs = xHeuristic > 0 ? xHeuristic : -xHeuristic;
+
+            int yHeuristic = destPos.Y - startPos.Y;
+            int yAbs = yHeuristic > 0 ? yHeuristic : -yHeuristic;
+
+            result = xAbs + yAbs;
+
+            return result;
+        }
+    }
+}
+
+class AstarCapsule : IComparable<AstarCapsule>
+{
+    public int F { get => G + H; }
+    public int G;
+    public int H;
+    public int X;
+    public int Y;
+
+    public int CompareTo([AllowNull] AstarCapsule other)
+    {
+        if (F == other.F)
+            return 0;
+
+        return F < other.F ? 1 : -1;
     }
 }

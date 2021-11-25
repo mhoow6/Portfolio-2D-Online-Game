@@ -18,6 +18,7 @@ public class Aoni : Creature
     private void Update()
     {
         V_UpdateObject();
+        Debug.Log($"{State}");
     }
 
     protected override void V_UpdateIdle()

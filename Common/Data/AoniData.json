@@ -1,7 +1,7 @@
 {
 	"Stat" : {
 		"hp" : 999,
-		"movespeed" : 8,
+		"movespeed" : 3,
 		"code" : 12,
 		"weaponId" : 103
 	}
